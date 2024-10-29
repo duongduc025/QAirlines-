@@ -11,3 +11,4 @@ nvm use v22.10.0
 yarn  
 yarn dev  
 
+Ready :3
