@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { RiLinkedinFill } from 'react-icons/ri';
 import { useEffect, useRef } from 'react';
+import Logo from '../../assets/image/qairlines_logo.png';
 
 import {
   AiFillYoutube,
@@ -48,17 +49,10 @@ const quickLinks01 = [
 
 const quickLinks02 = [
   {
-    path: '/expert ',
-    display: 'Find a Expert',
+    path: '/flights ',
+    display: 'Find a flight',
   },
-  {
-    path: '/',
-    display: 'Request an Appointment',
-  },
-  {
-    path: '/',
-    display: 'Find a Location',
-  },
+  
   {
     path: '/',
     display: 'Get a Opinion',
@@ -87,11 +81,11 @@ const Footer = () => {
               
             <div className="flex items-center gap-2"> 
                 <img width={30} src={Logo} alt="Law Connect Logo" />
-                <h4 style = {{marginLeft: '4px', fontWeight: 'bold', fontSize: '22px' }}>Law Connect</h4>
+                <h4 style = {{marginLeft: '4px', fontWeight: 'bold', fontSize: '22px' }}>QAirlines</h4>
               </div>
               
               <p className="text-[16px] leading-7 font-[400] text-textColor mt-4">
-                Copyright © {year} developed by Group 1 all right reserved.
+                Copyright © {year} developed by Group 5 all right reserved.
               </p>
               <div className="flex items-center gap-3 mt-4">
                 {socialLinks.map((link, index) => (
