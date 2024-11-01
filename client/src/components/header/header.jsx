@@ -20,6 +20,10 @@ const guessNavLinks = [
   {
     path: 'Contact',
     display: 'Contact',
+  },
+  {
+    path: '/login',  // Thêm đường dẫn đến trang đăng ký
+    display: 'Login', // Tên hiển thị
   }
 
 ]
@@ -114,14 +118,16 @@ const Header = () => {
                   </figure>
                 </div>
               </div>
-            ) /*: (
-              <Link to='/login'>
-                <button
-                  className='bg-primaryColor py-2 px-6 text-white font-[600] h-[44px] flex items-center justify-center rounded-[50px]'>
-                  Login
-                </button>
-              </Link>
-            )*/
+            ) 
+            
+            // (
+            //   <Link to='/login'>
+            //     <button
+            //       className='bg-primaryColor py-2 px-6 text-white font-[600] h-[44px] flex items-center justify-center rounded-[50px]'>
+            //       Login
+            //     </button>
+            //   </Link>
+            // )
             }
           </div>
         </div>

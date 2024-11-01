@@ -5,5 +5,10 @@
   "main": "src/server.js",
   "author": "hdd",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.8.0"
+  }
 }
