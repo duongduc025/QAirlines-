@@ -7,7 +7,7 @@ import { LogOut, User2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Navbar = () => {
-    const user = false;
+    const user = true;
     return (
         <>
         <div className='bg-white'>
@@ -38,10 +38,10 @@ const Navbar = () => {
                             </PopoverTrigger>
                             <PopoverContent className = "w-25">
                             <div className='flex w-fit items-center gap-2 cursor-pointer'>
-                            <User2 /> <Button variant="link">View Profile</Button>
+                            <User2 className ='text-[#DAA520]' /> <Button variant="link">View Profile</Button>
                             </div>
                             <div className='flex w-fit items-center gap-2 cursor-pointer'>
-                            <LogOut/>
+                            <LogOut className = 'text-[#DAA520]'/>
                             <Button variant="link">Logout</Button>
                             </div>
                             </PopoverContent>

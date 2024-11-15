@@ -4,9 +4,12 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import Navbar from './components/shared/Navbar'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Home from './components/Home'
+import Home from './components/Home/Home'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
+import Promotion from './components/promotion/promotion'
+import Flightpage from './components/Booking/Flightpage'
+import MyBookingpage from './components/MyBooking/MyBookingpage'
 const appRouter = createBrowserRouter([
   {
     path: '/',
@@ -20,6 +23,18 @@ const appRouter = createBrowserRouter([
     path: '/register',
     element: <Register />
   },
+  {
+    path: '/promotion',
+    element: <Promotion />
+  },
+  {
+  path: '/flight',
+  element: <Flightpage />
+  },
+  {
+  path: '/mybookings',
+  element: <MyBookingpage />
+  }
 ])
 
 function App() {
