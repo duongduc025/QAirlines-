@@ -12,6 +12,10 @@ import Flightpage from './components/Booking/Flightpage'
 import MyBookingpage from './components/MyBooking/MyBookingpage'
 const appRouter = createBrowserRouter([
   {
+    path: '/home',
+    element: <Home />
+  },
+  {
     path: '/',
     element: <Home />
   },

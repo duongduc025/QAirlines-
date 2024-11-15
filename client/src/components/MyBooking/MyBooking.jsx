@@ -121,7 +121,7 @@ const MyBooking = () => {
                   </CardTitle>
                   <Badge 
                     variant={booking.status === 'Confirmed' ? 'default' : 'secondary'}
-                    className={booking.status === 'Confirmed' ? 'bg-green-500' : 'bg-yellow-500'}
+                    className={booking.status === 'Confirmed' ? 'bg-[#008080]' : 'bg-yellow-500'}
                   >
                     {booking.status}
                   </Badge>
@@ -157,7 +157,7 @@ const MyBooking = () => {
                   <Button 
                     variant="destructive" 
                     onClick={() => setSelectedBooking(booking)}
-                    className="bg-red-500 hover:bg-red-600"
+                    className="bg-[#008080] hover:bg-red-600"
                   >
                     Cancel Booking
                   </Button>

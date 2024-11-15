@@ -4,10 +4,38 @@ import { Button } from '../ui/button'
 import { Avatar, AvatarImage } from '../ui/avatar'
 import logo from '../../assets/image/qairline_logo.png'
 import { LogOut, User2 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom';
+ 
+
+let navLinks = []
+let account = []
+
+const guessNavLinks = [
+    {
+    path: '/home',
+    display: 'Trang chủ',
+    },
+    {
+    path: '/promotion',
+    display: 'Ưu đãi',
+    },
+    {
+    path: '/flight',
+    display: 'Tìm chuyến bay',
+    },
+    {
+    path: '/mybookings',
+    display: 'Chuyến bay của tôi',
+    },
+  
+]
+
+
+
 
 const Navbar = () => {
-    const user = true;
+    const user = false;
+    navLinks = [...guessNavLinks];
     return (
         <>
         <div className='bg-white'>
@@ -18,10 +46,20 @@ const Navbar = () => {
                 </div>
                 <div className='flex items-center gap-12'>
                   <ul className='flex font-medium items-center gap-5'>
-                    <li>Home</li>
-                    <li>Notification</li>
-                    <li>Book a flight</li>
-                    <li>My Booking</li>
+                  {navLinks.map((link, index) => (
+                <li key={index}>
+                  <NavLink
+                    to={link.path}
+                    className={(navClass) =>
+                      navClass.isActive
+                        ? 'text-primaryColor text-[16px] leading-7 font-[600]'
+                        : 'text-textColor text-[16px] leading-7 font-[500] hover:text-primaryColor'
+                    }
+                  >
+                    {link.display}
+                  </NavLink>
+                </li>
+              ))}
                     </ul>
                 { 
                 !user ? (
