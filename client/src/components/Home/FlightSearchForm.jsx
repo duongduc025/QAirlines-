@@ -53,7 +53,7 @@ const FlightSearchForm = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="relative">
-              <label className="block text-[#008080] font-medium mb-2">Điểm đi</label>
+              <label className="block text-[#008080] font-medium mb-2">Điểm khởi hàng</label>
               <div className="relative">
                 <Plane className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#DAA520]" />
                 <input

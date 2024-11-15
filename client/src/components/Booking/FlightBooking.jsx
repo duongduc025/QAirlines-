@@ -71,18 +71,18 @@ const FlightBooking = () => {
             className="flex space-x-4"
             onValueChange={setTripType}
           >
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 text-[#008080]">
               <RadioGroupItem value="oneWay" id="oneWay" />
               <Label htmlFor="oneWay">Một chiều</Label>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 text-[#008080]">
               <RadioGroupItem value="roundTrip" id="roundTrip" />
               <Label htmlFor="roundTrip">Khứ hồi</Label>
             </div>
           </RadioGroup>
 
           {/* Origin & Destination */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[#008080]">
             <div className="relative">
               <Label htmlFor="origin">Điểm đi</Label>
               <Input
@@ -113,7 +113,7 @@ const FlightBooking = () => {
               )}
             </div>
 
-            <div className="relative">
+            <div className="relative text-[#008080]">
               <Label htmlFor="destination">Điểm đến</Label>
               <Input
                 id="destination"
@@ -145,16 +145,16 @@ const FlightBooking = () => {
           </div>
 
           {/* Date Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
             <div>
-              <Label>Ngày đi</Label>
+              <Label className ="text-[#008080]">Ngày đi</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className="w-full justify-start text-left font-normal border-[#DAA520]"
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className="mr-2 h-4 w-4 text-[#DAA520]" />
                     {departDate ? format(departDate, 'dd/MM/yyyy') : 'Chọn ngày đi'}
                   </Button>
                 </PopoverTrigger>
@@ -171,14 +171,14 @@ const FlightBooking = () => {
 
             {tripType === 'roundTrip' && (
               <div>
-                <Label>Ngày về</Label>
+                <Label className= "text-[#008080]">Ngày về</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className="w-full justify-start text-left font-normal border-[#DAA520]"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="mr-2 h-4 w-4 text-[#DAA520]" />
                       {returnDate ? format(returnDate, 'dd/MM/yyyy') : 'Chọn ngày về'}
                     </Button>
                   </PopoverTrigger>
@@ -200,7 +200,7 @@ const FlightBooking = () => {
 
           {/* Passengers Selection */}
           <div>
-            <Label htmlFor="passengers">Số hành khách</Label>
+            <Label htmlFor="passengers" className ="text-[#008080]">Số hành khách</Label>
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
