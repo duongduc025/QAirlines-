@@ -23,12 +23,16 @@ const Login = () => {
 
     const SubmitHandler = async (e) => {
         e.preventDefault();
+        if (!input.email || !input.password) {
+            toast.error("Please fill in all fields.");
+            return;
+        }
         try {
             const response = await axios.post('http://localhost:3001/login', input);
             console.log("Response:", response.data); // Log the response
             if (response.data === "Success") {
                 toast.success("Login successful!");
-                navigate('/home'); // Navigate to dashboard or another page
+                navigate('/home'); // Navigate to home page
             } else {
                 toast.error(response.data);
             }

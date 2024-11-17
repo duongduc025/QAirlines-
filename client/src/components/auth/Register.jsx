@@ -33,6 +33,10 @@ const Signup = () => {
     }
     const submitHandler = async (e) => {
         e.preventDefault();
+        if (!input.fullname || !input.email || !input.phoneNumber || !input.password || !input.user_type) {
+            toast.error("Please fill in all fields.");
+            return;
+        }
         try {
             const response = await axios.post('http://localhost:3001/register', input);
             console.log("Response:", response.data); // Log the response
