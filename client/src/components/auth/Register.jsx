@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react'
 import Navbar from '../shared/Navbar'
 import { Label } from '../ui/label'
@@ -13,12 +12,15 @@ import Footer from '../shared/Footer'
 
 const Signup = () => {
 
+    const navigate = useNavigate(); // Add useNavigate hook
+
     const [input, setInput] = useState({
         fullname: "",
         email: "",
         phoneNumber: "",
         password: "",
         role: "",
+        user_type: "", // Add user_type to the state
         file: ""
     });
  
@@ -31,6 +33,19 @@ const Signup = () => {
     }
     const submitHandler = async (e) => {
         e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:3001/register', input);
+            console.log("Response:", response.data); // Log the response
+            if (response.data === "Success") {
+                toast.success("Registration successful!");
+                navigate('/login'); // Navigate to login page
+            } else {
+                toast.error(response.data);
+            }
+        } catch (error) {
+            console.error("Error during registration:", error);
+            toast.error("An error occurred during registration.");
+        }
     }
     return (
         <div>
@@ -77,6 +92,16 @@ const Signup = () => {
                             name="password"
                             onChange={changeEventHandler}
                             placeholder="************"
+                        />
+                    </div>
+                    <div className='my-2'>
+                        <Label>User Type</Label>
+                        <Input
+                            type="text"
+                            value={input.user_type}
+                            name="user_type"
+                            onChange={changeEventHandler}
+                            placeholder="student"
                         />
                     </div>
                     {
