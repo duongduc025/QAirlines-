@@ -20,7 +20,7 @@ const HeroSection = () => {
 
   return (
     <div className="relative h-[96vh] overflow-hidden">
-      {/* Background Image */}
+  
       <div className="absolute inset-0">
         <img 
           src={Airplane}

@@ -178,7 +178,7 @@ const FlightBooking = () => {
                       variant="outline"
                       className="w-full justify-start text-left font-normal border-[#DAA520]"
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4 text-[#DAA520]" />
+                      <CalendarIcon className="mr-2 h-4 w-4 -" />
                       {returnDate ? format(returnDate, 'dd/MM/yyyy') : 'Chọn ngày về'}
                     </Button>
                   </PopoverTrigger>

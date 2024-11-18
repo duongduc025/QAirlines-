@@ -157,7 +157,7 @@ const QairlinePromotions = () => {
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#008080] mb-4">
-            Ưu Đãi Đặc Biệt từ <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>Airline</span>
+            Ưu Đãi Đặc Biệt từ <span classNamăe = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>Airline</span>
 
           </h1>
           <p className="text-gray-600 max-w-xl mx-auto">
