@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { RiLinkedinFill } from 'react-icons/ri';
 import { useEffect, useRef } from 'react';
-import Logo from '../../assets/image/qairlines_logo.png';
+import Logo from '../../assets/image/qairline_logo.png';
 
 import {
   AiFillYoutube,
@@ -74,14 +74,17 @@ const Footer = () => {
     const year = new Date().getFullYear();
   
     return (
-      <footer className="pb-16 pt-10">
+      <footer className="pt-10">
+        <div className='bg-white'>
+        <div className='flex items-center justify-between mx-auto max-w-7xl flex-col'>
         <div className="container">
           <div className="flex justify-between flex-col md:flex-row flex-wrap gap-[30px]">
             <div>
               
             <div className="flex items-center gap-2"> 
                 <img width={30} src={Logo} alt="Law Connect Logo" />
-                <h4 style = {{marginLeft: '4px', fontWeight: 'bold', fontSize: '22px' }}>QAirlines</h4>
+                <h4 style = {{marginLeft: '4px', fontWeight: 'bold', fontSize: '22px' }}>
+                <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>Airline</span></h4>
               </div>
               
               <p className="text-[16px] leading-7 font-[400] text-textColor mt-4">
@@ -149,6 +152,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
+    </div>
+    </div>
     </footer>
   );
 };
