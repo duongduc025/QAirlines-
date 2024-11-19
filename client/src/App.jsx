@@ -10,6 +10,9 @@ import Register from './components/auth/Register'
 import Promotion from './components/promotion/promotion'
 import Flightpage from './components/Booking/Flightpage'
 import MyBookingpage from './components/MyBooking/MyBookingpage'
+import Account from './components/user/Account'
+
+
 const appRouter = createBrowserRouter([
   {
     path: '/home',
@@ -38,7 +41,12 @@ const appRouter = createBrowserRouter([
   {
   path: '/mybookings',
   element: <MyBookingpage />
-  }
+  },
+
+  {path: '/account',
+  element: <Account />
+  },
+
 ])
 
 function App() {
