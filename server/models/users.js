@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
   phoneNumber: String, 
   password: String,
   created_at: { type: Date, default: Date.now },
-  user_type: String, // Ensure this field is included
   role: String,
 });
 

@@ -19,7 +19,7 @@ const Signup = () => {
         email: "",
         phoneNumber: "",
         password: "",
-        role: "",
+        role: "", 
         user_type: "", // Add user_type to the state
         file: ""
     });
@@ -33,12 +33,18 @@ const Signup = () => {
     }
     const submitHandler = async (e) => {
         e.preventDefault();
-        if (!input.fullname || !input.email || !input.phoneNumber || !input.password || !input.user_type) {
+        if (!input.fullname || !input.email || !input.phoneNumber || !input.password || !input.role || !input.user_type) {
             toast.error("Please fill in all fields.");
             return;
         }
         try {
-            const response = await axios.post('http://localhost:3001/register', input);
+            const formData = new FormData();
+            Object.keys(input).forEach(key => formData.append(key, input[key]));
+            const response = await axios.post('http://localhost:3001register', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             console.log("Response:", response.data); // Log the response
             if (response.data === "Success") {
                 toast.success("Registration successful!");
@@ -99,13 +105,13 @@ const Signup = () => {
                         />
                     </div>
                     <div className='my-2'>
-                        <Label>User Type</Label>
+                        <Label>Role</Label>
                         <Input
                             type="text"
-                            value={input.user_type}
-                            name="user_type"
+                            value={input.role}
+                            name="role"
                             onChange={changeEventHandler}
-                            placeholder="student"
+                            placeholder="user"
                         />
                     </div>
                     {
