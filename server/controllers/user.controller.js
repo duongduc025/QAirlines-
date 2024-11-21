@@ -50,4 +50,22 @@ const login = async (req, res) => {
     }
 };
 
-export { register, login };
+const findUserByEmail = async (req, res) => {
+    const { email } = req.params;
+    console.log("Searching for user with email:", email);
+    try {
+        const user = await User.findOne({ email });
+        if (user) {
+            console.log("User found:", user);
+            res.json(user);
+        } else {
+            console.log("No user found with that email");
+            res.status(404).json("No user found with that email");
+        }
+    } catch (err) {
+        console.error("Error occurred during search:", err);
+        res.status(500).json("Error occurred during search");
+    }
+};
+
+export { register, login, findUserByEmail };

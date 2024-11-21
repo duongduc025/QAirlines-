@@ -6,7 +6,6 @@ const validateUser = [
     check('fullname').notEmpty().withMessage('Full name is required'),
     check('phoneNumber').notEmpty().withMessage('Phone number is required'),
     check('role').notEmpty().withMessage('Role is required'),
-    check('user_type').notEmpty().withMessage('User type is required'),
 ];
 
 const validate = (req, res, next) => {
