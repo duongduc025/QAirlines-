@@ -68,4 +68,27 @@ const findUserByEmail = async (req, res) => {
     }
 };
 
-export { register, login, findUserByEmail };
+const updateUser = async (req, res) => {
+    const { email } = req.params;
+    const { fullname, phoneNumber, password, role } = req.body;
+    console.log("Updating user with email:", email);
+    try {
+        const user = await User.findOneAndUpdate(
+            { email },
+            { fullname, phoneNumber, password, role },
+            { new: true }
+        );
+        if (user) {
+            console.log("User updated successfully:", user);
+            res.json(user);
+        } else {
+            console.log("No user found with that email");
+            res.status(404).json("No user found with that email");
+        }
+    } catch (err) {
+        console.error("Error occurred during update:", err);
+        res.status(500).json("Error occurred during update");
+    }
+};
+
+export { register, login, findUserByEmail, updateUser };
