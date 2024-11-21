@@ -73,5 +73,45 @@ export const flightsAll = (req, res) => {
         });
 };
 
+export const flightsDelete = (req, res) => {
+    const { id } = req.params;
+    console.log("Deleting flight with ID:", id);
+
+    FlightModel.findByIdAndDelete(id)
+        .then(deletedFlight => {
+            if (deletedFlight) {
+                console.log("Flight deleted successfully");
+                res.json("Flight deleted successfully");
+            } else {
+                console.log("Flight not found");
+                res.status(404).json("Flight not found");
+            }
+        })
+        .catch(err => {
+            console.error("Error deleting flight:", err);
+            res.status(500).json("Error deleting flight");
+        });
+};
+
+export const flightsDetail = (req, res) => {
+    const { id } = req.params;
+    console.log("Fetching details for flight with ID:", id);
+
+    FlightModel.findById(id)
+        .then(flight => {
+            if (flight) {
+                console.log("Flight details found:", flight);
+                res.json(flight);
+            } else {
+                console.log("Flight not found");
+                res.status(404).json("Flight not found");
+            }
+        })
+        .catch(err => {
+            console.error("Error fetching flight details:", err);
+            res.status(500).json("Error fetching flight details");
+        });
+};
+
 //Để làm khứ hồi thì lấy điểm khởi hành thành điểm đến, đổi điểm đi và điểm dến và thời gian không có yêu cầu gì để trả về khứ hồi
 //Booking cần có số người (1 người có thể đặt cho nhiều người đi, passenger là lấy ID và baggage extra = 5kg)
