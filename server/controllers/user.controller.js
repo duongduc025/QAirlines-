@@ -91,4 +91,42 @@ const updateUser = async (req, res) => {
     }
 };
 
-export { register, login, findUserByEmail, updateUser };
+const showAllUsers = async (req, res) => {
+    const { role } = req.body;
+    if (role !== 'admin') {
+        console.log("Unauthorized access attempt");
+        return res.status(403).json("Access denied");
+    }
+    try {
+        const users = await User.find({});
+        console.log("All users retrieved successfully");
+        res.json(users);
+    } catch (err) {
+        console.error("Error occurred while retrieving users:", err);
+        res.status(500).json("Error occurred while retrieving users");
+    }
+};
+
+const deleteUser = async (req, res) => {
+    const { email } = req.params;
+    const { role } = req.body;
+    if (role !== 'admin') {
+        console.log("Unauthorized access attempt");
+        return res.status(403).json("Access denied");
+    }
+    try {
+        const user = await User.findOneAndDelete({ email });
+        if (user) {
+            console.log("User deleted successfully:", user);
+            res.json("User deleted successfully");
+        } else {
+            console.log("No user found with that email");
+            res.status(404).json("No user found with that email");
+        }
+    } catch (err) {
+        console.error("Error occurred during deletion:", err);
+        res.status(500).json("Error occurred during deletion");
+    }
+};
+
+export { register, login, findUserByEmail, updateUser, showAllUsers, deleteUser };
