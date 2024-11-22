@@ -1,17 +1,48 @@
 import mongoose from 'mongoose'; 
 
 const flightSchema = new mongoose.Schema({
-  airplane_id: mongoose.Schema.Types.ObjectId,
-  available_seats: Number,
-  departure_location: String,
-  destination_location: String,
-  travel_time: Date,
-  arrival_time: Date,
-  flight_type: String,
-  ticket_price: Number,
+  airplane_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  },
+  departure_location: {
+    type: String,
+    required: true
+  },
+  destination_location: {
+    type: String,
+    required: true
+  },
+  travel_time: {
+    type: Date,
+    required: true
+  },
+  arrival_time: {
+    type: Date,
+    required: true
+  },
+  normal_seats: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  economy_seats: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  normal_ticket_price: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  economy_ticket_price: {
+    type: Number,
+    required: true,
+    min: 0
+  }
 });
 
 const FlightModel = mongoose.model('Flight', flightSchema);
-//Flight là tên collection
 
 export default FlightModel;

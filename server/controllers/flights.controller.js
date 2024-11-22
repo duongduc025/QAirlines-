@@ -1,4 +1,5 @@
 import FlightModel from '../models/flights.js';
+import { validationResult } from 'express-validator';
 
 //
 export const searchFlights = (req, res) => {
@@ -11,7 +12,7 @@ export const searchFlights = (req, res) => {
         departure_location: origin,
         destination_location: destination,
         travel_time: { $gte: new Date(departDate), $lt: new Date(new Date(departDate).setDate(new Date(departDate).getDate() + 1)) }
-    }, 'airplane_id ticket_price')
+    }, 'airplane_id normal_ticket_price economy_ticket_price')
     .then(flights => {
         res.json(flights);
     })
@@ -22,7 +23,12 @@ export const searchFlights = (req, res) => {
 };
 
 export const addFlight = (req, res) => {
-    const { airplane_id, available_seats, departure_location, destination_location, travel_time, arrival_time, flight_type, ticket_price } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { airplane_id, normal_seats, economy_seats, departure_location, destination_location, travel_time, arrival_time, normal_ticket_price, economy_ticket_price } = req.body;
     console.log("Adding new flight:", req.body);
 
     FlightModel.findOne({ airplane_id, departure_location, destination_location })
@@ -30,7 +36,7 @@ export const addFlight = (req, res) => {
         if (existingFlight) {
             return res.status(400).json("Flight with the same airplane ID, departure location, and destination location already exists");
         } else {
-            FlightModel.create({ airplane_id, available_seats, departure_location, destination_location, travel_time, arrival_time, flight_type, ticket_price })
+            FlightModel.create({ airplane_id, normal_seats, economy_seats, departure_location, destination_location, travel_time, arrival_time, normal_ticket_price, economy_ticket_price })
             .then(flight => res.json("Flight added successfully"))
             .catch(err => {
                 console.error("Error adding flight:", err);
@@ -113,5 +119,5 @@ export const flightsDetail = (req, res) => {
         });
 };
 
-//Để làm khứ hồi thì lấy điểm khởi hành thành điểm đến, đổi điểm đi và điểm dến và thời gian không có yêu cầu gì để trả về khứ hồi
+//Để làm khứ hồi thì lấy điểm khởi hành thành điểm đến, đổi điểm đi và điểm dến v�� thời gian không có yêu cầu gì để trả về khứ hồi
 //Booking cần có số người (1 người có thể đặt cho nhiều người đi, passenger là lấy ID và baggage extra = 5kg)

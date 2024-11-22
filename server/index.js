@@ -4,13 +4,14 @@ import cors from 'cors';
 import UserModel from './models/users.js';
 import userRoutes from './routes/user.route.js';
 import flightRoutes from './routes/flights.route.js';
+import bookingRoutes from './routes/booking.route.js'; // Import booking routes
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 mongoose.connect("mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
     ssl: true
 })
 .then(() => {
@@ -22,7 +23,7 @@ mongoose.connect("mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/
 
 app.use('/api/users', userRoutes);
 app.use('/api/flights', flightRoutes);
-
+app.use('/api/bookings', bookingRoutes); // Use booking routes
 
 // Đóng kết nối khi server dừng
 process.on('SIGINT', () => {
