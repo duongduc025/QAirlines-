@@ -15,6 +15,7 @@ import AdminHome from './components/admin/AdminHome'
 import AdminPromotion from './components/admin/AdminPromotion'
 import AdminAirCraft from './components/admin/AdminAirCraft'
 import AdminFlight from './components/admin/AdminFlight'
+import AdminBooking from './components/admin/AdminBooking'
 const appRouter = createBrowserRouter([
   {
     path: '/admin',
@@ -31,6 +32,10 @@ const appRouter = createBrowserRouter([
   {
     path: '/admin/flights',
     element: <AdminFlight />
+  },
+  {
+    path: '/admin/bookings',
+    element: <AdminBooking />
   },
   {
     path: '/home',
