@@ -10,7 +10,28 @@ import Register from './components/auth/Register'
 import Promotion from './components/promotion/promotion'
 import Flightpage from './components/Booking/Flightpage'
 import MyBookingpage from './components/MyBooking/MyBookingpage'
+import UserAccount from './components/user/UserAccount'
+import AdminHome from './components/admin/AdminHome'
+import AdminPromotion from './components/admin/AdminPromotion'
+import AdminAirCraft from './components/admin/AdminAirCraft'
+import AdminFlight from './components/admin/AdminFlight'
 const appRouter = createBrowserRouter([
+  {
+    path: '/admin',
+    element: <AdminHome />
+  },
+  {
+    path: '/admin/promotions',
+    element: <AdminPromotion />
+  },
+  {
+    path: '/admin/aircrafts',
+    element: <AdminAirCraft />
+  },
+  {
+    path: '/admin/flights',
+    element: <AdminFlight />
+  },
   {
     path: '/home',
     element: <Home />
@@ -38,14 +59,25 @@ const appRouter = createBrowserRouter([
   {
   path: '/mybookings',
   element: <MyBookingpage />
-  }
+  },
+  {
+    path: '/account',
+    element: <UserAccount />
+  },
+])
+const AdminRouter = createBrowserRouter([
+  {
+    path: '/',
+    element: <AdminHome />
+  },
 ])
 
-function App() {
 
+function App() {
+  const isAdmin = false;
   return (
     <>
-    <RouterProvider router={appRouter}/>
+      <RouterProvider router={isAdmin ? AdminRouter : appRouter}/>
     </>
   )
 }
