@@ -34,7 +34,7 @@ const guessNavLinks = [
 
 
 const Navbar = () => {
-    const user = false;
+    const user = true;
     navLinks = [...guessNavLinks];
     return (
         <>
@@ -76,7 +76,7 @@ const Navbar = () => {
                             </PopoverTrigger>
                             <PopoverContent className = "w-25">
                             <div className='flex w-fit items-center gap-2 cursor-pointer'>
-                            <User2 className ='text-[#DAA520]' /> <Button variant="link">View Profile</Button>
+                            <User2 className ='text-[#DAA520]' /> <Link to = '/account'>  <Button variant="link">My Account</Button> </Link>
                             </div>
                             <div className='flex w-fit items-center gap-2 cursor-pointer'>
                             <LogOut className = 'text-[#DAA520]'/>
