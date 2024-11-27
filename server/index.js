@@ -1,17 +1,17 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import UserModel from './models/users.js';
+import dotenv from 'dotenv';
 import userRoutes from './routes/user.route.js';
 import flightRoutes from './routes/flights.route.js';
-import bookingRoutes from './routes/booking.route.js'; // Import booking routes
+
+dotenv.config();
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-mongoose.connect("mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/", {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
+// const MONGO_URI = "mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/";
+mongoose.connect(process.env.MONGO_URI, {
     ssl: true
 })
 .then(() => {
@@ -23,22 +23,8 @@ mongoose.connect("mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/
 
 app.use('/api/users', userRoutes);
 app.use('/api/flights', flightRoutes);
-app.use('/api/bookings', bookingRoutes); // Use booking routes
 
-// Đóng kết nối khi server dừng
-process.on('SIGINT', () => {
-    mongoose.disconnect()
-        .then(() => {
-            console.log("MongoDB connection closed");
-            process.exit(0);
-        })
-        .catch(err => {
-            console.error("Error closing MongoDB connection", err);
-            process.exit(1);
-        });
-});
-
-const PORT = process.env.PORT || 3001; // Change port to 3001
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

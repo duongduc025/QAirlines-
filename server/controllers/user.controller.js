@@ -1,9 +1,10 @@
 import User from '../models/users.js';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
-// ...existing code...
 const register = async (req, res) => {
-    const { email, fullname, phoneNumber, password, role } = req.body; 
-    if (!email || !fullname || !phoneNumber || !password || !role) {
+    const { email, fullname, phoneNumber, password } = req.body; 
+    if (!email || !fullname || !phoneNumber || !password) {
         console.log("Missing required fields");
         return res.status(400).json("All fields are required");
     }
@@ -15,7 +16,8 @@ const register = async (req, res) => {
             console.log("User already registered");
             return res.status(400).json("Email already in use");
         } else {
-            const newUser = new User({ email, fullname, phoneNumber, password, role });
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newUser = new User({ email, fullname, phoneNumber, password: hashedPassword });
             await newUser.save();
             console.log("User registered successfully");
             res.status(201).json("Success");
@@ -33,16 +35,20 @@ const login = async (req, res) => {
         const user = await User.findOne({ email });
         console.log("User found:", user);
         if (user) {
-            if (user.password === password) {
+            const isMatch = await bcrypt.compare(password, user.password);
+            if (isMatch) {
+                const token = jwt.sign({ email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                console.log("Generated token:", token);
+                console.log("JWT Secret for signing:", process.env.JWT_SECRET);
                 console.log("Login successful");
-                res.json("Success");
+                res.json({ token });
             } else {
                 console.log("Incorrect password");
-                res.json("The pass is incorrect");
+                res.status(400).json("The pass is incorrect");
             }
         } else {
             console.log("No record existed");
-            res.json("No record existed");
+            res.status(404).json("No record existed");
         }
     } catch (err) {
         console.error("Error during login:", err);
@@ -50,34 +56,23 @@ const login = async (req, res) => {
     }
 };
 
-const findUserByEmail = async (req, res) => {
-    const { email } = req.params;
-    console.log("Searching for user with email:", email);
-    try {
-        const user = await User.findOne({ email });
-        if (user) {
-            console.log("User found:", user);
-            res.json(user);
-        } else {
-            console.log("No user found with that email");
-            res.status(404).json("No user found with that email");
-        }
-    } catch (err) {
-        console.error("Error occurred during search:", err);
-        res.status(500).json("Error occurred during search");
-    }
-};
-
 const updateUser = async (req, res) => {
     const { email } = req.params;
-    const { fullname, phoneNumber, password, role } = req.body;
+    const { newEmail, fullname, phoneNumber } = req.body;
     console.log("Updating user with email:", email);
+
     try {
+        const existingUser = await User.findOne({ email: newEmail });
+        if (existingUser) {
+            return res.status(400).json("New email already exists.");
+        }
+
         const user = await User.findOneAndUpdate(
-            { email },
-            { fullname, phoneNumber, password, role },
-            { new: true }
+            { email },  // Tìm người dùng cũ dựa trên email
+            { email: newEmail, fullname, phoneNumber },  // Cập nhật thông tin
+            { new: true }  // Trả về tài liệu đã cập nhật
         );
+
         if (user) {
             console.log("User updated successfully:", user);
             res.json(user);
@@ -91,42 +86,59 @@ const updateUser = async (req, res) => {
     }
 };
 
-const showAllUsers = async (req, res) => {
-    const { role } = req.body;
-    if (role !== 'admin') {
-        console.log("Unauthorized access attempt");
-        return res.status(403).json("Access denied");
+const changePassword = async (req, res) => {
+    const { email } = req.params;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json("New password and confirm password do not match.");
     }
+
     try {
-        const users = await User.find({});
-        console.log("All users retrieved successfully");
-        res.json(users);
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json("No user found with that email.");
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json("Current password is incorrect.");
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        console.log("Password updated successfully for user:", user);
+        res.json("Password updated successfully.");
     } catch (err) {
-        console.error("Error occurred while retrieving users:", err);
-        res.status(500).json("Error occurred while retrieving users");
+        console.error("Error occurred during password change:", err);
+        res.status(500).json("Error occurred during password change.");
     }
 };
 
-const deleteUser = async (req, res) => {
-    const { email } = req.params;
-    const { role } = req.body;
-    if (role !== 'admin') {
-        console.log("Unauthorized access attempt");
-        return res.status(403).json("Access denied");
+const addUser = async (req, res) => {
+    const { email, fullname, phoneNumber, password, role } = req.body;
+    if (!email || !fullname || !phoneNumber || !password || !role) {
+        console.log("Missing required fields");
+        return res.status(400).json("All fields are required");
     }
+    console.log("Adding user with email:", email);
     try {
-        const user = await User.findOneAndDelete({ email });
-        if (user) {
-            console.log("User deleted successfully:", user);
-            res.json("User deleted successfully");
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            console.log("User already exists");
+            return res.status(400).json("Email already in use");
         } else {
-            console.log("No user found with that email");
-            res.status(404).json("No user found with that email");
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const newUser = new User({ email, fullname, phoneNumber, password: hashedPassword, role });
+            await newUser.save();
+            console.log("User added successfully");
+            res.status(201).json("Success");
         }
     } catch (err) {
-        console.error("Error occurred during deletion:", err);
-        res.status(500).json("Error occurred during deletion");
+        console.error("Error occurred during user addition:", err);
+        res.status(500).json("Error occurred during user addition");
     }
 };
 
-export { register, login, findUserByEmail, updateUser, showAllUsers, deleteUser };
+export { register, login, updateUser, changePassword, addUser };

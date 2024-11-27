@@ -1,16 +1,15 @@
 import express from 'express';
-import { register, login, findUserByEmail, updateUser, showAllUsers, deleteUser } from '../controllers/user.controller.js';
-import { validateUser, validate } from '../validations/user.validation.js';
+import { register, login, updateUser, changePassword, addUser } from '../controllers/user.controller.js';
+import { validateUser, validateUpdateUser, validateChangePassword, validate } from '../validations/user.validation.js';
+import { authenticateJWT } from '../middlewares/jwtAuth.js';
+import { isAdmin } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
-// ...existing code...
 router.post('/register', validateUser, validate, register);
 router.post('/login', validate, login);
-router.get('/search/:email', findUserByEmail);
-router.put('/update/:email', validateUser, validate, updateUser);
-router.get('/all', validate, showAllUsers);
-router.delete('/delete/:email', validate, deleteUser);
-// ...existing code...
+router.put('/update/:email', authenticateJWT, validateUpdateUser, validate, updateUser);
+router.put('/change-password/:email', authenticateJWT, validateChangePassword, validate, changePassword);
+router.post('/add-user', validateUser, validate, addUser);
 
 export default router;

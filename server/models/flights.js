@@ -1,48 +1,19 @@
-import mongoose from 'mongoose'; 
+import mongoose from 'mongoose';
 
 const flightSchema = new mongoose.Schema({
-  airplane_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true
-  },
-  departure_location: {
-    type: String,
-    required: true
-  },
-  destination_location: {
-    type: String,
-    required: true
-  },
-  travel_time: {
-    type: Date,
-    required: true
-  },
-  arrival_time: {
-    type: Date,
-    required: true
-  },
-  normal_seats: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  economy_seats: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  normal_ticket_price: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  economy_ticket_price: {
-    type: Number,
-    required: true,
-    min: 0
-  }
+  flight_id: { type: String, required: true },
+  airplane_id: { type: String, required: true },
+  ticket_price: { type: Number, required: true },
+  departure_location: { type: String, required: true },
+  destination: { type: String, required: true },
+  travel_time: { type: Number, required: true },
+  arrival_time: { type: Date, required: true },
+  departure_time: { type: Date, required: true },
+  estimated_arrival: { type: Date, required: true },
+  economy_seats: { type: Number, required: true },
+  business_seats: { type: Number, required: true },
+  economy_price: { type: Number, required: true },
+  business_price: { type: Number, required: true }
 });
 
-const FlightModel = mongoose.model('Flight', flightSchema);
-
-export default FlightModel;
+export default mongoose.model('Flight', flightSchema);
