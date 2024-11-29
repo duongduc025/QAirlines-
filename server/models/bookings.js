@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const bookingSchema = new mongoose.Schema({
-  booking_id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+  booking_id: { type: String, required: true },
   user_email: { type: String, required: true },
   flight_id: [{ type: mongoose.Schema.Types.ObjectId, required: true }], // Changed to an array of ObjectId
   ticket_class: { type: String, required: true },
