@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 
 const flightSchema = new mongoose.Schema({
-  flight_id: { type: String, required: true },
-  airplane_id: { type: String, required: true },
+  flight_id: { type: mongoose.Schema.Types.ObjectId, auto: true }, // Changed to an array of ObjectId
+  flight_code: { type: String, required: true },
+  airplane_code: { type: String, required: true},
   ticket_price: { type: Number, required: true },
   departure_location: { type: String, required: true },
   destination: { type: String, required: true },

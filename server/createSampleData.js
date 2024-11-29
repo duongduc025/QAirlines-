@@ -28,7 +28,7 @@ const createSampleUsers = async () => {
       phoneNumber: '1234567890',
       password: await bcrypt.hash('password1', 10),
       role: 'user',
-      booking_id: ['booking1']
+      booking_id: [new mongoose.Types.ObjectId('000000000000000000000001')]
     },
     {
       email: 'user2@example.com',
@@ -36,7 +36,7 @@ const createSampleUsers = async () => {
       phoneNumber: '0987654321',
       password: await bcrypt.hash('password2', 10),
       role: 'user',
-      booking_id: ['booking2', 'booking3']
+      booking_id: [new mongoose.Types.ObjectId('000000000000000000000002'), new mongoose.Types.ObjectId('000000000000000000000003')]
     }
   ];
   await User.insertMany(users);
@@ -45,7 +45,7 @@ const createSampleUsers = async () => {
 const createSamplePassengers = async () => {
   const passengers = [
     {
-      passenger_id: 'passenger1',
+      passenger_id: '000000000001',
       first_name: 'John',
       last_name: 'Doe',
       email: 'john.doe@example.com',
@@ -54,10 +54,10 @@ const createSamplePassengers = async () => {
       date_of_birth: new Date('1990-01-01'),
       nationality: 'American',
       id_number: 'ID123456',
-      flight_id: 'flight1'
+      flight_id: new mongoose.Types.ObjectId('000000000000000000000001')
     },
     {
-      passenger_id: 'passenger2',
+      passenger_id: '000000000002',
       first_name: 'Jane',
       last_name: 'Doe',
       email: 'jane.doe@example.com',
@@ -66,7 +66,7 @@ const createSamplePassengers = async () => {
       date_of_birth: new Date('1992-02-02'),
       nationality: 'American',
       id_number: 'ID654321',
-      flight_id: 'flight2'
+      flight_id: new mongoose.Types.ObjectId('000000000000000000000002')
     }
   ];
   await Passenger.insertMany(passengers);
@@ -75,8 +75,10 @@ const createSamplePassengers = async () => {
 const createSampleFlights = async () => {
   const flights = [
     {
-      flight_id: 'flight1',
-      airplane_id: 'airplane1',
+      flight_id: new mongoose.Types.ObjectId('000000000000000000000001'),
+      flight_code: 'NY-LA',
+      airplane_code: 'BOE737',
+      airplane_id: new mongoose.Types.ObjectId('000000000000000000000001'),
       ticket_price: 100,
       departure_location: 'New York',
       destination: 'Los Angeles',
@@ -90,8 +92,10 @@ const createSampleFlights = async () => {
       business_price: 200
     },
     {
-      flight_id: 'flight2',
-      airplane_id: 'airplane2',
+      flight_id: new mongoose.Types.ObjectId('000000000000000000000002'),
+      flight_code: 'SF-CHI',
+      airplane_code: 'AIRA320',
+      airplane_id: new mongoose.Types.ObjectId('000000000000000000000002'),
       ticket_price: 150,
       departure_location: 'San Francisco',
       destination: 'Chicago',
@@ -111,42 +115,42 @@ const createSampleFlights = async () => {
 const createSampleBookings = async () => {
   const bookings = [
     {
-      booking_id: 'booking1',
+      booking_id: new mongoose.Types.ObjectId('000000000000000000000001'),
       user_email: 'user1@example.com',
-      flight_id: ['flight1'],
+      flight_id: [new mongoose.Types.ObjectId('000000000000000000000001')],
       ticket_class: 'economy',
       ticket_quantity: 1,
       ticket_price: 100,
       total_price: 100,
       booking_date: new Date(),
       booking_status: 'Đã đặt',
-      passenger_ids: ['passenger1'],
+      passenger_ids: ['000000000001'],
       status: 'confirmed'
     },
     {
-      booking_id: 'booking2',
+      booking_id: new mongoose.Types.ObjectId('000000000000000000000002'),
       user_email: 'user2@example.com',
-      flight_id: ['flight2'],
+      flight_id: [new mongoose.Types.ObjectId('000000000000000000000002')],
       ticket_class: 'business',
       ticket_quantity: 2,
       ticket_price: 200,
       total_price: 400,
       booking_date: new Date(),
       booking_status: 'Đã đặt',
-      passenger_ids: ['passenger2', 'passenger1'],
+      passenger_ids: ['000000000001', '000000000002'],
       status: 'confirmed'
     },
     {
-      booking_id: 'booking3',
+      booking_id: new mongoose.Types.ObjectId('000000000000000000000003'),
       user_email: 'user2@example.com',
-      flight_id: ['flight1'],
+      flight_id: [new mongoose.Types.ObjectId('000000000000000000000001')],
       ticket_class: 'business',
       ticket_quantity: 2,
       ticket_price: 100,
       total_price: 100,
       booking_date: new Date(),
       booking_status: 'Đã đặt',
-      passenger_ids: ['passenger2', 'passenger1'],
+      passenger_ids: ['000000000001', '000000000002'],
       status: 'confirmed'
     }
   ];
@@ -156,7 +160,8 @@ const createSampleBookings = async () => {
 const createSampleAirplanes = async () => {
   const airplanes = [
     {
-      airplane_id: 'airplane1',
+      airplane_id: new mongoose.Types.ObjectId('000000000000000000000001'),
+      airplane_code: 'BOE737',
       model: 'Boeing 737',
       capacity: 200,
       airline: 'Airline A',
@@ -164,7 +169,8 @@ const createSampleAirplanes = async () => {
       last_maintenance_date: new Date('2023-01-01')
     },
     {
-      airplane_id: 'airplane2',
+      airplane_id: new mongoose.Types.ObjectId('000000000000000000000002'),
+      airplane_code: 'AIRA320',
       model: 'Airbus A320',
       capacity: 180,
       airline: 'Airline B',

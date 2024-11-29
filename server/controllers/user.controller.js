@@ -17,6 +17,7 @@ const register = async (req, res) => {
             return res.status(400).json("Email already in use");
         } else {
             const hashedPassword = await bcrypt.hash(password, 10);
+            console.log("Hashed pa  ssword:", hashedPassword); // Log the hashed password
             const newUser = new User({ email, fullname, phoneNumber, password: hashedPassword });
             await newUser.save();
             console.log("User registered successfully");
@@ -36,6 +37,7 @@ const login = async (req, res) => {
         console.log("User found:", user);
         if (user) {
             const isMatch = await bcrypt.compare(password, user.password);
+            console.log("Password match:", isMatch); // Log the result of password comparison
             if (isMatch) {
                 const token = jwt.sign({ email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
                 console.log("Generated token:", token);
