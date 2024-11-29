@@ -1,78 +1,75 @@
-// import mongoose from 'mongoose'; // Import mongoose
-// import Booking from '../models/bookings.js';
-// import FlightModel from '../models/flights.js'; // Import Flight model
+import User from '../models/users.js';
+import Booking from '../models/bookings.js';
+import Flight from '../models/flights.js';
 
-// export const createBooking = async (req, res) => {
-//   try {
-//     const { user_id, flight_id, seat_class, total_price, passenger_id } = req.body; 
+export const getBookingsByUserEmail = async (req, res) => {
+    const { email } = req.params;
+    console.log(`Fetching bookings for user email: ${email}`);
 
-//     const session = await mongoose.startSession();
-//     session.startTransaction();
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            console.log('User not found');
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-//     try {
-//       const booking = new Booking({
-//         booking_id: new mongoose.Types.ObjectId(),
-//         user_id,
-//         flight_id,
-//         seat_class,
-//         total_price,
-//         passenger_id,
-//         status: 'pending'
-//       });
+        const bookings = await Booking.find({ user_email: user.email });
+        const flightDetails = await Promise.all(bookings.map(async (booking) => {
+            const flight = await Flight.findOne({ flight_id: booking.flight_id });
+            return {
+                booking_id: booking.booking_id,
+                departure_location: flight.departure_location,
+                destination: flight.destination,
+                ticket_price: flight.ticket_price,
+                departure_time: flight.departure_time,
+                travel_time: flight.travel_time,
+                ticket_quantity: booking.ticket_quantity
+            };
+        }));
 
-//       const savedBooking = await booking.save({ session });
+        res.json(flightDetails);
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
 
-//       for (const flight of flight_id) {
-//         const flightDoc = await FlightModel.findById(flight).session(session);
-//         if (!flightDoc) {
-//           throw new Error('Flight not found');
-//         }
+export const getSpecificBookingByUserEmail = async (req, res) => {
+    const { email, booking_id } = req.params;
+    console.log(`Fetching specific booking for user email: ${email}, booking ID: ${booking_id}`);
 
-//         for (const seat of seat_class) {
-//           if (seat.class === 'economy') {
-//             flightDoc.economy_seats -= seat.ticket_quantity;
-//           } else if (seat.class === 'business') {
-//             flightDoc.business_seats -= seat.ticket_quantity;
-//           }
-//         }
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            console.log('User not found');
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-//         await flightDoc.save({ session });
-//       }
+        const booking = await Booking.findOne({ booking_id: booking_id, user_email: email });
+        if (!booking) {
+            console.log('Booking not found for this user');
+            return res.status(404).json({ message: 'Booking not found for this user' });
+        }
 
-//       await session.commitTransaction();
-//       session.endSession();
+        const flight = await Flight.findOne({ flight_id: booking.flight_id });
+        if (!flight) {
+            console.log('Flight not found');
+            return res.status(404).json({ message: 'Flight not found' });
+        }
 
-//       res.status(201).json(savedBooking);
-//     } catch (error) {
-//       await session.abortTransaction();
-//       session.endSession();
-//       throw error;
-//     }
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+        const flightDetails = {
+            booking_id: booking.booking_id,
+            departure_location: flight.departure_location,
+            destination: flight.destination,
+            ticket_price: flight.ticket_price,
+            departure_time: flight.departure_time,
+            travel_time: flight.travel_time,
+            ticket_quantity: booking.ticket_quantity
+        };
 
-// export const getBookingByBookingId = async (req, res) => {
-//   try {
-//     const booking = await Booking.findById(req.params.bookingId);
-//     if (!booking) {
-//       return res.status(404).json({ message: 'Booking not found' });
-//     }
-//     res.status(200).json(booking);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
-
-// export const getBookingsByUserId = async (req, res) => {
-//   try {
-//     const bookings = await Booking.find({ user_id: req.params.userId });
-//     if (!bookings.length) {
-//       return res.status(404).json({ message: 'No bookings found for this user' });
-//     }
-//     res.status(200).json(bookings);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+        res.json(flightDetails);
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};

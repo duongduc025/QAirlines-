@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, required: true, default: 'user' },
-  booking_id: { type: String }
+  booking_id: { type: [String] } // Updated to be an array of strings
 });
 
 userSchema.pre('save', async function(next) {

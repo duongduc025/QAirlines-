@@ -12,4 +12,5 @@ router.put('/update/:email', authenticateJWT, validateUpdateUser, validate, upda
 router.put('/change-password/:email', authenticateJWT, validateChangePassword, validate, changePassword);
 router.post('/add-user', validateUser, validate, addUser);
 
+
 export default router;

@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import User from './models/users.js';
@@ -85,7 +86,7 @@ const createSampleFlights = async () => {
       departure_time: new Date('2023-12-01T07:00:00Z'),
       estimated_arrival: new Date('2023-12-01T10:00:00Z'),
       economy_seats: 150,
-      business_seats: 200,
+      business_seats: 50,
       economy_price: 100,
       business_price: 200
     },
@@ -119,7 +120,7 @@ const createSampleBookings = async () => {
       ticket_price: 100,
       total_price: 100,
       booking_date: new Date(),
-      booking_status: 'Đã đặt',
+      booking_status: '��ã đặt',
       passenger_ids: ['passenger1'],
       status: 'confirmed'
     },
