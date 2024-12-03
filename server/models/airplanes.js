@@ -1,11 +1,13 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const airplaneSchema = new mongoose.Schema({
-  model: String,
-  capacity: Number,
-  airline: String,
-  manufacturing_date: Date,
-  last_maintenance_date: Date,
+  airplane_id: { type: mongoose.Schema.Types.ObjectId, auto: true }, // Ensure this is ObjectId
+  airplane_code: { type: String, required: true },
+  model: { type: String, required: true },
+  capacity: { type: Number, required: true },
+  airline: { type: String, required: true },
+  manufacture_date: { type: Date, required: true },
+  last_maintenance_date: { type: Date, required: true }
 });
 
-module.exports = mongoose.model('Airplane', airplaneSchema);
+export default mongoose.model('Airplane', airplaneSchema);

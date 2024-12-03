@@ -1,14 +1,22 @@
-import mongoose from 'mongoose'; 
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 
 const userSchema = new mongoose.Schema({
-  email: String,
-  fullname: String, 
-  phoneNumber: String, 
-  password: String,
-  created_at: { type: Date, default: Date.now },
-  user_type: String, // Ensure this field is included
-  role: String,
+  user_id: { type: String, default: uuidv4, required: true },
+  email: { type: String, required: true },
+  fullname: { type: String, required: true },
+  phoneNumber: { type: String, required: true },
+  password: { type: String, required: true },
+  role: { type: String, required: true, default: 'user' },
+  booking_id: { type: [String] }
 });
 
-const User = mongoose.model('User', userSchema);
-export default User;
+// userSchema.pre('save', async function(next) {
+//   if (this.isModified('password') || this.isNew) {
+//     this.password = await bcrypt.hash(this.password, 10);
+//   }
+//   next();
+// });
+
+export default mongoose.model('User', userSchema, 'users');

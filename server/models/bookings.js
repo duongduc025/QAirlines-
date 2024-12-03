@@ -1,12 +1,17 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const bookingSchema = new mongoose.Schema({
-  user_id: mongoose.Schema.Types.ObjectId,
-  flight_id: mongoose.Schema.Types.ObjectId,
-  seat_class: String,
-  ticket_price: Number,
-  booking_date: Date,
-  status: String,
+  booking_id: { type: String, required: true },
+  user_email: { type: String, required: true },
+  flight_id: [{ type: mongoose.Schema.Types.ObjectId, required: true }], // Changed to an array of ObjectId
+  ticket_class: { type: String, required: true },
+  ticket_quantity: { type: Number, required: true },
+  ticket_price: { type: Number, required: true },
+  total_price: { type: Number, required: true },
+  booking_date: { type: Date, required: true },
+  booking_status: { type: String, enum: ['Đã đặt', 'đã hủy'], required: true },
+  passenger_ids: { type: [String], required: true },
+  status: { type: String, enum: ['confirmed', 'pending', 'cancelled'], required: true }
 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+export default mongoose.model('Booking', bookingSchema);
