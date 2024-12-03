@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 
 const authenticateJWT = (req, res, next) => {
     const authHeader = req.header('Authorization');
+    //Lấy header từ yêu cầu HTTP
+    //Tách chuỗi header
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
@@ -11,7 +13,8 @@ const authenticateJWT = (req, res, next) => {
 
     console.log("Token received:", token);
     console.log("JWT Secret for verification:", process.env.JWT_SECRET);
-
+    //Secret key dùng để mã hóa/giải mã token. 
+    //Phải khớp với secret đã sử dụng khi tạo token.
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if (err) {
             console.log("Invalid token:", err.message);

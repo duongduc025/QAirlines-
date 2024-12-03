@@ -5,7 +5,6 @@ const airplaneSchema = new mongoose.Schema({
   airplane_code: { type: String, required: true },
   model: { type: String, required: true },
   capacity: { type: Number, required: true },
-  airline: { type: String, required: true },
   manufacture_date: { type: Date, required: true },
   last_maintenance_date: { type: Date, required: true }
 });
