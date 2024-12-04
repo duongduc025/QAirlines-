@@ -11,7 +11,7 @@ const useGetAllBooking = () => {
     useEffect(() => {
         const fetchAllBooking = async () => {
             try {
-                const res = await axios.get(`${JOB_API_END_POINT}/get`,{withCredentials:true});
+                const res = await axios.get(`${BOOKING_API_ENDPOINT}/get`,{withCredentials:true});
                 console.log("Response:", response.data); // Log the response
                 if (response.data === "Success") {
                    dispatch(setAllBooking(response.data));

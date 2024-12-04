@@ -12,7 +12,7 @@ const BookingDetail = () => {
   const {user} = useSelector((state) => state.auth);
 
   param = useParams();
-  const bookingID = params.id;
+    const bookingID = params.id;
 
   useEffect(() => {
     const fetchSingleBooking = async () => {
@@ -28,6 +28,7 @@ const BookingDetail = () => {
       fetchSingleBooking();
     }
   }, [bookingID, dispatch, user?._id]);
+  
   const exampleTicket = {
     flight: {
       airline: 'Vietnam Airlines',
