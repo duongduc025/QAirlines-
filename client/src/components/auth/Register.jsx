@@ -9,18 +9,23 @@ import axios from 'axios'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import Footer from '../shared/Footer'
+import { useSelector } from 'react-redux'
+import { setLoading } from '@/redux/authSlice'
+import { useDispatch } from 'react-redux'
+import { USER_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint'
+import { setUser } from '@/redux/authSlice'
+
 
 const Signup = () => {
 
-    const navigate = useNavigate(); // Add useNavigate hook
-
+    const navigate = useNavigate(); 
+    const { loading, user } = useSelector(store => store.auth);
     const [input, setInput] = useState({
         fullname: "",
         email: "",
         phoneNumber: "",
         password: "",
         role: "",
-        user_type: "", // Add user_type to the state
         file: ""
     });
  
@@ -98,18 +103,9 @@ const Signup = () => {
                             placeholder="************"
                         />
                     </div>
-                    <div className='my-2'>
-                        <Label>User Type</Label>
-                        <Input
-                            type="text"
-                            value={input.user_type}
-                            name="user_type"
-                            onChange={changeEventHandler}
-                            placeholder="student"
-                        />
-                    </div>
                     {
-                     <Button type="submit" className="w-full my-4 bg-[#008080]">Signup</Button>
+                    loading ? <Button className="w-full my-4 bg-[#008080]"> <Loader2 className = "mr2 h-4 w-4 animate-spin" /> Please wait </Button> :
+                    <Button type="submit" className="w-full my-4 bg-[#008080]">Register</Button>
                     }
                     <span className='text-sm'>Already have an account? <Link to="/login" className='text-blue-600'>Login</Link></span>
                 </form>

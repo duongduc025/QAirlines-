@@ -10,10 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 
 const initialPassengerState = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
+  name: '',
   gender: '',
   dateOfBirth: '',
   nationality: '',
@@ -44,36 +41,16 @@ const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) 
     const newErrors = passengers.map(passenger => {
       const passengerErrors = {};
       
-      if (!passenger.firstName.trim()) {
-        passengerErrors.firstName = 'Vui lòng nhập họ';
-      }
-      
       if (!passenger.lastName.trim()) {
         passengerErrors.lastName = 'Vui lòng nhập tên';
       }
       
-      if (!passenger.email.trim()) {
-        passengerErrors.email = 'Vui lòng nhập email';
-      } else if (!/\S+@\S+\.\S+/.test(passenger.email)) {
-        passengerErrors.email = 'Email không hợp lệ';
-      }
-      
-      if (!passenger.phone.trim()) {
-        passengerErrors.phone = 'Vui lòng nhập số điện thoại';
-      } else if (!/^[0-9]{10}$/.test(passenger.phone)) {
-        passengerErrors.phone = 'Số điện thoại không hợp lệ';
-      }
-
       if (!passenger.gender) {
         passengerErrors.gender = 'Vui lòng chọn giới tính';
       }
 
       if (!passenger.dateOfBirth) {
         passengerErrors.dateOfBirth = 'Vui lòng nhập ngày sinh';
-      }
-
-      if (!passenger.nationality.trim()) {
-        passengerErrors.nationality = 'Vui lòng nhập quốc tịch';
       }
 
       if (!passenger.idNumber.trim()) {
@@ -177,26 +154,10 @@ const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) 
 
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor={`firstName-${index}`} className="text-[#008080] font-medium">
-                        Họ
-                      </Label>
-                      <Input
-                        id={`firstName-${index}`}
-                        value={passenger.firstName}
-                        onChange={(e) => handleChange(index, 'firstName', e.target.value)}
-                        className="mt-1 border-[#008080]/20 focus:border-[#008080] focus:ring-[#008080]"
-                      />
-                      {errors[index]?.firstName && (
-                        <Alert className="mt-2 text-red-600 bg-red-50 border-red-200">
-                          <AlertDescription>{errors[index].firstName}</AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-
+                  
                     <div>
                       <Label htmlFor={`lastName-${index}`} className="text-[#008080] font-medium">
-                        Tên
+                        Họ và tên
                       </Label>
                       <Input
                         id={`lastName-${index}`}
@@ -206,50 +167,10 @@ const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) 
                       />
                       {errors[index]?.lastName && (
                         <Alert className="mt-2 text-red-600 bg-red-50 border-red-200">
-                          <AlertDescription>{errors[index].lastName}</AlertDescription>
+                          <AlertDescription>{errors[index].name}</AlertDescription>
                         </Alert>
                       )}
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor={`email-${index}`} className="text-[#008080] font-medium">
-                        Email
-                      </Label>
-                      <Input
-                        id={`email-${index}`}
-                        type="email"
-                        value={passenger.email}
-                        onChange={(e) => handleChange(index, 'email', e.target.value)}
-                        className="mt-1 border-[#008080]/20 focus:border-[#008080] focus:ring-[#008080]"
-                      />
-                      {errors[index]?.email && (
-                        <Alert className="mt-2 text-red-600 bg-red-50 border-red-200">
-                          <AlertDescription>{errors[index].email}</AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor={`phone-${index}`} className="text-[#008080] font-medium">
-                        Số điện thoại
-                      </Label>
-                      <Input
-                        id={`phone-${index}`}
-                        value={passenger.phone}
-                        onChange={(e) => handleChange(index, 'phone', e.target.value)}
-                        className="mt-1 border-[#008080]/20 focus:border-[#008080] focus:ring-[#008080]"
-                      />
-                      {errors[index]?.phone && (
-                        <Alert className="mt-2 text-red-600 bg-red-50 border-red-200">
-                          <AlertDescription>{errors[index].phone}</AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor={`gender-${index}`} className="text-[#008080] font-medium">
                         Giới tính
@@ -274,6 +195,10 @@ const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) 
                       )}
                     </div>
 
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   
                     <div>
                       <Label htmlFor={`dateOfBirth-${index}`} className="text-[#008080] font-medium">
                         Ngày sinh
@@ -291,26 +216,6 @@ const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) 
                         </Alert>
                       )}
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor={`nationality-${index}`} className="text-[#008080] font-medium">
-                        Quốc tịch
-                      </Label>
-                      <Input
-                        id={`nationality-${index}`}
-                        value={passenger.nationality}
-                        onChange={(e) => handleChange(index, 'nationality', e.target.value)}
-                        className="mt-1 border-[#008080]/20 focus:border-[#008080] focus:ring-[#008080]"
-                      />
-                      {errors[index]?.nationality && (
-                        <Alert className="mt-2 text-red-600 bg-red-50 border-red-200">
-                          <AlertDescription>{errors[index].nationality}</AlertDescription>
-                        </Alert>
-                      )}
-                    </div>
-
                     <div>
                       <Label htmlFor={`idNumber-${index}`} className="text-[#008080] font-medium">
                         Số CMND/Hộ chiếu
@@ -327,7 +232,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) 
                         </Alert>
                       )}
                     </div>
-                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

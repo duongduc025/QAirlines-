@@ -17,8 +17,13 @@ const register = async (req, res) => {
             return res.status(400).json("Email already in use");
         } else {
             const hashedPassword = await bcrypt.hash(password, 10);
-            console.log("Hashed pa  ssword:", hashedPassword); // Log the hashed password
-            const newUser = new User({ email, fullname, phoneNumber, password: hashedPassword });
+            console.log("Hashed password:", hashedPassword);
+            const newUser = new User({ 
+                email, 
+                fullname, 
+                phoneNumber, 
+                password: hashedPassword 
+            });
             await newUser.save();
             console.log("User registered successfully");
             res.status(201).json("Success");
@@ -32,6 +37,9 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     const { email, password } = req.body;   
     console.log("Login attempt for email:", email);
+    // if(!email || !password) {
+    //     return res.status (401).json({message: "All fields are required"});
+    // };
     try {
         const user = await User.findOne({ email });
         console.log("User found:", user);
@@ -43,7 +51,7 @@ const login = async (req, res) => {
                 console.log("Generated token:", token);
                 console.log("JWT Secret for signing:", process.env.JWT_SECRET);
                 console.log("Login successful");
-                res.json({ token });
+                res.json({ token, success: true, user });
             } else {
                 console.log("Incorrect password");
                 res.status(400).json("The pass is incorrect");
@@ -118,6 +126,7 @@ const changePassword = async (req, res) => {
     }
 };
 
+//Test vui, sẽ xóa
 const addUser = async (req, res) => {
     const { email, fullname, phoneNumber, password, role } = req.body;
     if (!email || !fullname || !phoneNumber || !password || !role) {
@@ -132,7 +141,12 @@ const addUser = async (req, res) => {
             return res.status(400).json("Email already in use");
         } else {
             const hashedPassword = await bcrypt.hash(password, 10);
-            const newUser = new User({ email, fullname, phoneNumber, password: hashedPassword, role });
+            const newUser = new User({ 
+                email, 
+                fullname, 
+                phoneNumber, 
+                password: hashedPassword, 
+                role });
             await newUser.save();
             console.log("User added successfully");
             res.status(201).json("Success");
@@ -143,4 +157,12 @@ const addUser = async (req, res) => {
     }
 };
 
-export { register, login, updateUser, changePassword, addUser };
+const logout = (req, res) => {
+    // Invalidate the token or clear the session
+    res.status(200).json("Logout successful");
+};
+//Không lưu trữ token ở phía client: 
+//Khi người dùng logout, bạn có thể xóa token từ phía client 
+//(ví dụ: localStorage hoặc sessionStorage).
+
+export { register, login, updateUser, changePassword, addUser, logout };

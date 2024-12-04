@@ -95,40 +95,26 @@ export const getSpecificBookingByUserEmail = async (req, res) => {
 
 // Thêm chú thích bằng tiếng Việt cho hàm createBooking
 export const createBooking = async (req, res) => {
-    const { flight_id, ticket_class, ticket_quantity, passengers } = req.body;
-    const user_email = req.user.email; // Giả sử email người dùng được lưu trong token
+    const { flight_id, ticket_quantity, passengers } = req.body;
+    const user_email = req.user.email; // Assuming the user's email is stored in the token
 
     try {
-        //Kết nối collection flight
+        // Find the flight by ID
         const flight = await Flight.findById(flight_id);
         if (!flight) {
-            return res.status(404).json({ message: 'Không tìm thấy chuyến bay' });
+            return res.status(404).json({ message: 'Flight not found' });
         }
 
-        let ticket_price;
-        //Nếu hạng vé = "Business"
-        if (ticket_class === 'Business') {
-            if (flight.business_seats < ticket_quantity) {
-                return res.status(400).json({ message: 'Không đủ ghế hạng thương gia' });
-            }
-            //Gán giá vé là vé thương gia và giảm số vé
-            ticket_price = flight.business_price;
-            flight.business_seats -= ticket_quantity;
-        //Nếu hạng vé = "Economy"
-        } else if (ticket_class === 'Economy') {
-            if (flight.economy_seats < ticket_quantity) {
-                return res.status(400).json({ message: 'Không đủ ghế hạng phổ thông' });
-            }
-            //Gán giá vé là vé economy và giảm số vé
-            ticket_price = flight.economy_price;
-            flight.economy_seats -= ticket_quantity;
-        } else {
-            return res.status(400).json({ message: 'Hạng vé không hợp lệ' });
+        // Check if there are enough economy seats available
+        if (flight.economy_seats < ticket_quantity) {
+            return res.status(400).json({ message: 'Not enough economy seats available' });
         }
-        //Tính tổng tiền
+
+        // Calculate the total price
+        const ticket_price = flight.economy_price;
         const total_price = ticket_quantity * ticket_price;
 
-        //Mảng đầu vào passenger
+        // Create passengers and collect their IDs
         const passenger_ids = [];
         for (const passenger of passengers) {
             const { first_name, last_name, email, phone, gender, dob, nationality, identity_number } = passenger;
@@ -148,26 +134,29 @@ export const createBooking = async (req, res) => {
             passenger_ids.push(newPassenger.passenger_id);
         }
 
-        //Tạo booking mới
+        // Create a new booking
         const booking_id = uuidv4();
-        console.log(`Mã đặt vé được tạo: ${booking_id}`);
         const newBooking = new Booking({
             booking_id,
             user_email,
             flight_id,
-            ticket_class,
             ticket_quantity,
             ticket_price,
             total_price,
             booking_date: new Date(),
-            booking_status: 'Đã đặt',
+            booking_status: 'Booked',
             passenger_ids,
-            status: 'confirmed'
+            updated_at: new Date()
         });
 
-        await newBooking.save();
+        // Update the flight's available seats
+        flight.economy_seats -= ticket_quantity;
         await flight.save();
 
+        // Save the new booking
+        await newBooking.save();
+
+        // Update the user's booking list
         const user = await User.findOne({ email: user_email });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -175,10 +164,10 @@ export const createBooking = async (req, res) => {
         user.booking_id.push(booking_id);
         await user.save();
 
-        res.status(201).json({ message: 'Đặt vé thành công', booking_id });
+        res.status(201).json({ message: 'Booking successful', booking_id });
     } catch (error) {
-        console.error('Lỗi máy chủ:', error);
-        res.status(500).json({ message: 'Lỗi máy chủ', error });
+        console.error('Server error:', error);
+        res.status(500).json({ message: 'Server error', error });
     }
 };
 
@@ -227,5 +216,34 @@ export const listAllBookings = async (req, res) => {
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+//Bỏ authenJWT thì làm được
+export const cancelBooking = async (req, res) => {
+    const { booking_id } = req.params;
+    const user_email = req.user.email; // Giả sử email người dùng được lưu trong token
+
+    try {
+        const booking = await Booking.findOne({ booking_id, user_email });
+        if (!booking) {
+            return res.status(404).json({ message: 'Không tìm thấy đặt vé' });
+        }
+
+        const currentTime = new Date();
+        const departureTime = booking.flight_id[0].departure_time; 
+
+        if (departureTime - currentTime < 24 * 60 * 60 * 1000) { 
+            return res.status(400).json({ message: 'Không thể hủy đặt vé trong vòng 24 giờ trước khi khởi hành' });
+        }
+
+        booking.booking_status = 'Đã hủy';
+        booking.updated_at = new Date();
+        await booking.save();
+
+        res.status(200).json({ message: 'Hủy đặt vé thành công' });
+    } catch (error) {
+        console.error('Lỗi máy chủ:', error);
+        res.status(500).json({ message: 'Lỗi máy chủ', error });
     }
 };

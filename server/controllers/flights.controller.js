@@ -45,11 +45,8 @@ export const showAllFlights = async (req, res) => {
                     departure_time: 1,
                     arrival_time: 1,
                     economy_seats: 1,
-                    business_seats: 1,
                     economy_price: 1,
-                    business_price: 1,
                     'airplane_details.model': 1,
-                    'airplane_details.airline': 1,
                     'airplane_details.airplane_code': 1,
                     'booking_details.booking_id': 1
                 }
@@ -66,9 +63,9 @@ export const addNewFlight = [
     isAdmin,        
     async (req, res) => {
         console.log("Authenticated user:", req.user);
-        const {flight_code, airplane_code, ticket_price, departure_location, destination, travel_time, arrival_time, departure_time, estimated_arrival, economy_seats, business_seats, economy_price, business_price } = req.body;
+        const {flight_code, airplane_code, ticket_price, departure_location, destination, travel_time, arrival_time, departure_time, estimated_arrival, economy_seats, economy_price } = req.body;
 
-        if (!flight_code || !airplane_code || !ticket_price || !departure_location || !destination || !travel_time || !arrival_time || !departure_time || !estimated_arrival || !economy_seats || !business_seats || !economy_price || !business_price) {
+        if (!flight_code || !airplane_code || !ticket_price || !departure_location || !destination || !travel_time || !arrival_time || !departure_time || !estimated_arrival || !economy_seats || !economy_price) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -84,9 +81,7 @@ export const addNewFlight = [
                 departure_time,
                 estimated_arrival,
                 economy_seats,
-                business_seats,
-                economy_price,
-                business_price
+                economy_price
             });
 
             await newFlight.save();
@@ -163,11 +158,8 @@ export const searchFlights = async (req, res) => {
                     arrival_time: 1,
                     travel_time: { $abs: { $subtract: ['$arrival_time', '$departure_time'] } },
                     economy_seats: 1,
-                    business_seats: 1,
                     economy_price: 1,
-                    business_price: 1,
                     'airplane_details.model': 1,
-                    'airplane_details.airline': 1,
                     'airplane_details.airplane_code': 1,
                     'booking_details.booking_id': 1
                 }
@@ -190,13 +182,6 @@ export const searchFlights = async (req, res) => {
                 console.log(`Flight ${flight.flight_code} has enough economy seats: ${flight.economy_seats}`);
                 flight.available_seats = flight.economy_seats;
                 flight.price = flight.economy_price;
-                flight.class = 'Economy';
-                return true;
-            } else if (flight.business_seats >= ticketQuantity) {
-                console.log(`Flight ${flight.flight_code} has enough business seats: ${flight.business_seats}`);
-                flight.available_seats = flight.business_seats;
-                flight.price = flight.business_price;
-                flight.class = 'Business';
                 return true;
             }
             console.log(`Flight ${flight.flight_code} does not have enough seats`);
@@ -208,6 +193,34 @@ export const searchFlights = async (req, res) => {
         res.json(availableFlights);
     } catch (error) {
         console.error('Error during flight search:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const updateDepartureTime = async (req, res) => {
+    const { flightId } = req.params;
+    const { newDepartureTime } = req.body;
+
+    if (!newDepartureTime) {
+        return res.status(400).json({ message: "New departure time is required" });
+    }
+
+    try {
+        const flight = await Flight.findById(flightId);
+        if (!flight) {
+            return res.status(404).json({ message: "Flight not found" });
+        }
+
+        const newDepartureDate = new Date(newDepartureTime);
+        const newArrivalTime = new Date(newDepartureDate.getTime() + flight.travel_time * 60000); // travel_time is in minutes
+
+        flight.departure_time = newDepartureDate;
+        flight.arrival_time = newArrivalTime;
+
+        await flight.save();
+
+        res.json(flight);
+    } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };

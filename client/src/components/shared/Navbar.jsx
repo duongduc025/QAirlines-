@@ -4,8 +4,13 @@ import { Button } from '../ui/button'
 import { Avatar, AvatarImage } from '../ui/avatar'
 import logo from '../../assets/image/qairline_logo.png'
 import { LogOut, User2, Menu, X } from 'lucide-react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint'
+import { useSelector, useDispatch } from 'react-redux'
+import { setUser } from '@/redux/authSlice'
+
+
 
 const guessNavLinks = [
     {
@@ -50,9 +55,15 @@ const mobileNavLinks = [
 
 
 const Navbar = () => {
+    const { user } = useSelector(store => store.auth);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const user = true
+    
+
     const [navLinks, setNavLinks] = useState(guessNavLinks);
+
     useEffect(() => {
       setNavLinks(isMobileMenuOpen ? mobileNavLinks : guessNavLinks);
   }, [isMobileMenuOpen]);
@@ -60,6 +71,14 @@ const Navbar = () => {
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen)
     }
+
+    const handleLogout = async () => {
+        localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
+        dispatch(setUser(null));
+        navigate('/login');
+    }
+
+
 
     return (
         <div className='bg-white relative'>
@@ -118,7 +137,7 @@ const Navbar = () => {
                                             <Button variant="link" className="p-0">Tài khoản của tôi</Button>
                                         </Link>
                                     </div>
-                                    <div className='flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded'>
+                                    <div className='flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded' onClick={handleLogout}>
                                         <LogOut className='text-[#DAA520]'/>
                                         <Button variant="link" className="p-0">Đăng xuất</Button>
                                     </div>

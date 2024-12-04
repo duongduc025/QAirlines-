@@ -20,6 +20,12 @@ const clearAllData = async () => {
   }
 };
 
+const checkDatabaseConnection = async () => {
+  if (mongoose.connection.readyState !== 1) {
+    throw new Error('Database connection failed');
+  }
+};
+
 const createSampleUsers = async () => {
   const users = [
     {
@@ -182,7 +188,8 @@ const createSampleAirplanes = async () => {
 };
 
 const createSampleData = async () => {
-  await mongoose.connect('mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/', { useNewUrlParser: true, useUnifiedTopology: true });
+  await mongoose.connect('mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/FlightTicketSelling', { useNewUrlParser: true, useUnifiedTopology: true });
+  await checkDatabaseConnection();
   await clearAllData();
   await createSampleUsers();
   await createSamplePassengers();

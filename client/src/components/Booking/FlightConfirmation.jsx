@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 const FlightConfirmation = ({ selectedFlight, flightType = 'oneway', numberOfPassenger, onConfirm }) => {
   if (!selectedFlight) {
     return (
-      <Card className="w-1/4 fixed right-[3rem] top-[12rem] h-[50] p-6 border-l border-[#008080] bg-[#00808010]">
+      <Card className="w-full md:w-1/4 fixed md:right-[3rem] md:top-[12rem] h-[50] p-6 border-l border-[#008080] bg-[#00808010]">
         <CardHeader>
           <CardTitle className="text-xl font-bold text-[#008080] text-center">Chi tiết đặt vé</CardTitle>
         </CardHeader>
@@ -49,7 +49,7 @@ const FlightConfirmation = ({ selectedFlight, flightType = 'oneway', numberOfPas
     : selectedFlight.price;
 
   return (
-    <Card className="w-1/4 fixed right-[3rem] top-[12rem] h-[50] p-2 border-l border-[#008080] bg-[#00808010]">
+    <Card className="w-full md:w-1/4 md:fixed md:right-[3rem] md:top-[12rem] p-2 border-l border-[#008080] bg-[#00808010]">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-[#008080] text-center">
           Chi tiết đặt vé {flightType === 'roundtrip' ? 'khứ hồi' : 'một chiều'}

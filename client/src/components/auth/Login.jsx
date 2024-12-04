@@ -13,50 +13,62 @@ import { useDispatch } from 'react-redux'
 import { setLoading } from '@/redux/authSlice'
 import store from '@/redux/store'
 import { useSelector } from 'react-redux'
+import { USER_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint'
+import { setUser } from '@/redux/authSlice'
+
 
 const Login = () => {
-    const navigate = useNavigate(); 
+    
     const [input, setInput] = useState({
         email: "",
         password: "",
     });
-    const {loading} = useSelector(store => store.auth); 
+    const { loading, user } = useSelector(store => store.auth);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     }
-    const dispatch = useDispatch();
 
-
-    const SubmitHandler = async (e) => {
+    const submitHandler = async (e) => {
         e.preventDefault();
-        if (!input.email || !input.password) {
-            toast.error("Please fill in all fields.");
-            return;
-        }
         try {
             dispatch(setLoading(true));
-            const response = await axios.post('http://localhost:3001/login', input);
-            console.log("Response:", response.data); // Log the response
-            if (response.data === "Success") {
-                toast.success("Login successful!");
-                navigate('/home'); // Navigate to home page
+            const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                withCredentials: true,
+            });
+            if (res.data.success) {
+                localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, res.data.token);
+                dispatch(setUser(res.data.user));
+                navigate("/");
+                toast.success("Đăng nhập thành công");
             } else {
-                toast.error(response.data);
+                toast.error(res.data);
+                console.log("Thất bại");
             }
         } catch (error) {
-            console.error("Error during login:", error);
-            toast.error("An error occurred during login.");
+            console.log("Lỗi")
+            toast.error(error.response.data.message);
         } finally {
             dispatch(setLoading(false));
         }
     }
+    useEffect(()=>{
+        if(user){
+            navigate("/home");
+        }
+    },[])
 
     return (
         <>
             <Navbar />
             <div className="min-h-screen bg-gray-50 py-12">
             <div className='flex items-center justify-center max-w-7xl mx-auto'>
-                <form onSubmit={SubmitHandler} className='w-1/2 border border-gray-200 rounded-md p-4 my-10'>
+                <form onSubmit={submitHandler} className='w-1/2 border border-gray-200 rounded-md p-4 my-10'>
                     <h1 className='font-bold text-xl mb-5'>Login</h1>
                     <div className='my-2'>
                         <Label>Email</Label>
