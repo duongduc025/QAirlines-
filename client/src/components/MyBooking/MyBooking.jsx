@@ -149,6 +149,10 @@ const MyBooking = () => {
                     <p className="text-sm text-gray-500">Time</p>
                     <p className="font-medium">{booking.time}</p>
                   </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Số hành khách</p>
+                    <p className="font-medium">1</p>
+                  </div>
                 </div>
                 <div className="mt-4 flex justify-end gap-3">
                   <Button variant="outline" className="border-[#008080] text-[#008080] hover:bg-[#008080] hover:text-white">

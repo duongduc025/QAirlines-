@@ -8,18 +8,24 @@ import { Link, useNavigate } from 'react-router-dom'
 import Footer from '../shared/Footer'
 import axios from 'axios'
 import { Loader2 } from 'lucide-react'
-import { toast } from 'sonner' // Import toast for notifications
+import { toast } from 'sonner'
+import { useDispatch } from 'react-redux' 
+import { setLoading } from '@/redux/authSlice'
+import store from '@/redux/store'
+import { useSelector } from 'react-redux'
 
 const Login = () => {
-    const navigate = useNavigate(); // Add useNavigate hook
+    const navigate = useNavigate(); 
     const [input, setInput] = useState({
         email: "",
         password: "",
     });
-
+    const {loading} = useSelector(store => store.auth); 
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     }
+    const dispatch = useDispatch();
+
 
     const SubmitHandler = async (e) => {
         e.preventDefault();
@@ -28,6 +34,7 @@ const Login = () => {
             return;
         }
         try {
+            dispatch(setLoading(true));
             const response = await axios.post('http://localhost:3001/login', input);
             console.log("Response:", response.data); // Log the response
             if (response.data === "Success") {
@@ -39,6 +46,8 @@ const Login = () => {
         } catch (error) {
             console.error("Error during login:", error);
             toast.error("An error occurred during login.");
+        } finally {
+            dispatch(setLoading(false));
         }
     }
 
@@ -70,11 +79,11 @@ const Login = () => {
                             placeholder="********"
                         />
                     </div>
-                    <div className='flex items-center justify-between'>
-                    
-                    </div>
-                      <Button type="submit" className="w-full my-4 bg-[#008080]">Login</Button>
-                    <span className='text-sm'>Don't have an account? <Link to="/register" className='text-blue-600'>Register</Link></span>
+                    {
+                    loading ? <Button className="w-full my-4 bg-[#008080]"> <Loader2 className = "mr2 h-4 w-4 animate-spin" /> Please wait </Button> :
+                    <Button type="submit" className="w-full my-4 bg-[#008080]">Đăng nhập</Button>
+                    }
+                    <span className='text-sm'>Chưa có tài khoản? <Link to="/register" className='text-blue-600'>Đăng kí</Link></span>
                 </form>
             </div>
             </div>
