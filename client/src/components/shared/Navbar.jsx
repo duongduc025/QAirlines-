@@ -12,6 +12,7 @@ import { setUser } from '@/redux/authSlice'
 
 
 
+
 const guessNavLinks = [
     {
         path: '/home',
@@ -60,6 +61,8 @@ const Navbar = () => {
     const navigate = useNavigate();
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+
     
 
     const [navLinks, setNavLinks] = useState(guessNavLinks);
@@ -74,6 +77,7 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
+        localStorage.removeItem('user');
         dispatch(setUser(null));
         navigate('/login');
     }

@@ -42,8 +42,9 @@ const Login = () => {
                 withCredentials: true,
             });
             if (res.data.success) {
-                localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, res.data.token);
                 dispatch(setUser(res.data.user));
+                localStorage.setItem('user', JSON.stringify(res.data.user));
+                localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, res.data.token);
                 navigate("/");
                 toast.success("Đăng nhập thành công");
             } else {
@@ -57,11 +58,7 @@ const Login = () => {
             dispatch(setLoading(false));
         }
     }
-    useEffect(()=>{
-        if(user){
-            navigate("/home");
-        }
-    },[])
+   
 
     return (
         <>

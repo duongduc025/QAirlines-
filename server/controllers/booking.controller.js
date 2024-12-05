@@ -1,22 +1,22 @@
 import User from '../models/users.js';
 import Booking from '../models/bookings.js';
 import Flight from '../models/flights.js';
-import { v4 as uuidv4 } from 'uuid';
 import Passenger from '../models/passenger.js';
+import mongoose from 'mongoose';
 
-export const getBookingsByUserEmail = async (req, res) => {
-    const { email } = req.params;
-    console.log(`Fetching bookings for user email: ${email}`);
+export const getBookingByUserId = async (req, res) => {
+    const { id } = req.params;
+    console.log(`Fetching bookings for user ID: ${id}`);
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findById(id);
         if (!user) {
             console.log('User not found');
             return res.status(404).json({ message: 'User not found' });
         }
 
         const bookings = await Booking.aggregate([
-            { $match: { user_email: user.email } },
+            { $match: { user_id: user._id } },
             {
                 $lookup: {
                     from: 'flights',
@@ -28,7 +28,7 @@ export const getBookingsByUserEmail = async (req, res) => {
             { $unwind: '$flight_details' },
             {
                 $project: {
-                    booking_id: 1,
+                    _id: 1,
                     departure_location: '$flight_details.departure_location',
                     destination: '$flight_details.destination',
                     ticket_price: '$flight_details.ticket_price',
@@ -46,19 +46,19 @@ export const getBookingsByUserEmail = async (req, res) => {
     }
 };
 
-export const getSpecificBookingByUserEmail = async (req, res) => {
-    const { email, booking_id } = req.params;
-    console.log(`Fetching specific booking for user email: ${email}, booking ID: ${booking_id}`);
+export const getSpecificBookingByUserId = async (req, res) => {
+    const { id, booking_id } = req.params;
+    console.log(`Fetching specific booking for user ID: ${id}, booking ID: ${booking_id}`);
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findById(id);
         if (!user) {
             console.log('User not found');
             return res.status(404).json({ message: 'User not found' });
         }
 
         const bookings = await Booking.aggregate([
-            { $match: { booking_id: booking_id, user_email: email } },
+            { $match: { _id: new mongoose.Types.ObjectId(booking_id), user_id: user._id } },
             {
                 $lookup: {
                     from: 'flights',
@@ -70,7 +70,7 @@ export const getSpecificBookingByUserEmail = async (req, res) => {
             { $unwind: '$flight_details' },
             {
                 $project: {
-                    booking_id: 1,
+                    _id: 1,
                     departure_location: '$flight_details.departure_location',
                     destination: '$flight_details.destination',
                     ticket_price: '$flight_details.ticket_price',
@@ -119,7 +119,6 @@ export const createBooking = async (req, res) => {
         for (const passenger of passengers) {
             const { first_name, last_name, email, phone, gender, dob, nationality, identity_number } = passenger;
             const newPassenger = new Passenger({
-                passenger_id: uuidv4(),
                 first_name,
                 last_name,
                 email,
@@ -131,20 +130,25 @@ export const createBooking = async (req, res) => {
                 flight_id
             });
             await newPassenger.save();
-            passenger_ids.push(newPassenger.passenger_id);
+            passenger_ids.push(newPassenger._id);
+        }
+
+        // Find the user by email
+        const user = await User.findOne({ email: user_email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
         // Create a new booking
-        const booking_id = uuidv4();
         const newBooking = new Booking({
-            booking_id,
+            user_id: user._id,
             user_email,
             flight_id,
             ticket_quantity,
             ticket_price,
             total_price,
             booking_date: new Date(),
-            booking_status: 'Booked',
+            booking_status: 'Đã đặt',
             passenger_ids,
             updated_at: new Date()
         });
@@ -157,14 +161,10 @@ export const createBooking = async (req, res) => {
         await newBooking.save();
 
         // Update the user's booking list
-        const user = await User.findOne({ email: user_email });
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        user.booking_id.push(booking_id);
+        user.booking_id.push(newBooking._id);
         await user.save();
 
-        res.status(201).json({ message: 'Booking successful', booking_id });
+        res.status(201).json({ message: 'Booking successful', booking_id: newBooking._id });
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ message: 'Server error', error });
@@ -190,15 +190,11 @@ export const listAllBookings = async (req, res) => {
                     as: 'user_details'
                 }
             },
-            {
-                $unwind: '$flight_details'
-            },
-            {
-                $unwind: '$user_details'
-            },
+            { $unwind: '$flight_details' },
+            { $unwind: '$user_details' },
             {
                 $project: {
-                    booking_id: 1,
+                    _id: 1,
                     user_email: '$user_details.email',
                     flight_code: '$flight_details.flight_code',
                     departure_location: '$flight_details.departure_location',
@@ -211,7 +207,7 @@ export const listAllBookings = async (req, res) => {
                 }
             }
         ]);
-
+        console.log('Bookings:', bookings); // Debug log to check the bookings data
         res.json(bookings);
     } catch (error) {
         console.error('Server error:', error);
@@ -225,7 +221,7 @@ export const cancelBooking = async (req, res) => {
     const user_email = req.user.email; // Giả sử email người dùng được lưu trong token
 
     try {
-        const booking = await Booking.findOne({ booking_id, user_email });
+        const booking = await Booking.findOne({ _id: mongoose.Types.ObjectId(booking_id), user_email });
         if (!booking) {
             return res.status(404).json({ message: 'Không tìm thấy đặt vé' });
         }

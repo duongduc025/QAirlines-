@@ -10,33 +10,122 @@ import {
   Star,
   Hotel,
   Car,
-  CreditCard
+  CreditCard,
+  X
 } from 'lucide-react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription 
+} from '@/components/ui/dialog';
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import QApro from '../../assets/image/QApro.png';
 
-const PromotionCard = ({ title, desc, validUntil, discount, imagePath }) => (
+const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
+  if (!promotion) return null;
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-xl">
+        <div className="relative">
+          
+          
+          <img
+            src={promotion.imagePath || "/api/placeholder/400/200"}
+            alt={promotion.title}
+            className="w-full h-64 object-cover rounded-t-xl"
+          />
+          
+          <div className="absolute top-6 right-6 bg-[#DAA520] text-white px-4 py-1 rounded-full font-bold">
+            -{promotion.discount}%
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-[#008080] mb-2">
+              {promotion.title}
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mb-4">
+              {promotion.desc}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <Clock className="w-5 h-5 mr-3 text-[#DAA520]" />
+              <span className="text-gray-700">
+                Hiệu lực đến: <strong>{promotion.validUntil}</strong>
+              </span>
+            </div>
+            
+            <div className="flex items-center">
+              <Tag className="w-5 h-5 mr-3 text-[#DAA520]" />
+              <span className="text-gray-700">
+                Mã khuyến mãi: <strong>QAIRLINE{promotion.id}</strong>
+              </span>
+            </div>
+            
+            <div className="flex items-center">
+              <Calendar className="w-5 h-5 mr-3 text-[#DAA520]" />
+              <span className="text-gray-700">
+                Ngày áp dụng: Từ ngày công bố đến {promotion.validUntil}
+              </span>
+            </div>
+          </div>
+          
+          <div className="mt-6 bg-[#008080]/10 p-4 rounded-lg">
+            <h4 className="text-[#008080] font-bold mb-2">Điều kiện áp dụng:</h4>
+            <ul className="list-disc list-inside text-gray-600 space-y-1">
+              <li>Áp dụng cho tất cả khách hàng</li>
+              <li>Không áp dụng đồng thời với các chương trình khuyến mãi khác</li>
+              <li>Số lượng ưu đãi có hạn</li>
+              <li>QAirline có quyền điều chỉnh và thay đổi điều kiện mà không cần báo trước</li>
+            </ul>
+          </div>
+          
+          <div className="mt-6 flex justify-end">
+            <button 
+              onClick={onClose}
+              className="bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-[#006666] transition duration-300"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+
+
+const PromotionCard = ({ promotion, onShowDetails }) => (
   <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-[#008080]/10">
     <div className="relative h-48">
       <img
-        src={imagePath || "/api/placeholder/400/200"}
-        alt={title}
+        src={promotion.imagePath || "/api/placeholder/400/200"}
+        alt={promotion.title}
         className="w-full h-full object-cover"
       />
       <div className="absolute top-4 right-4 bg-[#DAA520] text-white px-4 py-1 rounded-full font-bold">
-        -{discount}%
+        -{promotion.discount}%
       </div>
     </div>
     <div className="p-6">
-      <h3 className="text-xl font-bold text-[#008080] mb-2">{title}</h3>
-      <p className="text-gray-600 mb-4">{desc}</p>
+      <h3 className="text-xl font-bold text-[#008080] mb-2">{promotion.title}</h3>
+      <p className="text-gray-600 mb-4">{promotion.desc}</p>
       <div className="flex items-center justify-between">
         <div className="flex items-center text-[#DAA520]">
           <Clock className="w-4 h-4 mr-2" />
-          <span className="text-sm">Đến {validUntil}</span>
+          <span className="text-sm">Đến {promotion.validUntil}</span>
         </div>
-        <button className="flex items-center text-[#008080] hover:text-[#006666] font-medium">
+        <button 
+          onClick={() => onShowDetails(promotion)}
+          className="flex items-center text-[#008080] hover:text-[#006666] font-medium"
+        >
           Chi tiết
           <ChevronRight className="w-4 h-4 ml-1" />
         </button>
@@ -48,6 +137,7 @@ const PromotionCard = ({ title, desc, validUntil, discount, imagePath }) => (
 const QairlinePromotions = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(0);
+  const [selectedPromotion, setSelectedPromotion] = useState(null);
   const itemsPerPage = 6;
 
   const categories = [
@@ -153,8 +243,8 @@ const QairlinePromotions = () => {
   return (
     <>
     <Navbar />
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="container mx-auto px-4">
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#008080] mb-4">
@@ -208,30 +298,34 @@ const QairlinePromotions = () => {
 
         {/* Promotions Grid with Navigation */}
         <div className="relative">
-          {currentPage > 0 && (
-            <button
-              onClick={prevPage}
-              className="absolute left-[-40px] top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg text-[#008080] hover:text-[#DAA520] transition-colors duration-300"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-          )}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayedPromotions.map(promo => (
-              <PromotionCard key={promo.id} {...promo} />
-            ))}
-          </div>
+            {currentPage > 0 && (
+              <button
+                onClick={prevPage}
+                className="absolute left-[-40px] top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg text-[#008080] hover:text-[#DAA520] transition-colors duration-300"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {displayedPromotions.map(promo => (
+                <PromotionCard 
+                  key={promo.id} 
+                  promotion={promo} 
+                  onShowDetails={(promotion) => setSelectedPromotion(promotion)} 
+                />
+              ))}
+            </div>
 
-          {currentPage < totalPages - 1 && (
-            <button
-              onClick={nextPage}
-              className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg text-[#008080] hover:text-[#DAA520] transition-colors duration-300"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          )}
-        </div>
+            {currentPage < totalPages - 1 && (
+              <button
+                onClick={nextPage}
+                className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg text-[#008080] hover:text-[#DAA520] transition-colors duration-300"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            )}
+          </div>
 
         {/* Page Indicators */}
         {totalPages > 1 && (
@@ -273,6 +367,11 @@ const QairlinePromotions = () => {
         </div>
       </div>
     </div>
+    <PromotionDetailModal 
+        promotion={selectedPromotion}
+        isOpen={!!selectedPromotion}
+        onClose={() => setSelectedPromotion(null)}
+      />
     <Footer/>
     </>
   );

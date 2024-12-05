@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { INITIAL_USER_STATE } from "../utils/constraint";
+import { LOCAL_STORAGE_TOKEN_NAME } from "../utils/constraint";
 
 const authSlice = createSlice({
     name:"auth",
     initialState:{
         loading:false,
-        user: INITIAL_USER_STATE
+        user: null,
     },
     reducers:{
         // actions

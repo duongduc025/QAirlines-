@@ -11,8 +11,8 @@ export const showAllFlights = async (req, res) => {
             {
                 $lookup: {
                     from: 'airplanes',
-                    localField: 'airplane_id',
-                    foreignField: '_id',
+                    localField: 'airplane_code',
+                    foreignField: 'airplane_code',
                     as: 'airplane_details'
                 }
             },
@@ -25,7 +25,7 @@ export const showAllFlights = async (req, res) => {
             {
                 $lookup: {
                     from: 'bookings',
-                    localField: 'flight_id',
+                    localField: '_id',
                     foreignField: 'flight_id',
                     as: 'booking_details'
                 }
@@ -38,7 +38,7 @@ export const showAllFlights = async (req, res) => {
             },
             {
                 $project: {
-                    flight_id: 1,
+                    _id: 1,
                     flight_code: 1,
                     departure_location: 1,
                     destination: 1,
@@ -48,7 +48,8 @@ export const showAllFlights = async (req, res) => {
                     economy_price: 1,
                     'airplane_details.model': 1,
                     'airplane_details.airplane_code': 1,
-                    'booking_details.booking_id': 1
+                    'booking_details._id': 1,
+                    travel_time: { $divide: [{ $abs: { $subtract: ['$arrival_time', '$departure_time'] } }, 3600000] } // convert milliseconds to hours
                 }
             }
         ]);
@@ -70,6 +71,11 @@ export const addNewFlight = [
         }
 
         try {
+            const existingFlight = await Flight.findOne({ flight_code });
+            if (existingFlight) {
+                return res.status(400).json({ message: "Flight with this code already exists" });
+            }
+
             const newFlight = new Flight({
                 flight_code,
                 airplane_code,
@@ -112,8 +118,6 @@ export const searchFlights = async (req, res) => {
             return res.status(400).json({ message: "Invalid ticket quantity" });
         }
 
-        console.log('Parsed Parameters:', { departure_location, destination, departureDate, ticketQuantity });
-
         const flights = await Flight.aggregate([
             {
                 $match: {
@@ -137,7 +141,7 @@ export const searchFlights = async (req, res) => {
             {
                 $lookup: {
                     from: 'bookings',
-                    localField: 'flight_id',
+                    localField: '_id',
                     foreignField: 'flight_id',
                     as: 'booking_details'
                 }
@@ -150,7 +154,7 @@ export const searchFlights = async (req, res) => {
             },
             {
                 $project: {
-                    flight_id: 1,
+                    _id: 1,
                     flight_code: 1,
                     departure_location: 1,
                     destination: 1,
@@ -161,7 +165,7 @@ export const searchFlights = async (req, res) => {
                     economy_price: 1,
                     'airplane_details.model': 1,
                     'airplane_details.airplane_code': 1,
-                    'booking_details.booking_id': 1
+                    'booking_details._id': 1
                 }
             }
         ]);
@@ -212,7 +216,7 @@ export const updateDepartureTime = async (req, res) => {
         }
 
         const newDepartureDate = new Date(newDepartureTime);
-        const newArrivalTime = new Date(newDepartureDate.getTime() + flight.travel_time * 60000); // travel_time is in minutes
+        const newArrivalTime = new Date(newDepartureDate.getTime() + flight.travel_time * 3600000); // travel_time is in minutes
 
         flight.departure_time = newDepartureDate;
         flight.arrival_time = newArrivalTime;

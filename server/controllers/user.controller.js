@@ -66,6 +66,31 @@ const login = async (req, res) => {
     }
 };
 
+const loginWithToken = async (req, res) => {
+    const { token } = req.body;
+    if (!token) {
+        console.log("Token is required");
+        return res.status(400).json("Token is required");
+    }
+
+    try {
+        console.log("Received token:", token);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("Decoded token:", decoded);
+        const user = await User.findOne({ email: decoded.email });
+        if (user) {
+            console.log("User found:", user);
+            res.json({ success: true, user });
+        } else {
+            console.log("No user found with that email");
+            res.status(404).json("No user found with that email");
+        }
+    } catch (err) {
+        console.error("Error during token login:", err);
+        res.status(500).json("Error during token login");
+    }
+};
+
 const updateUser = async (req, res) => {
     const { email } = req.params;
     const { newEmail, fullname, phoneNumber } = req.body;
@@ -165,4 +190,4 @@ const logout = (req, res) => {
 //Khi người dùng logout, bạn có thể xóa token từ phía client 
 //(ví dụ: localStorage hoặc sessionStorage).
 
-export { register, login, updateUser, changePassword, addUser, logout };
+export { register, login, updateUser, changePassword, addUser, logout, loginWithToken };

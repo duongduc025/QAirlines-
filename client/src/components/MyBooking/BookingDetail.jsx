@@ -10,24 +10,23 @@ import { setSingleBooking } from '@/redux/bookingSlice';
 const BookingDetail = () => {
   const {singleBooking} = useSelector((state) => state.booking);
   const {user} = useSelector((state) => state.auth);
+  
+ 
 
-  param = useParams();
-    const bookingID = params.id;
-
-  useEffect(() => {
-    const fetchSingleBooking = async () => {
-      try {
-        const response = await axios.get(`${BOOKING_API_ENDPOINT}/get/${bookingID}`, {withCredentials: true});
-         if(response.data === "Success") {
-            dispatch(setSingleBooking(response.data));
-         }
-      } catch (error) {
-        console.error("Error during booking:", error);
-        toast.error("An error occurred during booking.");
-      }
-      fetchSingleBooking();
-    }
-  }, [bookingID, dispatch, user?._id]);
+  // useEffect(() => {
+  //   const fetchSingleBooking = async () => {
+  //     try {
+  //       const response = await axios.get(`${BOOKING_API_ENDPOINT}/get/${bookingID}`, {withCredentials: true});
+  //        if(response.data === "Success") {
+  //           dispatch(setSingleBooking(response.data));
+  //        }
+  //     } catch (error) {
+  //       console.error("Error during booking:", error);
+  //       toast.error("An error occurred during booking.");
+  //     }
+  //     fetchSingleBooking();
+  //   }
+  // }, [bookingID, dispatch, user?._id]);
   
   const exampleTicket = {
     flight: {

@@ -17,6 +17,7 @@ import AdminAirCraft from './components/admin/AdminAirCraft'
 import AdminFlight from './components/admin/AdminFlight'
 import AdminBooking from './components/admin/AdminBooking'
 import BookingDetail from './components/MyBooking/BookingDetail'
+import PostDetail from './components/promotion/PostDetail'
 
 const appRouter = createBrowserRouter([
   {
@@ -74,7 +75,16 @@ const appRouter = createBrowserRouter([
   {
     path: '/bookingdetail',
     element: <BookingDetail />
-  }
+  },
+  {
+    path: '/bookingdetail/:id',
+    element: <BookingDetail />
+  },
+  {
+    path: '/promotion/detail',
+    element: <PostDetail />
+  },
+
 ])
 const AdminRouter = createBrowserRouter([
   {

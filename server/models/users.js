@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 
 const userSchema = new mongoose.Schema({
-  user_id: { type: String, default: uuidv4, required: true },
   email: { type: String, required: true },
   fullname: { type: String, required: true },
   phoneNumber: { type: String, required: true },
@@ -11,12 +10,5 @@ const userSchema = new mongoose.Schema({
   role: { type: String, required: true, default: 'user' },
   booking_id: { type: [String] }
 });
-
-// userSchema.pre('save', async function(next) {
-//   if (this.isModified('password') || this.isNew) {
-//     this.password = await bcrypt.hash(this.password, 10);
-//   }
-//   next();
-// });
 
 export default mongoose.model('User', userSchema, 'users');

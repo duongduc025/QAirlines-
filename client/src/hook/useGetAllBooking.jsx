@@ -1,28 +1,42 @@
-import { BOOKING_API_ENDPOINT } from '@/utils/constraint';
+import { BOOKING_API_END_POINT } from '@/utils/constraint';
 import React from 'react'
 import axios from 'axios'
-import { setAllBooking } from '@/redux/bookingSlice'
 import { toast } from 'sonner'
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { setAllBooking } from '@/redux/bookingSlice';
+import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
 
 const useGetAllBooking = () => {
     const dispatch = useDispatch();
-    useEffect(() => {
-        const fetchAllBooking = async () => {
+    const {user} = useSelector(state => state.auth);
+    useEffect(()=>{
+        const fetchAllBookings = async () => {
             try {
-                const res = await axios.get(`${BOOKING_API_ENDPOINT}/get`,{withCredentials:true});
-                console.log("Response:", response.data); // Log the response
-                if (response.data === "Success") {
-                   dispatch(setAllBooking(response.data));
-                } 
+                console.log(user);
+                const res = await axios.get(`${BOOKING_API_END_POINT}/users/${user?._id}/bookings`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
+                    },
+                    withCredentials: true,
+                });
+                console.log(`${BOOKING_API_END_POINT}/users/${user?._id}/bookings`);
+                console.log(localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME));
+                console.log(res.data);
+                if(res.data.success){
+                    dispatch(setAllBooking(res.data.bookings));
+                    console.log(res.data.bookings);
+                }
+                else
+                    toast.error("Error during fetching booking");
             } catch (error) {
-                console.error("Error during booking:", error);
-                toast.error("An error occurred during booking.");
-            } finally {
-                dispatch(setLoading(false));
+                console.log(error);
+                toast.error("Error during fetching booking");
             }
         }
-        fetchAllBooking();
-    }
-    )};
+        fetchAllBookings();
+    },[user, dispatch])
+}
+
+export default useGetAllBooking;
