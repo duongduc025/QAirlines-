@@ -7,14 +7,14 @@ import mongoose from 'mongoose';
 export const getBookingByUserId = async (req, res) => {
     const { id } = req.params;
     console.log(`Fetching bookings for user ID: ${id}`);
-
+   
     try {
         const user = await User.findById(id);
         if (!user) {
             console.log('User not found');
             return res.status(404).json({ message: 'User not found' });
         }
-
+      
         const bookings = await Booking.aggregate([
             { $match: { user_id: user._id } },
             {
@@ -39,10 +39,10 @@ export const getBookingByUserId = async (req, res) => {
             }
         ]);
 
-        res.json(bookings);
+        res.json({ success: true, bookings });
     } catch (error) {
         console.error('Server error:', error);
-        res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ success: false, message: 'Server error', error });
     }
 };
 
@@ -86,10 +86,10 @@ export const getSpecificBookingByUserId = async (req, res) => {
             return res.status(404).json({ message: 'Booking not found for this user' });
         }
 
-        res.json(bookings[0]);
+        res.json({ success: true, bookings: bookings[0] });
     } catch (error) {
         console.error('Server error:', error);
-        res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ success: false, message: 'Server error', error });
     }
 };
 
@@ -208,7 +208,7 @@ export const listAllBookings = async (req, res) => {
             }
         ]);
         console.log('Bookings:', bookings); // Debug log to check the bookings data
-        res.json(bookings);
+        res.json({ success:true, bookings});
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ message: 'Server error', error });
