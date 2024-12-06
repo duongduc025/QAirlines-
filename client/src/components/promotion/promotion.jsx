@@ -317,14 +317,7 @@ const QairlinePromotions = () => {
               ))}
             </div>
 
-            {currentPage < totalPages - 1 && (
-              <button
-                onClick={nextPage}
-                className="absolute right-[-40px] top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-lg text-[#008080] hover:text-[#DAA520] transition-colors duration-300"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            )}
+       
           </div>
 
         {/* Page Indicators */}
