@@ -1,6 +1,8 @@
 import User from '../models/users.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import Booking from '../models/bookings.js';
+import Flight from '../models/flights.js';
 
 const register = async (req, res) => {
     const { email, fullname, phoneNumber, password } = req.body; 
@@ -186,8 +188,98 @@ const logout = (req, res) => {
     // Invalidate the token or clear the session
     res.status(200).json("Logout successful");
 };
-//Không lưu trữ token ở phía client: 
-//Khi người dùng logout, bạn có thể xóa token từ phía client 
-//(ví dụ: localStorage hoặc sessionStorage).
 
-export { register, login, updateUser, changePassword, addUser, logout, loginWithToken };
+//SẮP XẾP THÌ ĐỂ FRONTEND
+
+// listAllUserBookingInPeriod
+// Đầu vào mặc định period = "month"
+// aggregate booking, flight, user 
+// => Lấy ra hết theo user_id
+// 1 user_id sẽ đi kèm theo 
+// + tổng số lượng booking
+// + tổng số lượng vé
+// + tổng số lượng tiền
+// if(period === "day"){
+//     Lấy ra ngày hôm qua
+// }
+// else if(period === "week"){
+//     Lấy ra tuần trước
+// }
+// else if(period === "month"){
+//     Lấy ra tháng trước
+// }
+// else if(period === "quarter"){
+//     Lấy ra của 3 tháng trước
+// }
+// else{
+//     console.log("Invalid period");
+//     return res.status(400).json("Invalid period");
+// }
+
+const listAllUserBookingInPeriod = async (req, res) => {
+    const { period = "month" } = req.query;
+    let startDate;
+
+    switch (period) {
+        case "day":
+            startDate = new Date();
+            startDate.setDate(startDate.getDate() - 1);
+            break;
+        case "week":
+            startDate = new Date();
+            startDate.setDate(startDate.getDate() - 7);
+            break;
+        case "month":
+            startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 1);
+            break;
+        case "quarter":
+            startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 3);
+            break;
+        default:
+            console.log("Invalid period");
+            return res.status(400).json("Invalid period");
+    }
+
+    try {
+        const bookings = await Booking.aggregate([
+            { $match: { booking_date: { $gte: startDate } } },
+            {
+                $group: {
+                    _id: "$user_id",
+                    totalBookings: { $sum: 1 },
+                    totalTickets: { $sum: "$ticket_quantity" },
+                    totalPrice: { $sum: "$total_price" }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            { $unwind: "$user" },
+            {
+                $project: {
+                    _id: 0,
+                    user_id: "$_id",
+                    email: "$user.email",
+                    fullname: "$user.fullname",
+                    totalBookings: 1,
+                    totalTickets: 1,
+                    totalPrice: 1
+                }
+            }
+        ]);
+
+        res.json(bookings);
+    } catch (err) {
+        console.error("Error occurred during aggregation:", err);
+        res.status(500).json("Error occurred during aggregation");
+    }
+};
+
+export { register, login, updateUser, changePassword, addUser, logout, loginWithToken, listAllUserBookingInPeriod };
