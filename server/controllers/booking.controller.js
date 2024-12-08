@@ -34,6 +34,7 @@ export const getBookingByUserId = async (req, res) => {
                     ticket_price: '$flight_details.ticket_price',
                     departure_time: '$flight_details.departure_time',
                     travel_time: '$flight_details.travel_time',
+                    booking_status: '$flight_details.booking_status',
                     ticket_quantity: 1
                 }
             }
