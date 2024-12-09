@@ -128,22 +128,22 @@ const AdminBooking = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Calendar */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="text-gray-700 flex items-center gap-2">
-                <CalendarDays className="h-5 w-5" />
-                Chọn ngày xem vé
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Calendar 
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => setSelectedDate(date || new Date())}
-                className="rounded-md border"
-              />
-            </CardContent>
-          </Card>
+          <Card className="lg:col-span-1 min-w-[320px]">
+  <CardHeader>
+    <CardTitle className="text-gray-700 flex items-center gap-2">
+      <CalendarDays className="h-5 w-5" />
+      Chọn ngày xem vé
+    </CardTitle>
+  </CardHeader>
+  <CardContent className="flex justify-center items-center px-2 sm:px-4">
+    <Calendar
+      mode="single"
+      selected={selectedDate}
+      onSelect={(date) => setSelectedDate(date || new Date())}
+      className="rounded-md border w-full max-w-[300px]"
+    />
+  </CardContent>
+</Card>
 
           {/* Ticket List */}
           <Card className="lg:col-span-3">
