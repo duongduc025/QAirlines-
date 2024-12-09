@@ -13,7 +13,7 @@ const AdminBooking = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   
-  // Mock data cho danh sách vé với ngày đặt dạng Date
+  
   const allTickets = [
     { 
       id: "T001",
@@ -74,14 +74,14 @@ const AdminBooking = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* SideBar */}
-      <div className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-30">
+      
         <AdminSideBar />
-      </div>
+ 
 
       {/* Main Content */}
-      <div className="ml-64 p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Quản lý vé máy bay</h1>
+      <div className="flex-1 p-4 md:p-8 w-full space-y-4">
+        <div className="flex justify-between items-center mb-6 pt-10">
+          <h1 className="text-2xl font-bold text-gray-800 ">Quản lý vé máy bay</h1>
           <div className="flex items-center gap-2">
             <CalendarDays className="h-5 w-5 text-gray-500" />
             <span className="text-gray-600">{formatDate(new Date())}</span>
@@ -108,6 +108,17 @@ const AdminBooking = () => {
                 <div>
                   <p className="text-sm font-medium">Tổng hành khách ngày {formatDate(selectedDate)}</p>
                   <p className="text-2xl font-bold ">{passengersToday}</p>
+                </div>
+                <Users className="h-8 w-8" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium">Tổng số tiền ngày {formatDate(selectedDate)}</p>
+                  <p className="text-2xl font-bold ">{""}</p>
                 </div>
                 <Users className="h-8 w-8" />
               </div>
