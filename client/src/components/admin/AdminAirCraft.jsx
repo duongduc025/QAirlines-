@@ -57,7 +57,7 @@ const AdminAircraft = () => {
      
         <AdminSideBar />
      
-      <div className="flex-1 p-4 md:p-8 mx-auto max-w-7xl w-full">
+      <div className="pt-20 flex-1 p-4 md:p-8 mx-auto max-w-7xl w-full">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">

@@ -13,21 +13,28 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { LOCAL_STORAGE_TOKEN_NAME } from "../../utils/constraint";
+import { useDispatch } from 'react-redux';
+import { setUser } from '@/redux/authSlice';
 
 const AdminSideBar = () => {
   const [expanded, setExpanded] = useState(false);
+  const dispatch = useDispatch();
+  const handleLogout = async () => {
+    localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
+    dispatch(setUser(null));
+    navigate('/login');
+  }
+
 
   const menuItems = [
-    { icon: Home, label: 'Trang chủ', href: '/admin' },
-    { icon: Ticket, label: 'Ưu đãi', href: '/admin/promotions' },
-    { icon: Plane, label: 'Tàu bay', href: '/admin/aircrafts' },
-    { icon: Calendar, label: 'Chuyến bay', href: '/admin/flights' },
-    { icon: BookOpen, label: 'Đặt vé', href: '/admin/bookings' },
+    { icon: Home, label: 'Trang chủ', href: '/' },
+    { icon: Ticket, label: 'Ưu đãi', href: '/promotions' },
+    { icon: Plane, label: 'Tàu bay', href: '/aircrafts' },
+    { icon: Calendar, label: 'Chuyến bay', href: '/flights' },
+    { icon: BookOpen, label: 'Đặt vé', href: '/bookings' },
   ];
 
-  const handleLogout = () => {
-    console.log('Logging out...');
-  };
 
   return (
     <TooltipProvider>

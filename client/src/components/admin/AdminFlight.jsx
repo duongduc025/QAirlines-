@@ -117,7 +117,7 @@ const AdminFlight = () => {
         <AdminSideBar />
         
       {/* Main content */}
-      <div className="ml-4 mr-4 flex-1 p-4 md:p-8 w-full space-y-4">
+      <div className="pt-20 flex-1 p-4 md:p-8 mx-auto max-w-[100rem] w-full">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">

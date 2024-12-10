@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-
+import store from '@/redux/store';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const Profile = () => {
+  const { user } = useSelector(store => store.auth);
   const [formData, setFormData] = useState({
-    fullname: "Hoang Duc Duong",
-    email: "hoangducduong025@gmail.com",
-    phone: "0889222717",
+    fullname: "",
+    email: "",
+    phone: "",
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        fullname: user.fullname,
+        email: user.email,
+        phone: user.phoneNumber,
+      });
+    }
+  }, [user]);
 
   const handleInputChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

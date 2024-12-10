@@ -72,14 +72,14 @@ const AdminBooking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className=" flex min-h-screen bg-gray-50">
       {/* SideBar */}
       
         <AdminSideBar />
  
 
       {/* Main Content */}
-      <div className="flex-1 p-4 md:p-8 w-full space-y-4">
+      <div className="pt-20 *:flex-1 p-4 md:p-8 w-full space-y-4">
         <div className="flex justify-between items-center mb-6 pt-10">
           <h1 className="text-2xl font-bold text-gray-800 ">Quản lý vé máy bay</h1>
           <div className="flex items-center gap-2">

@@ -11,8 +11,6 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setUser } from '@/redux/authSlice'
 
 
-
-
 const guessNavLinks = [
     {
         path: '/home',
@@ -77,7 +75,6 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
-        localStorage.removeItem('user');
         dispatch(setUser(null));
         navigate('/login');
     }
