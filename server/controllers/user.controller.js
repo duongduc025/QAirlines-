@@ -94,28 +94,23 @@ const loginWithToken = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-    const { email } = req.params;
+    const { _id } = req.params;
     const { newEmail, fullname, phoneNumber } = req.body;
-    console.log("Updating user with email:", email);
+    console.log("Updating user with _id:", _id);
 
     try {
-        const existingUser = await User.findOne({ email: newEmail });
-        if (existingUser) {
-            return res.status(400).json("New email already exists.");
-        }
-
-        const user = await User.findOneAndUpdate(
-            { email },  // Tìm người dùng cũ dựa trên email
-            { email: newEmail, fullname, phoneNumber },  // Cập nhật thông tin
-            { new: true }  // Trả về tài liệu đã cập nhật
+        const user = await User.findByIdAndUpdate(
+            _id,  // Find the user by _id
+            { email: newEmail, fullname, phoneNumber },  // Update the information
+            { new: true }  // Return the updated document
         );
 
         if (user) {
             console.log("User updated successfully:", user);
             res.json(user);
         } else {
-            console.log("No user found with that email");
-            res.status(404).json("No user found with that email");
+            console.log("No user found with that _id");
+            res.status(404).json("No user found with that _id");
         }
     } catch (err) {
         console.error("Error occurred during update:", err);
@@ -282,4 +277,7 @@ const listAllUserBookingInPeriod = async (req, res) => {
     }
 };
 
+//Tạo chart từ những thông số đã có về booking của các user_id
+
 export { register, login, updateUser, changePassword, addUser, logout, loginWithToken, listAllUserBookingInPeriod };
+
