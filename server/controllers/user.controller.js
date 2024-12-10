@@ -184,32 +184,7 @@ const logout = (req, res) => {
     res.status(200).json("Logout successful");
 };
 
-//SẮP XẾP THÌ ĐỂ FRONTEND
 
-// listAllUserBookingInPeriod
-// Đầu vào mặc định period = "month"
-// aggregate booking, flight, user 
-// => Lấy ra hết theo user_id
-// 1 user_id sẽ đi kèm theo 
-// + tổng số lượng booking
-// + tổng số lượng vé
-// + tổng số lượng tiền
-// if(period === "day"){
-//     Lấy ra ngày hôm qua
-// }
-// else if(period === "week"){
-//     Lấy ra tuần trước
-// }
-// else if(period === "month"){
-//     Lấy ra tháng trước
-// }
-// else if(period === "quarter"){
-//     Lấy ra của 3 tháng trước
-// }
-// else{
-//     console.log("Invalid period");
-//     return res.status(400).json("Invalid period");
-// }
 
 const listAllUserBookingInPeriod = async (req, res) => {
     const { period = "month" } = req.query;
