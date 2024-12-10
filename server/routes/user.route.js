@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/register', validateUser, validate, register);
 router.post('/login', validate, login);
 router.put('/update/:_id', authenticateJWT, validateUpdateUser, validate, updateUser);
-router.put('/change-password/:email', authenticateJWT, validateChangePassword, validate, changePassword);
+router.put('/change-password/:_id', authenticateJWT, validateChangePassword, validate, changePassword);
 router.post('/add-user', validateUser, validate, addUser);
 router.post('/loginWithToken', validate, loginWithToken);
 router.get('/listAllUserBookingInPeriod', authenticateJWT, isAdmin, listAllUserBookingInPeriod);

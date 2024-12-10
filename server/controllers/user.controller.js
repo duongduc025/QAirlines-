@@ -119,7 +119,7 @@ const updateUser = async (req, res) => {
 };
 
 const changePassword = async (req, res) => {
-    const { email } = req.params;
+    const { _id } = req.params;
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
@@ -127,10 +127,7 @@ const changePassword = async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json("No user found with that email.");
-        }
+        const user = await User.findOne({ _id });
 
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
