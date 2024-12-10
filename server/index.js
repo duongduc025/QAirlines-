@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/user.route.js';
 import flightRoutes from './routes/flights.route.js';
 import bookingRoutes from './routes/booking.route.js';
+import noticeRoutes from './routes/notices.route.js';
+import promotionRoutes from './routes/promotions.route.js';
 
 dotenv.config();
 
@@ -27,6 +29,8 @@ mongoose.connect(process.env.MONGO_URI, {
 app.use('/api/users', userRoutes);
 app.use('/api/flights', flightRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/notices', noticeRoutes);
+app.use('/api/promotions', promotionRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

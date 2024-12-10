@@ -1,21 +1,29 @@
 import store from '@/redux/store';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
+import axios from 'axios';
+import { USER_API_END_POINT } from '@/utils/constraint';
+import { setUser } from '@/redux/authSlice';
+
 
 const Profile = () => {
   const { user } = useSelector(store => store.auth);
   const [formData, setFormData] = useState({
     fullname: "",
-    email: "",
-    phone: "",
+    newEmail: "",
+    phoneNumber: "",
   });
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (user) {
       setFormData({
         fullname: user.fullname,
-        email: user.email,
-        phone: user.phoneNumber,
+        newEmail: user.email,
+        phoneNumber: user.phoneNumber,
       });
     }
   }, [user]);
@@ -24,11 +32,30 @@ const Profile = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const submitHandler = e => {
+  const submitHandler = async e => {
     e.preventDefault();
+
+    console.log(formData);
+    try {
+      setLoading(true);
+      const res = await axios.put(`${USER_API_END_POINT}/update/${user._id}`, formData, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true
+      });
+      if(res.data){
+        dispatch(setUser(res.data));
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const { fullname, email, birthday, phone, gender } = formData;
+  const { fullname, newEmail, phoneNumber} = formData;
 
   return (
     <div>
@@ -51,8 +78,8 @@ const Profile = () => {
           <input 
             type="email"
             placeholder="Email"
-            name="email"
-            value={email}
+            name="newEmail"
+            value={newEmail}
             onChange={handleInputChange}  
             className="p-5 w-full pr-4 py-3 border-b border-solid border-[#008080] focus:outline-none focus:border-b-[#008080] text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
             required
@@ -62,12 +89,12 @@ const Profile = () => {
   
 
         <div className="mb-5">
-          <label className='form__label font-semibold p '>Phone</label>
+          <label className='form__label font-semibold p '>phoneNumber</label>
           <input 
             type="text"
-            placeholder="Phone"
-            name="phone"
-            value={phone}
+            placeholder="phoneNumber"
+            name="phoneNumber"
+            value={phoneNumber}
             onChange={handleInputChange}  
             className="p-5 w-full pr-4 py-3 border-b border-solid border-[#008080] focus:outline-none focus:border-b-#008080]text-[16px] leading-7 text-headingColor placeholder:text-textColor cursor-pointer"
             required

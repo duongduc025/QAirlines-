@@ -34,6 +34,7 @@ export const getBookingByUserId = async (req, res) => {
                     ticket_price: '$flight_details.ticket_price',
                     departure_time: '$flight_details.departure_time',
                     travel_time: '$flight_details.travel_time',
+                    booking_status: '$flight_details.booking_status',
                     ticket_quantity: 1
                 }
             }
@@ -117,15 +118,13 @@ export const createBooking = async (req, res) => {
         // Create passengers and collect their IDs
         const passenger_ids = [];
         for (const passenger of passengers) {
-            const { first_name, last_name, email, phone, gender, dob, nationality, identity_number } = passenger;
+            const { first_name, last_name, email, gender, dob, identity_number } = passenger;
             const newPassenger = new Passenger({
                 first_name,
                 last_name,
                 email,
-                phone,
                 gender,
                 date_of_birth: new Date(dob),
-                nationality,
                 id_number: identity_number,
                 flight_id
             });
