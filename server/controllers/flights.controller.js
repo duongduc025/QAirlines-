@@ -63,7 +63,7 @@ export const addNewFlight = [
     authenticateJWT,
     isAdmin,        
     async (req, res) => {
-        console.log("Authenticated user:", req.user);
+        console.log("Authenticated user ID:", req.user._id);
         const {flight_code, airplane_code, ticket_price, departure_location, destination, travel_time, arrival_time, departure_time, estimated_arrival, economy_seats, economy_price } = req.body;
 
         if (!flight_code || !airplane_code || !ticket_price || !departure_location || !destination || !travel_time || !arrival_time || !departure_time || !estimated_arrival || !economy_seats || !economy_price) {

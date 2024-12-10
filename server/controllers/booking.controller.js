@@ -16,7 +16,7 @@ export const getBookingByUserId = async (req, res) => {
         }
       
         const bookings = await Booking.aggregate([
-            { $match: { user_id: user._id } },
+            { $match: { user_id: id } },
             {
                 $lookup: {
                     from: 'flights',
@@ -35,7 +35,9 @@ export const getBookingByUserId = async (req, res) => {
                     departure_time: '$flight_details.departure_time',
                     travel_time: '$flight_details.travel_time',
                     booking_status: '$flight_details.booking_status',
-                    ticket_quantity: 1
+                    ticket_quantity: 1,
+                    arrival_time: '$flight_details.arrival_time', 
+                    flight_code: '$flight_details.flight_code' 
                 }
             }
         ]);
@@ -59,7 +61,7 @@ export const getSpecificBookingByUserId = async (req, res) => {
         }
 
         const bookings = await Booking.aggregate([
-            { $match: { _id: new mongoose.Types.ObjectId(booking_id), user_id: user._id } },
+            { $match: { _id: new mongoose.Types.ObjectId(booking_id), user_id: id } },
             {
                 $lookup: {
                     from: 'flights',
@@ -97,7 +99,7 @@ export const getSpecificBookingByUserId = async (req, res) => {
 // Thêm chú thích bằng tiếng Việt cho hàm createBooking
 export const createBooking = async (req, res) => {
     const { flight_id, ticket_quantity, passengers } = req.body;
-    const user_email = req.user.email; // Assuming the user's email is stored in the token
+    const user_id = req.user._id; // Assuming the user's ID is stored in the token
 
     try {
         // Find the flight by ID
@@ -118,10 +120,9 @@ export const createBooking = async (req, res) => {
         // Create passengers and collect their IDs
         const passenger_ids = [];
         for (const passenger of passengers) {
-            const { first_name, last_name, email, gender, dob, identity_number } = passenger;
+            const { fullname, email, gender, dob, identity_number } = passenger;
             const newPassenger = new Passenger({
-                first_name,
-                last_name,
+                fullname,
                 email,
                 gender,
                 date_of_birth: new Date(dob),
@@ -132,8 +133,8 @@ export const createBooking = async (req, res) => {
             passenger_ids.push(newPassenger._id);
         }
 
-        // Find the user by email
-        const user = await User.findOne({ email: user_email });
+        // Find the user by ID
+        const user = await User.findById(user_id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -141,7 +142,7 @@ export const createBooking = async (req, res) => {
         // Create a new booking
         const newBooking = new Booking({
             user_id: user._id,
-            user_email,
+            user_email: user.email,
             flight_id,
             ticket_quantity,
             ticket_price,
@@ -184,8 +185,8 @@ export const listAllBookings = async (req, res) => {
             {
                 $lookup: {
                     from: 'users',
-                    localField: 'user_email',
-                    foreignField: 'email',
+                    localField: 'user_id',
+                    foreignField: '_id',
                     as: 'user_details'
                 }
             },
@@ -217,10 +218,10 @@ export const listAllBookings = async (req, res) => {
 //Bỏ authenJWT thì làm được
 export const cancelBooking = async (req, res) => {
     const { booking_id } = req.params;
-    const user_email = req.user.email; // Giả sử email người dùng được lưu trong token
+    const user_id = req.user._id; // Giả sử ID người dùng được lưu trong token
 
     try {
-        const booking = await Booking.findOne({ _id: mongoose.Types.ObjectId(booking_id), user_email });
+        const booking = await Booking.findOne({ _id: mongoose.Types.ObjectId(booking_id), user_id });
         if (!booking) {
             return res.status(404).json({ message: 'Không tìm thấy đặt vé' });
         }

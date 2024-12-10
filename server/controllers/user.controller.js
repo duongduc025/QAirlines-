@@ -49,7 +49,7 @@ const login = async (req, res) => {
             const isMatch = await bcrypt.compare(password, user.password);
             console.log("Password match:", isMatch); // Log the result of password comparison
             if (isMatch) {
-                const token = jwt.sign({ email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+                const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
                 console.log("Generated token:", token);
                 console.log("JWT Secret for signing:", process.env.JWT_SECRET);
                 console.log("Login successful");
@@ -79,13 +79,13 @@ const loginWithToken = async (req, res) => {
         console.log("Received token:", token);
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log("Decoded token:", decoded);
-        const user = await User.findOne({ email: decoded.email });
+        const user = await User.findOne({ _id: decoded._id });
         if (user) {
             console.log("User found:", user);
             res.json({ success: true, user });
         } else {
-            console.log("No user found with that email");
-            res.status(404).json("No user found with that email");
+            console.log("No user found with that id");
+            res.status(404).json("No user found with that id");
         }
     } catch (err) {
         console.error("Error during token login:", err);
@@ -100,9 +100,9 @@ const updateUser = async (req, res) => {
 
     try {
         const user = await User.findByIdAndUpdate(
-            _id,  // Find the user by _id
-            { email: newEmail, fullname, phoneNumber },  // Update the information
-            { new: true }  // Return the updated document
+            _id,  
+            { email: newEmail, fullname, phoneNumber },  
+            { new: true } 
         );
 
         if (user) {

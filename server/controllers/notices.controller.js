@@ -3,6 +3,7 @@ import Promotion from '../models/promotions.js';
 
 export const createNotice = async (req, res) => {
     const { title, category, code } = req.body;
+    const userId = req.user._id; // Assuming req.user contains the authenticated user
 
     // if (category === 'promotion') {
     //     const promotion = await Promotion.findOne({ promotion_code: code})
@@ -22,7 +23,8 @@ export const createNotice = async (req, res) => {
             content: `${promotion.expiration_date} ${promotion.promotion_code}`,
             condition: promotion.condition,
             label: promotion.discount,
-            posted_at: new Date()
+            posted_at: new Date(),
+            user: userId // Use userId instead of user_email
         });
 
         await newNotice.save();
