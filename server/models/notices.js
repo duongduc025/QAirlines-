@@ -18,7 +18,8 @@ const noticeSchema = new mongoose.Schema({
         required: true
     },
     condition: {
-        type: String
+        type: String,
+        required: true
     },
     promotion_code: {
         type: String,

@@ -16,19 +16,20 @@ import { USER_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint
 import { setUser } from '@/redux/authSlice'
 
 
+
 const Signup = () => {
 
     const navigate = useNavigate(); 
     const { loading, user } = useSelector(store => store.auth);
     const [input, setInput] = useState({
-        fullname: "",
         email: "",
+        fullname: "",
         phoneNumber: "",
         password: "",
-        role: "",
-        file: ""
     });
  
+    const dispatch = useDispatch();
+
 
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
@@ -38,24 +39,32 @@ const Signup = () => {
     }
     const submitHandler = async (e) => {
         e.preventDefault();
-        if (!input.fullname || !input.email || !input.phoneNumber || !input.password || !input.user_type) {
-            toast.error("Please fill in all fields.");
+        if (!input.fullname || !input.email || !input.phoneNumber || !input.password) {
+            toast.error("Vui lòng điền đầy đủ các thông tin");
             return;
         }
         try {
-            const response = await axios.post('http://localhost:3001/register', input);
-            console.log("Response:", response.data); // Log the response
-            if (response.data === "Success") {
-                toast.success("Registration successful!");
-                navigate('/login'); // Navigate to login page
+            dispatch(setLoading(true));
+            const res = await axios.post(`${USER_API_END_POINT}/register`, input, {
+                withCredentials: true,
+            });
+            if (res.data) {
+                navigate("/login");
+                toast.success("Đăng ký thành công");
             } else {
-                toast.error(response.data);
+                toast.error(res.data);
+                console.log("Thất bại");
             }
-        } catch (error) {
-            console.error("Error during registration:", error);
-            toast.error("An error occurred during registration.");
+        }
+        catch (error) {
+            console.log("Lỗi")
+            toast.error(error.response.data.message);
+        }
+        finally {
+            dispatch(setLoading(false));
         }
     }
+
     return (
         <div>
             <Navbar />

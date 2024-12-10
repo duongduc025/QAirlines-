@@ -12,9 +12,7 @@ import AdminSideBar from './AdminSideBar';
 const AdminIntro = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      <div className="w-64 flex-shrink-0">
         <AdminSideBar />
-      </div>
       <div className="flex-1 p-8 overflow-auto">
         <div className="mb-12 text-center">
           <h1 className="text-4xl font-bold text-gray-900">QAirline Admin</h1>

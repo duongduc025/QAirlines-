@@ -124,7 +124,9 @@ const MyBooking = () => {
                   </div>
                 </div>
                 <div className="mt-4 flex justify-end gap-3">
-                  <Button variant="outline" className="border-[#008080] text-[#008080] hover:bg-[#008080] hover:text-white">
+                  <Button variant="outline" className="border-[#008080] text-[#008080] hover:bg-[#008080] hover:text-white"
+                  
+                  >
                     View Details
                   </Button>
                   <Button 

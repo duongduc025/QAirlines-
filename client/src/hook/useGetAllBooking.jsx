@@ -28,11 +28,10 @@ const useGetAllBooking = () => {
                     dispatch(setAllBooking(res.data.bookings));
                     console.log(res.data.bookings);
                 }
-                else
-                    toast.error("Error during fetching booking");
+                
             } catch (error) {
                 console.log(error);
-                toast.error("Error during fetching booking");
+            
             }
         }
         fetchAllBookings();

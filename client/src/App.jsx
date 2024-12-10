@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Navbar from './components/shared/Navbar'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+
+// Import components
 import Home from './components/Home/Home'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
@@ -17,35 +16,15 @@ import AdminAirCraft from './components/admin/AdminAirCraft'
 import AdminFlight from './components/admin/AdminFlight'
 import AdminBooking from './components/admin/AdminBooking'
 import BookingDetail from './components/MyBooking/BookingDetail'
-import PostDetail from './components/promotion/PostDetail'
 
-const appRouter = createBrowserRouter([
+// Guest navigation links
+const guessNavLinks = createBrowserRouter([
   {
-    path: '/admin',
-    element: <AdminHome />
-  },
-  {
-    path: '/admin/promotions',
-    element: <AdminPromotion />
-  },
-  {
-    path: '/admin/aircrafts',
-    element: <AdminAirCraft />
-  },
-  {
-    path: '/admin/flights',
-    element: <AdminFlight />
-  },
-  {
-    path: '/admin/bookings',
-    element: <AdminBooking />
-  },
-  {
-    path: '/home',
+    path: '/',
     element: <Home />
   },
   {
-    path: '/',
+    path: '/home',
     element: <Home />
   },
   {
@@ -61,12 +40,44 @@ const appRouter = createBrowserRouter([
     element: <Promotion />
   },
   {
-  path: '/flight',
-  element: <Flightpage />
+    path: '/flight',
+    element: <Flightpage />
   },
   {
-  path: '/mybookings',
-  element: <MyBookingpage />
+    path: '*',
+    element: <Navigate to="/" replace />
+  }
+])
+
+// User navigation routes
+const appRouter = createBrowserRouter([
+  {
+    path: '/',
+    element: <Home />
+  },
+  {
+    path: '/home',
+    element: <Home />
+  },
+  {
+    path: '/login',
+    element: <Login />
+  },
+  {
+    path: '/register',
+    element: <Register />
+  },
+  {
+    path: '/promotion',
+    element: <Promotion />
+  },
+  {
+    path: '/flight',
+    element: <Flightpage />
+  },
+  {
+    path: '/mybookings',
+    element: <MyBookingpage />
   },
   {
     path: '/account',
@@ -77,30 +88,58 @@ const appRouter = createBrowserRouter([
     element: <BookingDetail />
   },
   {
-    path: '/bookingdetail/:id',
-    element: <BookingDetail />
-  },
-  {
-    path: '/promotion/detail',
-    element: <PostDetail />
-  },
-
+    path: '*',
+    element: <Navigate to="/" replace />
+  }
 ])
+
+// Admin navigation routes
 const AdminRouter = createBrowserRouter([
   {
     path: '/',
     element: <AdminHome />
   },
+  {
+    path: '/home',
+    element: <AdminHome />
+  },
+  {
+    path: '/promotions',
+    element: <AdminPromotion />
+  },
+  {
+    path: '/aircrafts',
+    element: <AdminAirCraft />
+  },
+  {
+    path: '/flights',
+    element: <AdminFlight />
+  },
+  {
+    path: '/bookings',
+    element: <AdminBooking />
+  },
+  {
+    path: '/login',
+    element: <Login />
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />
+  }
 ])
 
-
 function App() {
-  const isAdmin = false;
-  return (
-    <>
-      <RouterProvider router={isAdmin ? AdminRouter : appRouter}/>
-    </>
-  )
+  const { user } = useSelector(store => store.auth);
+
+  // Determine which router to use based on user role
+  const router = user?.role === 'admin' 
+    ? AdminRouter 
+    : (user?.role === 'user' 
+      ? appRouter 
+      : guessNavLinks);
+
+  return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;

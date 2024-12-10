@@ -118,9 +118,10 @@ export const createBooking = async (req, res) => {
         // Create passengers and collect their IDs
         const passenger_ids = [];
         for (const passenger of passengers) {
-            const { fullName, email, gender, dob, identity_number } = passenger;
+            const { first_name, last_name, email, gender, dob, identity_number } = passenger;
             const newPassenger = new Passenger({
-                fullName,
+                first_name,
+                last_name,
                 email,
                 gender,
                 date_of_birth: new Date(dob),

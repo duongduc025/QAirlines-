@@ -1,9 +1,23 @@
 import React, { useState } from "react";
 import Profile from "./Profile";
 import ChangePassword from "./ChangePassword";
+import { useSelector } from "react-redux";
+import { LOCAL_STORAGE_TOKEN_NAME } from "../../utils/constraint";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../redux/authSlice";
 
 const MyAccount = () => {
     const [tab, setTab] = useState("");
+    const dispatch = useDispatch();
+    const { user } = useSelector(store => store.auth);
+    const handleLogout = async () => {
+        localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
+        console.log("logout");
+        localStorage.removeItem('user');
+        dispatch(setUser(null));
+        navigate('/login');
+    }
+
 
     return (
         <section className =" bg-gray-50">
@@ -21,19 +35,20 @@ const MyAccount = () => {
                         </div>
                         <div className="text-center mt-4">
                             <h3 className="text-headingColor text-[18px] leading-[30px] font-bold">
-                                User Name
+                                {user?.fullname}
                             </h3>
                             <p className="text-textColor text-[15px] leading-6 font-medium">
-                                user@example.com
+                                {user?.email}
                             </p>
                             <p className="text-textColor text-[15px] leading-6 font-medium">
-                                User Phone
+                                {user?.phoneNumber}
                             </p>
                         </div>
 
                         <div className="mt-[50px] md:mt-[20px]">
                             <button 
-                                className="w-full bg-[#008080] hover:bg-[#006666] p-3 text-[16px] font-bold leading-7 rounded-md text-white">
+                                className="w-full bg-[#008080] hover:bg-[#006666] p-3 text-[16px] font-bold leading-7 rounded-md text-white"
+                                onClick={handleLogout} >
                                 Logout
                             </button>
                         </div>

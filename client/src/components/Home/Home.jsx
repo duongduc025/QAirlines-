@@ -7,9 +7,7 @@ import useGetAllBooking from '@/hook/useGetAllBooking'
 import { useSelector } from 'react-redux'
 const Home = () => {
   useGetAllBooking();
-  console.log("Home");
-  const { allBooking } = useSelector(state => state.booking);
-  console.log(allBooking);
+  const { allBooking } = useSelector(store => store.booking);
   return (
     <>
     <div>
