@@ -1,47 +1,35 @@
 import Notice from '../models/notices.js';
-import Promotion from '../models/promotions.js';
-import News from '../models/news.js';
-import Introduction from '../models/introductions.js';
+import cloudinary from 'cloudinary';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 export const createNotice = async (req, res) => {
-    const { title, category, code } = req.body;
+    const { title, category, brief, mark, content } = req.body;
     const userId = req.user._id;
+    const file = req.file;
 
     try {
-        let content = '';
-        let condition = '';
-        let label = '';
+        let imageUrl = '';
 
-        if (category === 'promotion') {
-            const promotion = await Promotion.findOne({ code });
-            if (!promotion) {
-                return res.status(404).json({ message: 'Promotion code not found' });
-            }
-            content = `${promotion.expiration_date} ${promotion.code}`;
-            condition = promotion.condition;
-            label = promotion.discount;
-        } else if (category === 'news') {
-            const news = await News.findOne({ code });
-            if (!news) {
-                return res.status(404).json({ message: 'News code not found' });
-            }
-            content = news.content;
-        } else if (category === 'introduction') {
-            const introduction = await Introduction.findOne({ code });
-            if (!introduction) {
-                return res.status(404).json({ message: 'Introduction code not found' });
-            }
-            content = introduction.content;
-        } else {
-            return res.status(400).json({ message: 'Invalid category' });
+        if (file) {
+            const result = await cloudinary.v2.uploader.upload(file.path);
+            imageUrl = result.secure_url;
         }
 
         const newNotice = new Notice({
             title,
             category,
+            brief,
+            mark,
             content,
-            condition,
-            label,
+            image: imageUrl,
             posted_at: new Date(),
             user: userId
         });
@@ -49,6 +37,21 @@ export const createNotice = async (req, res) => {
         await newNotice.save();
 
         res.status(201).json(newNotice);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+export const getImageByNoticeId = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const notice = await Notice.findById(id);
+        if (!notice) {
+            return res.status(404).json({ message: 'Notice not found' });
+        }
+
+        res.status(200).json({ image: notice.image });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }
