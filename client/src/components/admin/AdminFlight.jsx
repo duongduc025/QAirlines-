@@ -1,5 +1,5 @@
 import AdminSideBar from './AdminSideBar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PlusCircle, Trash2, Clock, Search } from "lucide-react";
+import { useSelector, useDispatch } from 'react-redux';
+import store from '@/redux/store';
+import { setAllFlight } from '@/redux/flightSlice';
 
 const airports = {
   HAN: "Hà nội - Nội bài airport",
@@ -26,59 +29,63 @@ const aircrafts = {
 
 const initialFlights = [
   {
-    id: 1,
-    flightId: "VN123",
+    _id: 1,
+    flight_code: "VN123",
     aircraft: "A321",
-    seats: 180,
-    price: 2000000,
-    departure: "HAN",
+    economy_seats: 180,
+    economy_price: 2000000,
+    departure_location: "HAN",
     destination: "BKK",
-    departureTime: "2024-11-23T10:00",
-    arrivalTime: "2024-11-23T12:00",
+    departure_time: "2024-11-23T10:00",
+    travel_time: "2024-11-23T12:00",
     status: "On Time"
   },
   {
-    id: 2,
-    flightId: "VN456",
+    _id: 2,
+    flight_code: "VN456",
     aircraft: "B787",
-    seats: 300,
-    price: 3500000,
-    departure: "SGN",
+    economy_seats: 300,
+    economy_price: 3500000,
+    departure_location: "SGN",
     destination: "DAD",
-    departureTime: "2024-11-23T14:00",
-    arrivalTime: "2024-11-23T15:30",
+    departure_time: "2024-11-23T14:00",
+    travel_time: "2024-11-23T15:30",
     status: "Delayed"
   }
 ];
 
 const AdminFlight = () => {
-  const [flights, setFlights] = useState(initialFlights);
+  const dispatch = useDispatch();
+  const { allFlight } = useSelector((store) => store.flight);
+  console.log('allFlightRedux', allFlight);
+  const [flights, setFlights] = useState(allFlight);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDelayDialogOpen, setIsDelayDialogOpen] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredFlights = flights.filter(flight => 
-    flight.flightId.toLowerCase().includes(searchQuery.toLowerCase())
+    flight.flight_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleRemoveFlight = (id) => {
-    setFlights(flights.filter(flight => flight.id !== id));
+  const handleRemoveFlight = (_id) => {
+    setFlights(flights.filter(flight => flight._id !== _id));
   };
 
   const handleAddFlight = (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const newFlight = {
-      id: flights.length + 1,
-      flightId: formData.get('flightId'),
+      _id: flights.length + 1,
+      flight_code: formData.get('flight_code'),
       aircraft: formData.get('aircraft'),
-      seats: 180,
-      price: Number(formData.get('price')),
-      departure: formData.get('departure'),
+      economy_seats: 180,
+      economy_price: Number(formData.get('economy_price')),
+      departure_location: formData.get('departure_location'),
       destination: formData.get('destination'),
-      departureTime: formData.get('departureTime'),
-      arrivalTime: formData.get('arrivalTime'),
+      departure_time: formData.get('departure_time'),
+      travel_time: formData.get('travel_time'),
       status: "On Time"
     };
     setFlights([...flights, newFlight]);
@@ -91,17 +98,17 @@ const AdminFlight = () => {
     const delayMinutes = parseInt(formData.get('delayMinutes'));
     
     setFlights(flights.map(flight => {
-      if (flight.id === selectedFlight.id) {
-        const newDepartureTime = new Date(flight.departureTime);
-        const newArrivalTime = new Date(flight.arrivalTime);
+      if (flight._id === selectedFlight._id) {
+        const newDepartureTime = new Date(flight.departure_time);
+        const newTravelTime = new Date(flight.travel_time);
         
         newDepartureTime.setMinutes(newDepartureTime.getMinutes() + delayMinutes);
-        newArrivalTime.setMinutes(newArrivalTime.getMinutes() + delayMinutes);
+        newTravelTime.setMinutes(newTravelTime.getMinutes() + delayMinutes);
 
         return {
           ...flight,
-          departureTime: newDepartureTime.toISOString().slice(0, 16),
-          arrivalTime: newArrivalTime.toISOString().slice(0, 16),
+          departure_time: newDepartureTime.toISOString().slice(0, 16),
+          travel_time: newTravelTime.toISOString().slice(0, 16),
           status: "Delayed"
         };
       }
@@ -137,7 +144,7 @@ const AdminFlight = () => {
                     <div className="space-y-2">
                       <Label>Mã chuyến bay</Label>
                       <Input 
-                        name="flightId"
+                        name="flight_code"
                         placeholder="VN123"
                         required
                       />
@@ -162,7 +169,7 @@ const AdminFlight = () => {
                     <div className="space-y-2">
                       <Label>Giá vé (VND)</Label>
                       <Input 
-                        name="price"
+                        name="economy_price"
                         type="number"
                         placeholder="2000000"
                         required
@@ -171,7 +178,7 @@ const AdminFlight = () => {
 
                     <div className="space-y-2">
                       <Label>Điểm khởi hành</Label>
-                      <Select name="departure" required>
+                      <Select name="departure_location" required>
                         <SelectTrigger>
                           <SelectValue placeholder="Chọn sân bay khởi hành" />
                         </SelectTrigger>
@@ -204,7 +211,7 @@ const AdminFlight = () => {
                     <div className="space-y-2">
                       <Label>Thời gian khởi hành</Label>
                       <Input
-                        name="departureTime"
+                        name="departure_time"
                         type="datetime-local"
                         required
                       />
@@ -213,7 +220,7 @@ const AdminFlight = () => {
                     <div className="space-y-2">
                       <Label>Thời gian đến dự kiến</Label>
                       <Input
-                        name="arrivalTime"
+                        name="travel_time"
                         type="datetime-local"
                         required
                       />
@@ -241,35 +248,32 @@ const AdminFlight = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Mã chuyến bay</TableHead>
-                  <TableHead>Máy bay</TableHead>
-                  <TableHead>Số ghế</TableHead>
-                  <TableHead>Giá vé (VND)</TableHead>
-                  <TableHead>Điểm khởi hành</TableHead>
-                  <TableHead>Điểm đến</TableHead>
-                  <TableHead>Thời gian khởi hành</TableHead>
-                  <TableHead>Thời gian đến</TableHead>
-                  <TableHead className="w-[150px]">Thao tác</TableHead>
+                  <TableHead className="text-center">Mã chuyến bay</TableHead>
+                  <TableHead className="text-center">Máy bay</TableHead>
+                  <TableHead className="text-center">Số ghế</TableHead>
+                  <TableHead className="text-center">Giá vé (VND)</TableHead>
+                  <TableHead className="text-center">Điểm khởi hành</TableHead>
+                  <TableHead className="text-center">Điểm đến</TableHead>
+                  <TableHead className="text-center">Thời gian khởi hành</TableHead>
+                  <TableHead className="text-center">Thời gian bay</TableHead>
+                  <TableHead className="text-center w-[150px]">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredFlights.map((flight) => (
-                  <TableRow key={flight.id}>
-                    <TableCell className="font-medium">{flight.flightId}</TableCell>
-                    <TableCell>{aircrafts[flight.aircraft]}</TableCell>
-                    <TableCell>{flight.seats}</TableCell>
-                    <TableCell>{flight.price.toLocaleString()}</TableCell>
-                    <TableCell>{airports[flight.departure]}</TableCell>
-                    <TableCell>{airports[flight.destination]}</TableCell>
-                    <TableCell>
-                      {new Date(flight.departureTime).toLocaleString()}
+                  <TableRow key={flight._id}>
+                    <TableCell className="text-center font-medium">{flight.flight_code}</TableCell>
+                    <TableCell className="text-center">{aircrafts[flight.aircraft]}</TableCell>
+                    <TableCell className="text-center">{flight.economy_seats}</TableCell>
+                    <TableCell className="text-center">{flight.economy_price.toLocaleString()}</TableCell>
+                    <TableCell className="text-center">{airports[flight.departure_location]}</TableCell>
+                    <TableCell className="text-center">{airports[flight.destination]}</TableCell>
+                    <TableCell className="text-center">
+                      {new Date(flight.departure_time).toLocaleString()}
                     </TableCell>
-                    <TableCell>
-                      {new Date(flight.arrivalTime).toLocaleString()}
-                    </TableCell>
-                  
-                    <TableCell className="flex gap-2">
-                      <Dialog open={isDelayDialogOpen && selectedFlight?.id === flight.id} 
+                    <TableCell className="text-center">{flight.travel_time}</TableCell>
+                    <TableCell className="text-center flex gap-2 justify-center">
+                      <Dialog open={isDelayDialogOpen && selectedFlight?._id === flight._id} 
                               onOpenChange={(open) => {
                                 setIsDelayDialogOpen(open);
                                 if (!open) setSelectedFlight(null);
@@ -308,7 +312,7 @@ const AdminFlight = () => {
                       <Button 
                         variant="destructive" 
                         size="icon"
-                        onClick={() => handleRemoveFlight(flight.id)}
+                        onClick={() => handleRemoveFlight(flight._id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

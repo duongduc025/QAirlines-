@@ -18,7 +18,7 @@ const guessNavLinks = [
     },
     {
         path: '/promotion',
-        display: 'Ưu đãi',
+        display: 'Khuyến mãi & Tin tức',
     },
     {
         path: '/flight',

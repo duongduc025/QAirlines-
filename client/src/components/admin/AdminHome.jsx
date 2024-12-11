@@ -8,8 +8,10 @@ import {
   Settings
 } from "lucide-react";
 import AdminSideBar from './AdminSideBar';
+import useGetAllFlight from '@/hook/useGetAllFlight';
 
 const AdminIntro = () => {
+  useGetAllFlight();
   return (
     <div className="min-h-screen bg-gray-100 flex">
         <AdminSideBar />

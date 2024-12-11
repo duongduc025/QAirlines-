@@ -142,10 +142,10 @@ const QairlinePromotions = () => {
 
   const categories = [
     { id: 'all', name: 'Tất cả', icon: Star },
-    { id: 'flights', name: 'Vé máy bay', icon: Plane },
-    { id: 'hotels', name: 'Khách sạn', icon: Hotel },
-    { id: 'cars', name: 'Thuê xe', icon: Car },
-    { id: 'credit', name: 'Thẻ tín dụng', icon: CreditCard },
+    { id: 'flights', name: 'Khuyến mãi', icon: Plane },
+    { id: 'hotels', name: 'Thông báo', icon: Hotel },
+    { id: 'cars', name: 'Tin tức', icon: Car },
+    { id: 'credit', name: 'Giới thiệu', icon: CreditCard },
   ];
 
   const promotions = [

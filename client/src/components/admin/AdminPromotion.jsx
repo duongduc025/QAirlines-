@@ -12,10 +12,10 @@ import { PlusCircle, Trash2, Search, ImagePlus, Eye } from "lucide-react";
 import AdminSideBar from './AdminSideBar';
 
 const categories = [
-  { id: "", name: "Vé máy bay" },
-  { id: "hotel", name: "Khách sạn" },
-  { id: "package", name: "Combo du lịch" },
-  { id: "service", name: "Dịch vụ" }
+  { id: "1", name: "Thông báo" },
+  { id: "2", name: "Tin tức" },
+  { id: "3", name: "Khuyến mãi" },
+  { id: "4", name: "Giới thiệu" }
 ];
 
 const marks = [
@@ -193,7 +193,7 @@ const AdminPromotion = () => {
                           </Button>
                         </div>
                         {imagePreview && (
-                          <div className="relative w-full h-48">
+                          <div className="relative w-full h-48 max-w-10 max-h-10">
                             <img
                               src={imagePreview}
                               alt="Preview"
