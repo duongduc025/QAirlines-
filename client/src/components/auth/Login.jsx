@@ -43,7 +43,6 @@ const Login = () => {
             });
             if (res.data.success) {
                 dispatch(setUser(res.data.user));
-                localStorage.setItem('user', JSON.stringify(res.data.user));
                 localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, res.data.token);
                 navigate("/");
                 toast.success("Đăng nhập thành công");

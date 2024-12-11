@@ -12,7 +12,7 @@ import { PlusCircle, Trash2, Search, ImagePlus, Eye } from "lucide-react";
 import AdminSideBar from './AdminSideBar';
 
 const categories = [
-  { id: "flight", name: "Vé máy bay" },
+  { id: "", name: "Vé máy bay" },
   { id: "hotel", name: "Khách sạn" },
   { id: "package", name: "Combo du lịch" },
   { id: "service", name: "Dịch vụ" }

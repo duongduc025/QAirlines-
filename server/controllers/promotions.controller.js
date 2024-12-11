@@ -8,8 +8,8 @@ export const createPromotion = async (req, res) => {
         await newPromotion.save();
         res.status(201).json(newPromotion);
     } catch (error) {
-        if (error.code === 11000) { // Duplicate key error code
-            res.status(400).json({ message: 'Promotion code must be unique' });
+        if (error.code === 11000) { // Mã lỗi khóa trùng
+            res.status(400).json({ message: 'Mã khuyến mãi phải là duy nhất' });
         } else {
             res.status(400).json({ message: error.message });
         }

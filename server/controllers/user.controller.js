@@ -3,164 +3,165 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import Booking from '../models/bookings.js';
 import Flight from '../models/flights.js';
+import path from 'path';
+import fs from 'fs';
 
 const register = async (req, res) => {
     const { email, fullname, phoneNumber, password } = req.body; 
+    const avatarPath = req.file ? req.file.path : null; // Get the uploaded file path
+
     if (!email || !fullname || !phoneNumber || !password) {
-        console.log("Missing required fields");
-        return res.status(400).json("All fields are required");
+        console.log("Vui lòng nhập đầy đủ thông tin");
+        return res.status(400).json("Vui lòng điền đầy đủ các trường");
     }
-    console.log("Registering email:", email); 
-    console.log("Request body:", req.body); 
+    console.log("Đang đăng ký email:", email); 
+    console.log("Nội dung yêu cầu:", req.body); 
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            console.log("User already registered");
-            return res.status(400).json("Email already in use");
+            console.log("Người dùng đã được đăng ký");
+            return res.status(400).json("Email đã được sử dụng");
         } else {
             const hashedPassword = await bcrypt.hash(password, 10);
-            console.log("Hashed password:", hashedPassword);
+            console.log("Mật khẩu đã mã hóa:", hashedPassword);
             const newUser = new User({ 
                 email, 
                 fullname, 
                 phoneNumber, 
-                password: hashedPassword 
+                password: hashedPassword,
+                avatar: avatarPath // Save the avatar path to the user profile
             });
             await newUser.save();
-            console.log("User registered successfully");
-            res.status(201).json("Success");
+            console.log("Đăng ký người dùng thành công");
+            res.status(201).json("Đăng ký thành công");
         }
     } catch (err) {
-        console.error("Error occurred during registration:", err); 
-        res.status(500).json("Error occurred during registration");
+        console.error("Đã xảy ra lỗi trong quá trình đăng ký:", err); 
+        res.status(500).json("Đã xảy ra lỗi trong quá trình đăng ký");
     }
 };
 
 const login = async (req, res) => {
     const { email, password } = req.body;   
-    console.log("Login attempt for email:", email);
-    // if(!email || !password) {
-    //     return res.status (401).json({message: "All fields are required"});
-    // };
+    console.log("Đang thử đăng nhập với email:", email);
     try {
         const user = await User.findOne({ email });
-        console.log("User found:", user);
+        console.log("Người dùng được tìm thấy:", user);
         if (user) {
             const isMatch = await bcrypt.compare(password, user.password);
-            console.log("Password match:", isMatch); // Log the result of password comparison
+            console.log("Mật khẩu khớp:", isMatch);
             if (isMatch) {
                 const token = jwt.sign({ email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-                console.log("Generated token:", token);
-                console.log("JWT Secret for signing:", process.env.JWT_SECRET);
-                console.log("Login successful");
+                console.log("Đã tạo token:", token);
+                console.log("Khóa JWT được sử dụng để ký:", process.env.JWT_SECRET);
+                console.log("Đăng nhập thành công");
                 res.json({ token, success: true, user });
             } else {
-                console.log("Incorrect password");
-                res.status(400).json("The pass is incorrect");
+                console.log("Mật khẩu không chính xác");
+                res.status(400).json("Mật khẩu không chính xác");
             }
         } else {
-            console.log("No record existed");
-            res.status(404).json("No record existed");
+            console.log("Không tìm thấy bản ghi");
+            res.status(404).json("Không tìm thấy tài khoản");
         }
     } catch (err) {
-        console.error("Error during login:", err);
-        res.status(500).json("Error during login");
+        console.error("Lỗi trong quá trình đăng nhập:", err);
+        res.status(500).json("Đã xảy ra lỗi trong quá trình đăng nhập");
     }
 };
 
 const loginWithToken = async (req, res) => {
     const { token } = req.body;
     if (!token) {
-        console.log("Token is required");
-        return res.status(400).json("Token is required");
+        console.log("Yêu cầu token");
+        return res.status(400).json("Yêu cầu token");
     }
 
     try {
-        console.log("Received token:", token);
+        console.log("Đã nhận token:", token);
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Decoded token:", decoded);
+        console.log("Token đã giải mã:", decoded);
         const user = await User.findOne({ email: decoded.email });
         if (user) {
-            console.log("User found:", user);
+            console.log("Người dùng được tìm thấy:", user);
             res.json({ success: true, user });
         } else {
-            console.log("No user found with that email");
-            res.status(404).json("No user found with that email");
+            console.log("Không tìm thấy người dùng với email đó");
+            res.status(404).json("Không tìm thấy người dùng với email này");
         }
     } catch (err) {
-        console.error("Error during token login:", err);
-        res.status(500).json("Error during token login");
+        console.error("Lỗi trong quá trình đăng nhập bằng token:", err);
+        res.status(500).json("Đã xảy ra lỗi trong quá trình đăng nhập bằng token");
     }
 };
 
 const updateUser = async (req, res) => {
     const { _id } = req.params;
     const { newEmail, fullname, phoneNumber } = req.body;
-    console.log("Updating user with _id:", _id);
+    console.log("Đang cập nhật người dùng với _id:", _id);
 
     try {
         const user = await User.findByIdAndUpdate(
-            _id,  // Find the user by _id
-            { email: newEmail, fullname, phoneNumber },  // Update the information
-            { new: true }  // Return the updated document
+            _id,
+            { email: newEmail, fullname, phoneNumber },
+            { new: true }
         );
 
         if (user) {
-            console.log("User updated successfully:", user);
+            console.log("Cập nhật người dùng thành công:", user);
             res.json(user);
         } else {
-            console.log("No user found with that _id");
-            res.status(404).json("No user found with that _id");
+            console.log("Không tìm thấy người dùng với _id này");
+            res.status(404).json("Không tìm thấy người dùng với _id này");
         }
     } catch (err) {
-        console.error("Error occurred during update:", err);
-        res.status(500).json("Error occurred during update");
+        console.error("Đã xảy ra lỗi trong quá trình cập nhật:", err);
+        res.status(500).json("Đã xảy ra lỗi trong quá trình cập nhật");
     }
 };
 
 const changePassword = async (req, res) => {
     const { _id } = req.params;
     const { currentPassword, newPassword, confirmPassword } = req.body;
-    console.log("Changing password for user with _id:", _id);
+    console.log("Đang thay đổi mật khẩu cho người dùng với _id:", _id);
     if (newPassword !== confirmPassword) {
-        return res.status(400).json("New password and confirm password do not match.");
+        return res.status(400).json("Mật khẩu mới và xác nhận mật khẩu không khớp.");
     }
 
     try {
         const user = await User.findOne({ _id });
         if (!user) {
-            return res.status(404).json("No user found with that id.");
+            return res.status(404).json("Không tìm thấy người dùng với id này.");
         }
-        console.log("Changing password for user:", user);
+        console.log("Đang thay đổi mật khẩu cho người dùng:", user);
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
-            return res.status(400).json("Current password is incorrect.");
+            return res.status(400).json("Mật khẩu hiện tại không chính xác.");
         }
 
         user.password = await bcrypt.hash(newPassword, 10);
         await user.save();
 
-        console.log("Password updated successfully for user:", user);
-        res.json("Password updated successfully.");
+        console.log("Đã cập nhật mật khẩu thành công cho người dùng:", user);
+        res.json("Đã cập nhật mật khẩu thành công.");
     } catch (err) {
-        console.error("Error occurred during password change:", err);
-        res.status(500).json("Error occurred during password change.");
+        console.error("Đã xảy ra lỗi trong quá trình thay đổi mật khẩu:", err);
+        res.status(500).json("Đã xảy ra lỗi trong quá trình thay đổi mật khẩu.");
     }
 };
 
-//Test vui, sẽ xóa
 const addUser = async (req, res) => {
     const { email, fullname, phoneNumber, password, role } = req.body;
     if (!email || !fullname || !phoneNumber || !password || !role) {
-        console.log("Missing required fields");
-        return res.status(400).json("All fields are required");
+        console.log("Thiếu các trường bắt buộc");
+        return res.status(400).json("Tất cả các trường là bắt buộc");
     }
-    console.log("Adding user with email:", email);
+    console.log("Đang thêm người dùng với email:", email);
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            console.log("User already exists");
-            return res.status(400).json("Email already in use");
+            console.log("Người dùng đã tồn tại");
+            return res.status(400).json("Email đã được sử dụng");
         } else {
             const hashedPassword = await bcrypt.hash(password, 10);
             const newUser = new User({ 
@@ -170,46 +171,18 @@ const addUser = async (req, res) => {
                 password: hashedPassword, 
                 role });
             await newUser.save();
-            console.log("User added successfully");
-            res.status(201).json("Success");
+            console.log("Đã thêm người dùng thành công");
+            res.status(201).json("Thêm người dùng thành công");
         }
     } catch (err) {
-        console.error("Error occurred during user addition:", err);
-        res.status(500).json("Error occurred during user addition");
+        console.error("Đã xảy ra lỗi trong quá trình thêm người dùng:", err);
+        res.status(500).json("Đã xảy ra lỗi trong quá trình thêm người dùng");
     }
 };
 
 const logout = (req, res) => {
-    // Invalidate the token or clear the session
-    res.status(200).json("Logout successful");
+    res.status(200).json("Đăng xuất thành công");
 };
-
-//SẮP XẾP THÌ ĐỂ FRONTEND
-
-// listAllUserBookingInPeriod
-// Đầu vào mặc định period = "month"
-// aggregate booking, flight, user 
-// => Lấy ra hết theo user_id
-// 1 user_id sẽ đi kèm theo 
-// + tổng số lượng booking
-// + tổng số lượng vé
-// + tổng số lượng tiền
-// if(period === "day"){
-//     Lấy ra ngày hôm qua
-// }
-// else if(period === "week"){
-//     Lấy ra tuần trước
-// }
-// else if(period === "month"){
-//     Lấy ra tháng trước
-// }
-// else if(period === "quarter"){
-//     Lấy ra của 3 tháng trước
-// }
-// else{
-//     console.log("Invalid period");
-//     return res.status(400).json("Invalid period");
-// }
 
 const listAllUserBookingInPeriod = async (req, res) => {
     const { period = "month" } = req.query;
@@ -233,8 +206,8 @@ const listAllUserBookingInPeriod = async (req, res) => {
             startDate.setMonth(startDate.getMonth() - 3);
             break;
         default:
-            console.log("Invalid period");
-            return res.status(400).json("Invalid period");
+            console.log("Khoảng thời gian không hợp lệ");
+            return res.status(400).json("Khoảng thời gian không hợp lệ");
     }
 
     try {
@@ -272,12 +245,9 @@ const listAllUserBookingInPeriod = async (req, res) => {
 
         res.json(bookings);
     } catch (err) {
-        console.error("Error occurred during aggregation:", err);
-        res.status(500).json("Error occurred during aggregation");
+        console.error("Đã xảy ra lỗi trong quá trình tổng hợp:", err);
+        res.status(500).json("Đã xảy ra lỗi trong quá trình tổng hợp");
     }
 };
 
-//Tạo chart từ những thông số đã có về booking của các user_id
-
 export { register, login, updateUser, changePassword, addUser, logout, loginWithToken, listAllUserBookingInPeriod };
-

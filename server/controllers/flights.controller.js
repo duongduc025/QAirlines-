@@ -63,17 +63,17 @@ export const addNewFlight = [
     authenticateJWT,
     isAdmin,        
     async (req, res) => {
-        console.log("Authenticated user:", req.user);
+        console.log("Người dùng đã xác thực:", req.user);
         const {flight_code, airplane_code, ticket_price, departure_location, destination, travel_time, arrival_time, departure_time, estimated_arrival, economy_seats, economy_price } = req.body;
 
         if (!flight_code || !airplane_code || !ticket_price || !departure_location || !destination || !travel_time || !arrival_time || !departure_time || !estimated_arrival || !economy_seats || !economy_price) {
-            return res.status(400).json({ message: "All fields are required" });
+            return res.status(400).json({ message: "Tất cả các trường là bắt buộc" });
         }
 
         try {
             const existingFlight = await Flight.findOne({ flight_code });
             if (existingFlight) {
-                return res.status(400).json({ message: "Flight with this code already exists" });
+                return res.status(400).json({ message: "Chuyến bay với mã này đã tồn tại" });
             }
 
             const newFlight = new Flight({
@@ -102,20 +102,20 @@ export const searchFlights = async (req, res) => {
     const { departure_location, destination, departure_date, ticket_quantity } = req.query;
 
     if (!departure_location || !destination || !departure_date || !ticket_quantity) {
-        return res.status(400).json({ message: "All fields are required" });
+        return res.status(400).json({ message: "Tất cả các trường là bắt buộc" });
     }
 
-    console.log('Search Parameters:', { departure_location, destination, departure_date, ticket_quantity });
+    console.log('Tham số tìm kiếm:', { departure_location, destination, departure_date, ticket_quantity });
 
     try {
         const departureDate = new Date(departure_date);
         if (isNaN(departureDate)) {
-            return res.status(400).json({ message: "Invalid departure date" });
+            return res.status(400).json({ message: "Ngày khởi hành không hợp lệ" });
         }
 
         const ticketQuantity = parseInt(ticket_quantity, 10);
         if (isNaN(ticketQuantity)) {
-            return res.status(400).json({ message: "Invalid ticket quantity" });
+            return res.status(400).json({ message: "Số lượng vé không hợp lệ" });
         }
 
         const flights = await Flight.aggregate([
@@ -170,33 +170,33 @@ export const searchFlights = async (req, res) => {
             }
         ]);
 
-        console.log('Flights Found:', flights);
+        console.log('Các chuyến bay tìm thấy:', flights);
         if(flights){
             console.log('kết nối rỗng');
         }
         flights.forEach(flight => {
-            console.log('Flight:', flight.flight_code);
-            console.log('Airplane Details:', flight.airplane_details);
-            console.log('Booking Details:', flight.booking_details);
+            console.log('Chuyến bay:', flight.flight_code);
+            console.log('Chi tiết máy bay:', flight.airplane_details);
+            console.log('Chi tiết đặt vé:', flight.booking_details);
         });
 
         const availableFlights = flights.filter(flight => {
-            console.log('Checking flight:', flight);
+            console.log('Kiểm tra chuyến bay:', flight);
             if (flight.economy_seats >= ticketQuantity) {
-                console.log(`Flight ${flight.flight_code} has enough economy seats: ${flight.economy_seats}`);
+                console.log(`Chuyến bay ${flight.flight_code} có đủ ghế hạng phổ thông: ${flight.economy_seats}`);
                 flight.available_seats = flight.economy_seats;
                 flight.price = flight.economy_price;
                 return true;
             }
-            console.log(`Flight ${flight.flight_code} does not have enough seats`);
+            console.log(`Chuyến bay ${flight.flight_code} không có đủ ghế`);
             return false;
         });
 
-        console.log('Available Flights:', availableFlights);
+        console.log('Các chuyến bay có sẵn:', availableFlights);
 
         res.json(availableFlights);
     } catch (error) {
-        console.error('Error during flight search:', error);
+        console.error('Lỗi trong quá trình tìm kiếm chuyến bay:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -206,13 +206,13 @@ export const updateDepartureTime = async (req, res) => {
     const { newDepartureTime } = req.body;
 
     if (!newDepartureTime) {
-        return res.status(400).json({ message: "New departure time is required" });
+        return res.status(400).json({ message: "Thời gian khởi hành mới là bắt buộc" });
     }
 
     try {
         const flight = await Flight.findById(flightId);
         if (!flight) {
-            return res.status(404).json({ message: "Flight not found" });
+            return res.status(404).json({ message: "Không tìm thấy chuyến bay" });
         }
 
         const newDepartureDate = new Date(newDepartureTime);

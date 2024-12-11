@@ -4,16 +4,11 @@ import Promotion from '../models/promotions.js';
 export const createNotice = async (req, res) => {
     const { title, category, code } = req.body;
 
-    // if (category === 'promotion') {
-    //     const promotion = await Promotion.findOne({ promotion_code: code})
-    // else if (category === 'combo') {
-    // const combo = await Combo.findOne({ combo_code: code})
-    
     try {
         const promotion = await Promotion.findOne({ promotion_code: code });
 
         if (!promotion) {
-            return res.status(404).json({ message: 'Promotion code not found' });
+            return res.status(404).json({ message: 'Không tìm thấy mã khuyến mãi' });
         }
 
         const newNotice = new Notice({
@@ -29,7 +24,7 @@ export const createNotice = async (req, res) => {
 
         res.status(201).json(newNotice);
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ message: 'Lỗi máy chủ', error });
     }
 };
 //if category === promotion => const promotion = await Promotion.findOne({ promotion_code });

@@ -1,22 +1,22 @@
 import { check, validationResult } from 'express-validator';
 
 const validateUser = [
-    check('email').isEmail().withMessage('Invalid email address'),
-    check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-    check('fullname').notEmpty().withMessage('Full name is required'),
-    check('phoneNumber').notEmpty().withMessage('Phone number is required'),
+    check('email').isEmail().withMessage('Địa chỉ email không hợp lệ'),
+    check('password').isLength({ min: 6 }).withMessage('Mật khẩu phải có ít nhất 6 ký tự'),
+    check('fullname').notEmpty().withMessage('Họ và tên là bắt buộc'),
+    check('phoneNumber').notEmpty().withMessage('Số điện thoại là bắt buộc'),
 ];
 
 const validateUpdateUser = [
-    check('newEmail').optional().isEmail().withMessage('Invalid email address'),
-    check('fullname').notEmpty().withMessage('Full name is required'),
-    check('phoneNumber').notEmpty().withMessage('Phone number is required'),
+    check('newEmail').optional().isEmail().withMessage('Địa chỉ email không hợp lệ'),
+    check('fullname').notEmpty().withMessage('Họ và tên là bắt buộc'),
+    check('phoneNumber').notEmpty().withMessage('Số điện thoại là bắt buộc'),
 ];
 
 const validateChangePassword = [
-    check('currentPassword').notEmpty().withMessage('Current password is required'),
-    check('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters long'),
-    check('confirmPassword').notEmpty().withMessage('Confirm password is required'),
+    check('currentPassword').notEmpty().withMessage('Mật khẩu hiện tại là bắt buộc'),
+    check('newPassword').isLength({ min: 6 }).withMessage('Mật khẩu mới phải có ít nhất 6 ký tự'),
+    check('confirmPassword').notEmpty().withMessage('Xác nhận mật khẩu là bắt buộc'),
 ];
 
 const validate = (req, res, next) => {

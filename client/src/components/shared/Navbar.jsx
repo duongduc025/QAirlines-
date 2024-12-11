@@ -126,7 +126,7 @@ const Navbar = () => {
                             <PopoverTrigger asChild>
                                 <Avatar className="cursor-pointer">
                                     <AvatarImage 
-                                        src="https://github.com/shadcn.png" 
+                                        src="https://www.gravatar.com/avatar/?d=mp" 
                                         alt="User Avatar" 
                                     />
                                 </Avatar>
