@@ -3,6 +3,8 @@ import Airplane from '../models/airplanes.js';
 import mongoose from 'mongoose';
 import { authenticateJWT } from '../middlewares/jwtAuth.js';
 import { isAdmin } from '../middlewares/auth.middleware.js';
+import DelayNotice from '../models/delayNotices.js';
+
 // ...existing code...
 
 export const showAllFlights = async (req, res) => {
@@ -23,20 +25,6 @@ export const showAllFlights = async (req, res) => {
                 }
             },
             {
-                $lookup: {
-                    from: 'bookings',
-                    localField: '_id',
-                    foreignField: 'flight_id',
-                    as: 'booking_details'
-                }
-            },
-            {
-                $unwind: {
-                    path: '$booking_details',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
                 $project: {
                     _id: 1,
                     flight_code: 1,
@@ -44,12 +32,11 @@ export const showAllFlights = async (req, res) => {
                     destination: 1,
                     departure_time: 1,
                     arrival_time: 1,
+                    travel_time: { $divide: [{ $abs: { $subtract: ['$arrival_time', '$departure_time'] } }, 3600000] }, // convert milliseconds to hours
                     economy_seats: 1,
                     economy_price: 1,
-                    'airplane_details.model': 1,
-                    'airplane_details.airplane_code': 1,
-                    'booking_details._id': 1,
-                    travel_time: { $divide: [{ $abs: { $subtract: ['$arrival_time', '$departure_time'] } }, 3600000] } // convert milliseconds to hours
+                    airplane_code: 1,
+                    airplane_details: 1
                 }
             }
         ]);
@@ -215,6 +202,7 @@ export const updateDepartureTime = async (req, res) => {
             return res.status(404).json({ message: "Flight not found" });
         }
 
+        const previousDepartureTime = flight.departure_time;
         const newDepartureDate = new Date(newDepartureTime);
         const newArrivalTime = new Date(newDepartureDate.getTime() + flight.travel_time * 3600000); // travel_time is in minutes
 
@@ -223,10 +211,36 @@ export const updateDepartureTime = async (req, res) => {
 
         await flight.save();
 
+        // Lưu thông tin vào delayNotices
+        const delayNotice = new DelayNotice({
+            flightId: flight._id,
+            previousDepartureTime,
+            newDepartureTime: newDepartureDate
+        });
+
+        await delayNotice.save();
+
         res.json(flight);
     } catch (error) {
+        console.error('Error during flight update:', error);
         res.status(500).json({ message: error.message });
     }
 };
 
-// ...existing code...
+export const deleteFlightById = [
+    authenticateJWT,
+    isAdmin,
+    async (req, res) => {
+        const { flightId } = req.params;
+
+        try {
+            const flight = await Flight.findByIdAndDelete(flightId);
+            if (!flight) {
+                return res.status(404).json({ message: "Flight not found" });
+            }
+            res.json({ message: "Flight deleted successfully" });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+];
