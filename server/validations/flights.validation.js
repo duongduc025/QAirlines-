@@ -7,7 +7,6 @@ export const validateNewFlight = [
     body('departure_location').notEmpty().withMessage('Departure location is required'),
     body('destination').notEmpty().withMessage('Destination is required'),
     body('travel_time').isNumeric().withMessage('Travel time must be a number'),
-    //Đầu vào cần được chuyển sang dạng: 2024-12-04T10:00:00Z
     body('arrival_time').isISO8601().toDate().withMessage('Arrival time must be a valid date'),
     body('departure_time').isISO8601().toDate().withMessage('Departure time must be a valid date'),
     body('estimated_arrival').isISO8601().toDate().withMessage('Estimated arrival must be a valid date'),
@@ -18,7 +17,6 @@ export const validateNewFlight = [
 export const validateSearchFlights = [
     query('departure_location').notEmpty().withMessage('Departure location is required'),
     query('destination').notEmpty().withMessage('Destination is required'),
-    //Đầu vào cần được chuyển sang dạng: 2024-12-04T10:00:00Z
     query('departure_date').isISO8601().toDate().withMessage('Departure date must be a valid date'),
     query('ticket_quantity').isInt({ min: 1 }).withMessage('Ticket quantity must be a positive integer')
 ];

@@ -1,4 +1,4 @@
-import Notice from '../models/notices.js';
+import Promotion from '../models/promotions.js';
 import cloudinary from 'cloudinary';
 import dotenv from 'dotenv';
 
@@ -10,7 +10,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-export const createNotice = async (req, res) => {
+export const createPromotion = async (req, res) => {
     const { title, category, brief, mark, content } = req.body;
     const userId = req.user._id;
     const file = req.file;
@@ -23,7 +23,7 @@ export const createNotice = async (req, res) => {
             imageUrl = result.secure_url;
         }
 
-        const newNotice = new Notice({
+        const newPromotion = new Promotion({
             title,
             category,
             brief,
@@ -34,39 +34,39 @@ export const createNotice = async (req, res) => {
             user: userId
         });
 
-        await newNotice.save();
+        await newPromotion.save();
 
-        res.status(201).json(newNotice);
+        res.status(201).json(newPromotion);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }
 };
 
-export const getImageByNoticeId = async (req, res) => {
+export const getImageByPromotionId = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const notice = await Notice.findById(id);
-        if (!notice) {
-            return res.status(404).json({ message: 'Notice not found' });
+        const promotion = await Promotion.findById(id);
+        if (!promotion) {
+            return res.status(404).json({ message: 'Promotion not found' });
         }
 
-        res.status(200).json({ image: notice.image });
+        res.status(200).json({ image: promotion.image });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }
 };
 
-export const deleteNoticeById = async (req, res) => {
+export const deletePromotionById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const notice = await Notice.findByIdAndDelete(id);
-        if (!notice) {
-            return res.status(404).json({ message: 'Notice not found' });
+        const promotion = await Promotion.findByIdAndDelete(id);
+        if (!promotion) {
+            return res.status(404).json({ message: 'Promotion not found' });
         }
 
-        res.status(200).json({ message: 'Notice deleted successfully' });
+        res.status(200).json({ message: 'Promotion deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }

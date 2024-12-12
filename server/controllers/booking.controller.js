@@ -49,6 +49,7 @@ export const getBookingByUserId = async (req, res) => {
     }
 };
 
+
 export const getSpecificBookingByUserId = async (req, res) => {
     const { id, booking_id } = req.params;
     console.log(`Fetching specific booking for user ID: ${id}, booking ID: ${booking_id}`);
