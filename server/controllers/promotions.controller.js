@@ -71,3 +71,12 @@ export const deletePromotionById = async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 };
+
+export const showAllPromotions = async (req, res) => {
+    try {
+        const promotions = await Promotion.find();
+        res.status(200).json(promotions);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
