@@ -31,8 +31,7 @@ export const showAllFlights = async (req, res) => {
                     departure_location: 1,
                     destination: 1,
                     departure_time: 1,
-                    arrival_time: 1,
-                    travel_time: { $divide: [{ $abs: { $subtract: ['$arrival_time', '$departure_time'] } }, 3600000] }, 
+                    travel_time: { $divide: [{ $abs: { $subtract: ['$departure_time', '$departure_time'] } }, 3600000] }, 
                     economy_seats: 1,
                     economy_price: 1,
                     airplane_code: 1,
@@ -51,9 +50,9 @@ export const addNewFlight = [
     isAdmin,        
     async (req, res) => {
         console.log("Authenticated user ID:", req.user._id);
-        const {flight_code, airplane_code, ticket_price, departure_location, destination, travel_time, arrival_time, departure_time, estimated_arrival, economy_seats, economy_price } = req.body;
+        const {flight_code, airplane_code, departure_location, destination, travel_time, departure_time, economy_seats, economy_price } = req.body;
 
-        if (!flight_code || !airplane_code || !ticket_price || !departure_location || !destination || !travel_time || !arrival_time || !departure_time || !estimated_arrival || !economy_seats || !economy_price) {
+        if (!flight_code || !airplane_code || !departure_location || !destination || !travel_time || !departure_time || !economy_seats || !economy_price) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -66,13 +65,10 @@ export const addNewFlight = [
             const newFlight = new Flight({
                 flight_code,
                 airplane_code,
-                ticket_price,
                 departure_location,
                 destination,
                 travel_time,
-                arrival_time,
                 departure_time,
-                estimated_arrival,
                 economy_seats,
                 economy_price
             });
@@ -102,10 +98,8 @@ export const updateDepartureTime = async (req, res) => {
 
         const previousDepartureTime = flight.departure_time;
         const newDepartureDate = new Date(newDepartureTime);
-        const newArrivalTime = new Date(newDepartureDate.getTime() + flight.travel_time * 3600000); // travel_time is in minutes
 
         flight.departure_time = newDepartureDate;
-        flight.arrival_time = newArrivalTime;
 
         await flight.save();
 
