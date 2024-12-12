@@ -8,8 +8,7 @@ const userSchema = new mongoose.Schema({
   phoneNumber: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, required: true, default: 'user' },
-  booking_id: { type: [String] },
-  avatar: { type: String } // Add avatar field
+  booking_id: { type: [String] }
 });
 
 export default mongoose.model('User', userSchema, 'users');

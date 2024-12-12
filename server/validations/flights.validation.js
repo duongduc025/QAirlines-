@@ -1,22 +1,24 @@
 import { body, query } from 'express-validator';
 
 export const validateNewFlight = [
-    body('flight_code').notEmpty().withMessage('Mã chuyến bay là bắt buộc'),
-    body('airplane_code').notEmpty().withMessage('Mã máy bay là bắt buộc'),
-    body('ticket_price').isNumeric().withMessage('Giá vé phải là một số'),
-    body('departure_location').notEmpty().withMessage('Địa điểm khởi hành là bắt buộc'),
-    body('destination').notEmpty().withMessage('Điểm đến là bắt buộc'),
-    body('travel_time').isNumeric().withMessage('Thời gian di chuyển phải là một số'),
-    body('arrival_time').isISO8601().toDate().withMessage('Thời gian đến phải là một ngày hợp lệ'),
-    body('departure_time').isISO8601().toDate().withMessage('Thời gian khởi hành phải là một ngày hợp lệ'),
-    body('estimated_arrival').isISO8601().toDate().withMessage('Thời gian đến dự kiến phải là một ngày hợp lệ'),
-    body('economy_seats').isInt({ min: 1 }).withMessage('Số ghế hạng phổ thông phải là một số nguyên dương'),
-    body('economy_price').isNumeric().withMessage('Giá vé hạng phổ thông phải là một số')
+    body('flight_code').notEmpty().withMessage('Flight code is required'),
+    body('airplane_code').notEmpty().withMessage('Airplane code is required'),
+    body('ticket_price').isNumeric().withMessage('Ticket price must be a number'),
+    body('departure_location').notEmpty().withMessage('Departure location is required'),
+    body('destination').notEmpty().withMessage('Destination is required'),
+    body('travel_time').isNumeric().withMessage('Travel time must be a number'),
+    //Đầu vào cần được chuyển sang dạng: 2024-12-04T10:00:00Z
+    body('arrival_time').isISO8601().toDate().withMessage('Arrival time must be a valid date'),
+    body('departure_time').isISO8601().toDate().withMessage('Departure time must be a valid date'),
+    body('estimated_arrival').isISO8601().toDate().withMessage('Estimated arrival must be a valid date'),
+    body('economy_seats').isInt({ min: 1 }).withMessage('Economy seats must be a positive integer'),
+    body('economy_price').isNumeric().withMessage('Economy price must be a number')
 ];
 
 export const validateSearchFlights = [
-    query('departure_location').notEmpty().withMessage('Địa điểm khởi hành là bắt buộc'),
-    query('destination').notEmpty().withMessage('Điểm đến là bắt buộc'),
-    query('departure_date').isISO8601().toDate().withMessage('Ngày khởi hành phải là một ngày hợp lệ'),
-    query('ticket_quantity').isInt({ min: 1 }).withMessage('Số lượng vé phải là một số nguyên dương')
+    query('departure_location').notEmpty().withMessage('Departure location is required'),
+    query('destination').notEmpty().withMessage('Destination is required'),
+    //Đầu vào cần được chuyển sang dạng: 2024-12-04T10:00:00Z
+    query('departure_date').isISO8601().toDate().withMessage('Departure date must be a valid date'),
+    query('ticket_quantity').isInt({ min: 1 }).withMessage('Ticket quantity must be a positive integer')
 ];

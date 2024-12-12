@@ -6,17 +6,17 @@ import mongoose from 'mongoose';
 
 export const getBookingByUserId = async (req, res) => {
     const { id } = req.params;
-    console.log(`Lấy thông tin đặt vé cho ID người dùng: ${id}`);
+    console.log(`Fetching bookings for user ID: ${id}`);
    
     try {
         const user = await User.findById(id);
         if (!user) {
-            console.log('Không tìm thấy người dùng');
-            return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+            console.log('User not found');
+            return res.status(404).json({ message: 'User not found' });
         }
       
         const bookings = await Booking.aggregate([
-            { $match: { user_id: user._id } },
+            { $match: { user_id: id } },
             {
                 $lookup: {
                     from: 'flights',
@@ -35,31 +35,33 @@ export const getBookingByUserId = async (req, res) => {
                     departure_time: '$flight_details.departure_time',
                     travel_time: '$flight_details.travel_time',
                     booking_status: '$flight_details.booking_status',
-                    ticket_quantity: 1
+                    ticket_quantity: 1,
+                    arrival_time: '$flight_details.arrival_time', 
+                    flight_code: '$flight_details.flight_code' 
                 }
             }
         ]);
 
         res.json({ success: true, bookings });
     } catch (error) {
-        console.error('Lỗi máy chủ:', error);
-        res.status(500).json({ success: false, message: 'Lỗi máy chủ', error });
+        console.error('Server error:', error);
+        res.status(500).json({ success: false, message: 'Server error', error });
     }
 };
 
 export const getSpecificBookingByUserId = async (req, res) => {
     const { id, booking_id } = req.params;
-    console.log(`Lấy thông tin đặt vé cụ thể cho ID người dùng: ${id}, ID đặt vé: ${booking_id}`);
+    console.log(`Fetching specific booking for user ID: ${id}, booking ID: ${booking_id}`);
 
     try {
         const user = await User.findById(id);
         if (!user) {
-            console.log('Không tìm thấy người dùng');
-            return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+            console.log('User not found');
+            return res.status(404).json({ message: 'User not found' });
         }
 
         const bookings = await Booking.aggregate([
-            { $match: { _id: new mongoose.Types.ObjectId(booking_id), user_id: user._id } },
+            { $match: { _id: new mongoose.Types.ObjectId(booking_id), user_id: id } },
             {
                 $lookup: {
                     from: 'flights',
@@ -83,45 +85,44 @@ export const getSpecificBookingByUserId = async (req, res) => {
         ]);
 
         if (bookings.length === 0) {
-            console.log('Không tìm thấy đặt vé cho người dùng này');
-            return res.status(404).json({ message: 'Không tìm thấy đặt vé cho người dùng này' });
+            console.log('Booking not found for this user');
+            return res.status(404).json({ message: 'Booking not found for this user' });
         }
 
         res.json({ success: true, bookings: bookings[0] });
     } catch (error) {
-        console.error('Lỗi máy chủ:', error);
-        res.status(500).json({ success: false, message: 'Lỗi máy chủ', error });
+        console.error('Server error:', error);
+        res.status(500).json({ success: false, message: 'Server error', error });
     }
 };
 
 // Thêm chú thích bằng tiếng Việt cho hàm createBooking
 export const createBooking = async (req, res) => {
     const { flight_id, ticket_quantity, passengers } = req.body;
-    const user_email = req.user.email; // Giả sử email người dùng được lưu trong token
+    const user_id = req.user._id; // Assuming the user's ID is stored in the token
 
     try {
-        // Tìm chuyến bay theo ID
+        // Find the flight by ID
         const flight = await Flight.findById(flight_id);
         if (!flight) {
-            return res.status(404).json({ message: 'Không tìm thấy chuyến bay' });
+            return res.status(404).json({ message: 'Flight not found' });
         }
 
-        // Kiểm tra xem có đủ ghế hạng phổ thông không
+        // Check if there are enough economy seats available
         if (flight.economy_seats < ticket_quantity) {
-            return res.status(400).json({ message: 'Không đủ ghế hạng phổ thông' });
+            return res.status(400).json({ message: 'Not enough economy seats available' });
         }
 
-        // Tính tổng giá vé
+        // Calculate the total price
         const ticket_price = flight.economy_price;
         const total_price = ticket_quantity * ticket_price;
 
-        // Tạo hành khách và thu thập ID của họ
+        // Create passengers and collect their IDs
         const passenger_ids = [];
         for (const passenger of passengers) {
-            const { first_name, last_name, email, gender, dob, identity_number } = passenger;
+            const { fullname, email, gender, dob, identity_number } = passenger;
             const newPassenger = new Passenger({
-                first_name,
-                last_name,
+                fullname,
                 email,
                 gender,
                 date_of_birth: new Date(dob),
@@ -132,16 +133,16 @@ export const createBooking = async (req, res) => {
             passenger_ids.push(newPassenger._id);
         }
 
-        // Tìm người dùng theo email
-        const user = await User.findOne({ email: user_email });
+        // Find the user by ID
+        const user = await User.findById(user_id);
         if (!user) {
-            return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        // Tạo đặt vé mới
+        // Create a new booking
         const newBooking = new Booking({
             user_id: user._id,
-            user_email,
+            user_email: user.email,
             flight_id,
             ticket_quantity,
             ticket_price,
@@ -152,21 +153,21 @@ export const createBooking = async (req, res) => {
             updated_at: new Date()
         });
 
-        // Cập nhật số ghế còn lại của chuyến bay
+        // Update the flight's available seats
         flight.economy_seats -= ticket_quantity;
         await flight.save();
 
-        // Lưu đặt vé mới
+        // Save the new booking
         await newBooking.save();
 
-        // Cập nhật danh sách đặt vé của người dùng
+        // Update the user's booking list
         user.booking_id.push(newBooking._id);
         await user.save();
 
-        res.status(201).json({ message: 'Đặt vé thành công', booking_id: newBooking._id });
+        res.status(201).json({ message: 'Booking successful', booking_id: newBooking._id });
     } catch (error) {
-        console.error('Lỗi máy chủ:', error);
-        res.status(500).json({ message: 'Lỗi máy chủ', error });
+        console.error('Server error:', error);
+        res.status(500).json({ message: 'Server error', error });
     }
 };
 
@@ -184,8 +185,8 @@ export const listAllBookings = async (req, res) => {
             {
                 $lookup: {
                     from: 'users',
-                    localField: 'user_email',
-                    foreignField: 'email',
+                    localField: 'user_id',
+                    foreignField: '_id',
                     as: 'user_details'
                 }
             },
@@ -206,21 +207,21 @@ export const listAllBookings = async (req, res) => {
                 }
             }
         ]);
-        console.log('Danh sách đặt vé:', bookings); // Debug log to check the bookings data
+        console.log('Bookings:', bookings); // Debug log to check the bookings data
         res.json({ success:true, bookings});
     } catch (error) {
-        console.error('Lỗi máy chủ:', error);
-        res.status(500).json({ message: 'Lỗi máy chủ', error });
+        console.error('Server error:', error);
+        res.status(500).json({ message: 'Server error', error });
     }
 };
 
 //Bỏ authenJWT thì làm được
 export const cancelBooking = async (req, res) => {
     const { booking_id } = req.params;
-    const user_email = req.user.email; // Giả sử email người dùng được lưu trong token
+    const user_id = req.user._id; // Giả sử ID người dùng được lưu trong token
 
     try {
-        const booking = await Booking.findOne({ _id: mongoose.Types.ObjectId(booking_id), user_email });
+        const booking = await Booking.findOne({ _id: mongoose.Types.ObjectId(booking_id), user_id });
         if (!booking) {
             return res.status(404).json({ message: 'Không tìm thấy đặt vé' });
         }

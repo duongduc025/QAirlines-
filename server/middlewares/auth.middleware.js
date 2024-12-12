@@ -1,5 +1,5 @@
 export const isAdmin = (req, res, next) => {
-    const user = req.user; // Giả sử thông tin người dùng được lưu trong req.user
+    const user = req.user; 
     if (user && user.role === 'admin') {
         next();
     } else {
@@ -8,7 +8,7 @@ export const isAdmin = (req, res, next) => {
 };
 
 export const isCustomer = (req, res, next) => {
-    const user = req.user; // Giả sử thông tin người dùng được lưu trong req.user
+    const user = req.user; 
     if (user && user.role === 'user') {
         next();
     } else {
