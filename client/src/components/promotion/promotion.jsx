@@ -67,17 +67,17 @@ const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
               <div className="flex items-center">
                 <Clock className="w-5 h-5 mr-3 text-[#DAA520]" />
                 <span className="text-gray-700">
-                  Bắt đầu từ: <strong>{new Date(promotion.posted_at).toLocaleDateString('vi-VN')}</strong>
+                  Đăng ngày: <strong>{new Date(promotion.posted_at).toLocaleDateString('vi-VN')}</strong>
                 </span>
               </div>
             </div>
             
             <div className="bg-[#008080]/10 p-4 rounded-lg max-h-64 overflow-y-auto">
-              <h4 className="text-[#008080] font-bold mb-2">Chi tiết:</h4>
+              <h4 className="text-[#008080] font-bold mb-2">Chi tiết</h4>
               <div style={{ whiteSpace: 'pre-line' }}>{promotion.content}</div>
             </div>
             
-            <div className="flex justify-end">
+            <div className="flex justify-center mt-4">
               <button 
                 onClick={onClose}
                 className="bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-[#006666] transition duration-300"

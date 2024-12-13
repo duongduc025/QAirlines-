@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Search, AlertTriangle } from 'lucide-react';
+import { Search, AlertTriangle, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { setAllBooking } from '@/redux/bookingSlice';
 import { Pagination } from '@/components/ui/pagination';
-
 
 import {
   AlertDialog,
@@ -17,8 +18,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { format } from 'date-fns';
+import { toast } from 'sonner'; 
+import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
+import { BOOKING_API_END_POINT } from '@/utils/constraint';
 
 const MyBooking = () => {
   const [searchId, setSearchId] = useState('');
@@ -27,6 +31,7 @@ const MyBooking = () => {
   const bookingsPerPage = 4;
 
   const { allBooking } = useSelector((store) => store.booking);
+  const dispatch = useDispatch();
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -37,21 +42,43 @@ const MyBooking = () => {
     console.log(allBooking);
   };
 
-  const handleCancelBooking = () => {
-    // Xử lý logic hủy vé tại đây
-    console.log('Canceling booking:', selectedBooking);
-    setSelectedBooking(null);
+  const handleCancelBooking = async () => {
+    if (selectedBooking) {
+      console.log(selectedBooking);
+      try {
+        const response = await fetch(`${BOOKING_API_END_POINT}/bookings/${selectedBooking._id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+          }
+        });
+
+        if (response.ok) {
+          toast.success('Booking cancelled successfully');
+          const updatedBookings = allBooking.map(booking => 
+            booking._id === selectedBooking._id ? { ...booking, booking_status: 'Đã hủy' } : booking
+          );
+          dispatch(setAllBooking([...updatedBookings]));
+          setSelectedBooking(null);
+        } else {
+          toast.error('Failed to cancel booking');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        toast.error('An error occurred while cancelling the booking');
+      }
+    }
   };
 
-  
-
   const filteredBookings = searchId
-    ? allBooking.filter(booking => booking.id.toLowerCase().includes(searchId.toLowerCase()))
+    ? allBooking.filter(booking => booking._id.toLowerCase().includes(searchId.toLowerCase()))
     : allBooking;
+
+  const sortedBookings = filteredBookings.sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date));
 
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
-  const currentBookings = filteredBookings.slice(indexOfFirstBooking, indexOfLastBooking);
+  const currentBookings = sortedBookings.slice(indexOfFirstBooking, indexOfLastBooking);
   const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage);
 
   return (
@@ -187,49 +214,29 @@ const MyBooking = () => {
         )}
 
         {/* Cancel Confirmation Dialog */}
-        <AlertDialog open={!!selectedBooking} onOpenChange={() => setSelectedBooking(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-500" />
-                Confirm Cancellation
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to cancel booking #{selectedBooking?.id}? 
-                This action cannot be undone and cancellation fees may apply.
-                <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <p className="text-sm text-gray-500">From</p>
-                      <p className="font-medium">{selectedBooking?.from}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">To</p>
-                      <p className="font-medium">{selectedBooking?.to}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Date</p>
-                      <p className="font-medium">{selectedBooking?.date}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Time</p>
-                      <p className="font-medium">{selectedBooking?.time}</p>
-                    </div>
-                  </div>
-                </div>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Keep Booking</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-red-500 hover:bg-red-600"
-                onClick={handleCancelBooking}
+        <Dialog open={!!selectedBooking} onOpenChange={(open) => {
+          if (!open) setSelectedBooking(null);
+        }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Cancellation</DialogTitle>
+              <DialogDescription></DialogDescription>
+            </DialogHeader>
+            <p>Are you sure you want to cancel booking #{selectedBooking?._id}?</p>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={() => setSelectedBooking(null)}>Keep Booking</Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => {
+                  handleCancelBooking();
+                  setSelectedBooking(null);
+                }}
               >
                 Yes, Cancel Booking
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
