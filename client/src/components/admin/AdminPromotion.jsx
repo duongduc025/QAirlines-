@@ -30,7 +30,8 @@ const marks = [
   { id: "50%", name: "50%" },
   { id: "Giới hạn", name: "Giới hạn" },
   { id: "Mới", name: "Mới" },
-  { id: "Hot", name: "Hot" }
+  { id: "Hot", name: "Hot" },
+  { id: "Khác", name: "Khác" }
 ];
 
 const AdminPromotion = () => {

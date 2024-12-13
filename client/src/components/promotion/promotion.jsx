@@ -37,15 +37,19 @@ const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-xl md:max-w-2xl">
         <div className="relative mt-4">
-          <img
-            src={promotion.image || Airplane}
-            alt={promotion.title}
-            className="w-full h-64 object-cover rounded-t-xl"
-          />
-          <div className="absolute top-6 right-6 bg-[#DAA520] text-white px-4 py-1 rounded-full font-bold">
-            {promotion.mark}
+          <div className="w-full max-w-xl md:max-w-2xl mx-auto relative"> {/* Set max width */}
+            <img
+              src={promotion.image || Airplane}
+              alt={promotion.title}
+              className="w-full h-auto object-cover rounded-t-xl" 
+            />
+            {promotion.mark !== "Khác" && (
+              <div className="absolute top-6 right-6 bg-[#DAA520] text-white px-4 py-1 rounded-full font-bold">
+                {promotion.mark}
+              </div>
+            )}
           </div>
         </div>
         <div className="p-6">
@@ -70,7 +74,7 @@ const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
             
             <div className="bg-[#008080]/10 p-4 rounded-lg max-h-64 overflow-y-auto">
               <h4 className="text-[#008080] font-bold mb-2">Chi tiết:</h4>
-              <div>{promotion.content}</div>
+              <div style={{ whiteSpace: 'pre-line' }}>{promotion.content}</div>
             </div>
             
             <div className="flex justify-end">
@@ -90,15 +94,17 @@ const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
 
 const PromotionCard = ({ promotion, onShowDetails }) => (
   <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-[#008080]/10">
-    <div className="relative h-48">
+    <div className="relative w-full h-0 pb-[56.25%]"> {/* Adjusted aspect ratio to 16:9 */}
       <img
         src={promotion.image || "/home/hdd/Documents/QAirlineX/QAirlines/client/src/assets/image/QApro.png"}
         alt={promotion.title}
-        className="w-full h-full object-cover"
+        className="absolute top-0 left-0 w-full h-full object-cover"
       />
-      <div className="absolute top-4 right-4 bg-[#DAA520] text-white px-4 py-1 rounded-full font-bold">
-        {promotion.mark}
-      </div>
+      {promotion.mark !== "Khác" && (
+        <div className="absolute top-4 right-4 bg-[#DAA520] text-white px-4 py-1 rounded-full font-bold">
+          {promotion.mark}
+        </div>
+      )}
     </div>
     <div className="p-6">
       <h3 className="text-xl font-bold text-[#008080] mb-2">{promotion.title}</h3>

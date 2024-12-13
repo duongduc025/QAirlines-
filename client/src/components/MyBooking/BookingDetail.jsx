@@ -33,7 +33,7 @@ const BookingDetail = () => {
       airline: 'Vietnam Airlines',
       departure: 'Hà Nội',
       arrival: 'Hồ Chí Minh',
-      departureDate: '15/12/2024',
+      departureDate: '2024-12-15', // Changed to valid date format
       departureTime: '14:30',
       arrivalTime: '16:00',
       price: 2500000
@@ -42,13 +42,13 @@ const BookingDetail = () => {
       {
         lastName: 'Nguyễn Văn A',
         gender: 'male',
-        dateOfBirth: '15/05/1990',
+        dateOfBirth: '1990-05-15', // Changed to valid date format
         idNumber: '123456789'
       },
       {
         lastName: 'Trần Thị B',
         gender: 'female',
-        dateOfBirth: '20/10/1995',
+        dateOfBirth: '1995-10-20', // Changed to valid date format
         idNumber: '987654321'
       }
     ]
