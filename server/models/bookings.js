@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const bookingSchema = new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
   user_email: { type: String, required: true },
-  flight_id: { type: mongoose.Schema.Types.ObjectId, required: true }, 
+  flight_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Flight' }, 
   ticket_quantity: { type: Number, required: true },
   ticket_price: { type: Number, required: true },
   total_price: { type: Number, required: true },

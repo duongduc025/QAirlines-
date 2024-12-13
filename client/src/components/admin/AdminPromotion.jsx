@@ -6,90 +6,121 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { PlusCircle, Trash2, Search, ImagePlus, Eye } from "lucide-react";
 import AdminSideBar from './AdminSideBar';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAllPromotions } from '@/redux/promotionSlice';
+import { PROMOTION_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { setLoading } from '@/redux/authSlice'
+
 
 const categories = [
-  { id: "1", name: "Thông báo" },
-  { id: "2", name: "Tin tức" },
-  { id: "3", name: "Khuyến mãi" },
-  { id: "4", name: "Giới thiệu" }
+  { id: "Thông báo", name: "Thông báo" },
+  { id: "Tin tức", name: "Tin tức" },
+  { id: "Khuyến mãi", name: "Khuyến mãi" },
+  { id: "Giới thiệu", name: "Giới thiệu" }
 ];
 
 const marks = [
-  { id: "discount-30", name: "-30%" },
-  { id: "discount-50", name: "-50%" },
-  { id: "limited", name: "Giới hạn" },
-  { id: "new", name: "Mới" },
-  { id: "hot", name: "Hot" }
-];
-
-const initialPromotions = [
-  {
-    id: 1,
-    title: "Khuyến mãi mùa hè",
-    category: "flight",
-    shortDescription: "Giảm giá đặc biệt cho các chuyến bay nội địa",
-    mark: "discount-50",
-    content: "Ưu đãi giảm 50% cho tất cả các chuyến bay nội địa từ 1/6 - 31/8/2024\n\n- Áp dụng cho mọi hạng vé\n- Không giới hạn số lượng\n- Có thể kết hợp với các ưu đãi khác",
-    image: "/promo1.jpg"
-  },
-  {
-    id: 2,
-    title: "Combo nghỉ dưỡng",
-    category: "package",
-    shortDescription: "Combo vé máy bay + khách sạn 5 sao",
-    mark: "limited",
-    content: "Trọn gói nghỉ dưỡng 3N2Đ tại các resort 5 sao:\n\n- Vé máy bay khứ hồi\n- Phòng Deluxe\n- Ăn sáng buffet\n- Đưa đón sân bay\n- Tour tham quan địa phương",
-    image: "/promo2.jpg"
-  }
+  { id: "30%", name: "30%" },
+  { id: "50%", name: "50%" },
+  { id: "Giới hạn", name: "Giới hạn" },
+  { id: "Mới", name: "Mới" },
+  { id: "Hot", name: "Hot" }
 ];
 
 const AdminPromotion = () => {
-  const [promotions, setPromotions] = useState(initialPromotions);
+  const dispatch = useDispatch();
+  const { loading, user } = useSelector(store => store.auth);
+  const { allPromotions } = useSelector((store) => store.promotion);
+  const [promotions, setPromotions] = useState(allPromotions);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [imgFile, setImgFile] = useState(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedPromotion, setSelectedPromotion] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [promotionToDelete, setPromotionToDelete] = useState(null);
 
   const filteredPromotions = promotions.filter(promotion => 
     promotion.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleRemovePromotion = (id) => {
-    setPromotions(promotions.filter(promotion => promotion.id !== id));
+  const handleRemovePromotion = async (_id) => {
+    try {
+      const response = await fetch(`${PROMOTION_API_END_POINT}/deletePromotion/${_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+        }
+      });
+
+      if (response.ok) {
+        toast.success('Xóa ưu đãi thành công');
+        setPromotions(promotions.filter(promotion => promotion._id !== _id));
+        dispatch(setAllPromotions(promotions.filter(promotion => promotion._id !== _id)));
+      } else {
+        console.error('Xóa ưu đãi thất bại');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
+    console.log(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
+      setImgFile(file);
     }
+
   };
 
-  const handleAddPromotion = (event) => {
+  const handleAddPromotion = async (event) => {
     event.preventDefault();
+    dispatch(setLoading(true));
     const formData = new FormData(event.target);
-    const newPromotion = {
-      id: promotions.length + 1,
-      title: formData.get('title'),
-      category: formData.get('category'),
-      shortDescription: formData.get('shortDescription'),
-      mark: formData.get('mark'),
-      content: formData.get('content'),
-      image: imagePreview || '/placeholder.jpg'
-    };
-    setPromotions([...promotions, newPromotion]);
+
+    if (imgFile) {
+        formData.append('image', imgFile);
+    }
+
+    try {
+        const response = await fetch(`${PROMOTION_API_END_POINT}/createPromotion`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+            },
+            body: formData
+        });
+
+        if (response.status === 201) {
+            const addedPromotion = await response.json();
+            setPromotions([...promotions, addedPromotion]);
+            dispatch(setAllPromotions([...promotions, addedPromotion]));
+            toast.success('Thêm ưu đãi thành công');
+        } else {
+            console.error('Failed to add promotion');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        dispatch(setLoading(false));
+    }
+
     setIsDialogOpen(false);
     setImagePreview(null);
-  };
+};
 
   const handleViewContent = (promotion) => {
     setSelectedPromotion(promotion);
@@ -116,6 +147,7 @@ const AdminPromotion = () => {
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>Thêm ưu đãi mới</DialogTitle>
+                    <DialogDescription></DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleAddPromotion} className="space-y-6">
                     <div className="space-y-2">
@@ -146,17 +178,17 @@ const AdminPromotion = () => {
                     <div className="space-y-2">
                       <Label>Mô tả ngắn</Label>
                       <Textarea 
-                        name="shortDescription"
+                        name="brief"
                         placeholder="Nhập mô tả ngắn"
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Mark</Label>
+                      <Label>Nhãn</Label>
                       <Select name="mark" required>
                         <SelectTrigger>
-                          <SelectValue placeholder="Chọn mark" />
+                          <SelectValue placeholder="Chọn nhãn" />
                         </SelectTrigger>
                         <SelectContent>
                           {marks.map((mark) => (
@@ -204,9 +236,15 @@ const AdminPromotion = () => {
                       </div>
                     </div>
 
-                    <Button type="submit" className="w-full">
-                      Thêm ưu đãi
-                    </Button>
+                    {loading ? (
+                      <Button className="w-full my-4 ">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait
+                      </Button>
+                    ) : (
+                      <Button type="submit" className="w-full my-4">
+                        Thêm ưu đãi
+                      </Button>
+                    )}
                   </form>
                 </DialogContent>
               </Dialog>
@@ -238,10 +276,10 @@ const AdminPromotion = () => {
               </TableHeader>
               <TableBody>
                 {filteredPromotions.map((promotion) => (
-                  <TableRow key={promotion.id}>
+                  <TableRow key={promotion._id}>
                     <TableCell className="font-medium">{promotion.title}</TableCell>
                     <TableCell>{categories.find(c => c.id === promotion.category)?.name}</TableCell>
-                    <TableCell className="max-w-xs truncate">{promotion.shortDescription}</TableCell>
+                    <TableCell className="whitespace-pre-wrap">{promotion.brief}</TableCell>
                     <TableCell>{marks.find(c => c.id === promotion.mark)?.name}</TableCell>
                     <TableCell>
                       <Button
@@ -261,13 +299,40 @@ const AdminPromotion = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button 
-                          variant="destructive" 
-                          size="icon"
-                          onClick={() => handleRemovePromotion(promotion.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <Dialog open={isConfirmDialogOpen && promotionToDelete?._id === promotion._id} 
+                                onOpenChange={(open) => {
+                                  setIsConfirmDialogOpen(open);
+                                  if (!open) setPromotionToDelete(null);
+                                }}>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="destructive" 
+                              size="icon"
+                              onClick={() => setPromotionToDelete(promotion)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Xác nhận xóa ưu đãi</DialogTitle>
+                              <DialogDescription></DialogDescription>
+                            </DialogHeader>
+                            <p>Bạn có chắc chắn muốn xóa ưu đãi {promotion.title} không?</p>
+                            <div className="flex justify-end gap-2 mt-4">
+                              <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>Hủy</Button>
+                              <Button 
+                                variant="destructive" 
+                                onClick={() => {
+                                  handleRemovePromotion(promotion._id);
+                                  setIsConfirmDialogOpen(false);
+                                }}
+                              >
+                                Xóa
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -283,6 +348,7 @@ const AdminPromotion = () => {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{selectedPromotion?.title}</DialogTitle>
+            <DialogDescription></DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4">
             <div className="prose max-w-none">

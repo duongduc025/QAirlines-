@@ -4,51 +4,89 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { PlusCircle, Trash2, Search } from "lucide-react";
 import AdminSideBar from './AdminSideBar';
+import { useDispatch, useSelector } from 'react-redux';
+import { setAllAirCraft } from '@/redux/airCraftSlice';
+import { AIRCRAFT_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
+import { toast } from 'sonner';
 
-const initialAircrafts = [
-  {
-    id: 1,
-    aircraftId: "VN-A321",
-    manufacturer: "Airbus",
-    model: "A321",
-    seats: 180
-  },
-  {
-    id: 2,
-    aircraftId: "VN-B787",
-    manufacturer: "Boeing",
-    model: "787-9",
-    seats: 300
-  }
-];
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
 const AdminAircraft = () => {
-  const [aircrafts, setAircrafts] = useState(initialAircrafts);
+  const dispatch = useDispatch();
+  const { allAirCraft } = useSelector((store) => store.aircraft);
+  const [aircrafts, setAircrafts] = useState(allAirCraft);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [aircraftToDelete, setAircraftToDelete] = useState(null);
 
   const filteredAircrafts = aircrafts.filter(aircraft => 
-    aircraft.aircraftId.toLowerCase().includes(searchQuery.toLowerCase())
+    aircraft.airplane_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleRemoveAircraft = (id) => {
-    setAircrafts(aircrafts.filter(aircraft => aircraft.id !== id));
+  const handleRemoveAircraft = async (_id) => {
+    try {
+      const response = await fetch(`${AIRCRAFT_API_END_POINT}/delete/${_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+        }
+      });
+  
+      if (response.ok) {
+        toast.success('Xóa tàu bay thành công');
+        setAircrafts(aircrafts.filter(aircraft => aircraft._id !== _id));
+        dispatch(setAllAirCraft(aircrafts.filter(aircraft => aircraft._id !== _id)));
+      } else {
+        console.error('Failed to delete aircraft');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  const handleAddAircraft = (event) => {
+  const handleAddAircraft = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const newAircraft = {
-      id: aircrafts.length + 1,
-      aircraftId: formData.get('aircraftId'),
-      manufacturer: formData.get('manufacturer'),
+      airplane_code: formData.get('airplane_code'),
+      manufacture_date: formData.get('manufacture_date'),
       model: formData.get('model'),
-      seats: Number(formData.get('seats'))
+      capacity: Number(formData.get('capacity'))
     };
-    setAircrafts([...aircrafts, newAircraft]);
+  
+    try {
+      const response = await fetch(`${AIRCRAFT_API_END_POINT}/addPlane`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+        },
+        body: JSON.stringify(newAircraft)
+      });
+  
+      if (response.status === 201) {
+        const addedAircraft = await response.json();
+        setAircrafts([...aircrafts, addedAircraft]);
+        dispatch(setAllAirCraft([...aircrafts, addedAircraft]));
+        toast.success('Thêm tàu bay thành công');
+      } else {
+        console.error('Failed to add aircraft');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  
     setIsDialogOpen(false);
   };
 
@@ -72,22 +110,23 @@ const AdminAircraft = () => {
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>Thêm tàu bay mới</DialogTitle>
+                    <DialogDescription></DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleAddAircraft} className="space-y-6">
                     <div className="space-y-2">
                       <Label>Mã tàu bay</Label>
                       <Input 
-                        name="aircraftId"
+                        name="airplane_code"
                         placeholder="VN-A321"
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Hãng sản xuất</Label>
+                      <Label>Ngày sản xuất</Label>
                       <Input 
-                        name="manufacturer"
-                        placeholder="Airbus"
+                        name="manufacture_date"
+                        type="date"
                         required
                       />
                     </div>
@@ -104,7 +143,7 @@ const AdminAircraft = () => {
                     <div className="space-y-2">
                       <Label>Số ghế</Label>
                       <Input 
-                        name="seats"
+                        name="capacity"
                         type="number"
                         placeholder="180"
                         required
@@ -136,7 +175,7 @@ const AdminAircraft = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Mã tàu bay</TableHead>
-                  <TableHead>Hãng sản xuất</TableHead>
+                  <TableHead>Ngày sản xuất</TableHead>
                   <TableHead>Model</TableHead>
                   <TableHead>Số ghế</TableHead>
                   <TableHead className="w-[100px]">Thao tác</TableHead>
@@ -144,19 +183,46 @@ const AdminAircraft = () => {
               </TableHeader>
               <TableBody>
                 {filteredAircrafts.map((aircraft) => (
-                  <TableRow key={aircraft.id}>
-                    <TableCell className="font-medium">{aircraft.aircraftId}</TableCell>
-                    <TableCell>{aircraft.manufacturer}</TableCell>
+                  <TableRow key={aircraft._id}>
+                    <TableCell className="font-medium">{aircraft.airplane_code}</TableCell>
+                    <TableCell>{formatDate(aircraft.manufacture_date)}</TableCell>
                     <TableCell>{aircraft.model}</TableCell>
-                    <TableCell>{aircraft.seats}</TableCell>
+                    <TableCell>{aircraft.capacity}</TableCell>
                     <TableCell>
-                      <Button 
-                        variant="destructive" 
-                        size="icon"
-                        onClick={() => handleRemoveAircraft(aircraft.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <Dialog open={isConfirmDialogOpen && aircraftToDelete?._id === aircraft._id} 
+                              onOpenChange={(open) => {
+                                setIsConfirmDialogOpen(open);
+                                if (!open) setAircraftToDelete(null);
+                              }}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="destructive" 
+                            size="icon"
+                            onClick={() => setAircraftToDelete(aircraft)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Xác nhận xóa tàu bay</DialogTitle>
+                            <DialogDescription></DialogDescription>
+                          </DialogHeader>
+                          <p>Bạn có chắc chắn muốn xóa tàu bay {aircraft.airplane_code} không?</p>
+                          <div className="flex justify-end gap-2 mt-4">
+                            <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>Hủy</Button>
+                            <Button 
+                              variant="destructive" 
+                              onClick={() => {
+                                handleRemoveAircraft(aircraft._id);
+                                setIsConfirmDialogOpen(false);
+                              }}
+                            >
+                              Xóa
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </TableCell>
                   </TableRow>
                 ))}

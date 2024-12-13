@@ -15,32 +15,7 @@ export const getBookingByUserId = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
       
-        const bookings = await Booking.aggregate([
-            { $match: { user_id: id } },
-            {
-                $lookup: {
-                    from: 'flights',
-                    localField: 'flight_id',
-                    foreignField: '_id',
-                    as: 'flight_details'
-                }
-            },
-            { $unwind: '$flight_details' },
-            {
-                $project: {
-                    _id: 1,
-                    departure_location: '$flight_details.departure_location',
-                    destination: '$flight_details.destination',
-                    ticket_price: '$flight_details.ticket_price',
-                    departure_time: '$flight_details.departure_time',
-                    travel_time: '$flight_details.travel_time',
-                    booking_status: '$flight_details.booking_status',
-                    ticket_quantity: 1,
-                    arrival_time: '$flight_details.arrival_time', 
-                    flight_code: '$flight_details.flight_code' 
-                }
-            }
-        ]);
+        const bookings = await Booking.find({ user_id: id });
 
         res.json({ success: true, bookings });
     } catch (error) {
@@ -60,36 +35,14 @@ export const getSpecificBookingByUserId = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const bookings = await Booking.aggregate([
-            { $match: { _id: new mongoose.Types.ObjectId(booking_id), user_id: id } },
-            {
-                $lookup: {
-                    from: 'flights',
-                    localField: 'flight_id',
-                    foreignField: '_id',
-                    as: 'flight_details'
-                }
-            },
-            { $unwind: '$flight_details' },
-            {
-                $project: {
-                    _id: 1,
-                    departure_location: '$flight_details.departure_location',
-                    destination: '$flight_details.destination',
-                    ticket_price: '$flight_details.ticket_price',
-                    departure_time: '$flight_details.departure_time',
-                    travel_time: '$flight_details.travel_time',
-                    ticket_quantity: 1
-                }
-            }
-        ]);
+        const booking = await Booking.findOne({ _id: new mongoose.Types.ObjectId(booking_id), user_id: id });
 
-        if (bookings.length === 0) {
+        if (!booking) {
             console.log('Booking not found for this user');
             return res.status(404).json({ message: 'Booking not found for this user' });
         }
 
-        res.json({ success: true, bookings: bookings[0] });
+        res.json({ success: true, booking });
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ success: false, message: 'Server error', error });
@@ -200,7 +153,6 @@ export const listAllBookings = async (req, res) => {
                     departure_location: '$flight_details.departure_location',
                     destination: '$flight_details.destination',
                     departure_time: '$flight_details.departure_time',
-                    arrival_time: '$flight_details.arrival_time',
                     ticket_quantity: 1,
                     total_price: 1,
                     booking_status: 1
@@ -221,13 +173,13 @@ export const cancelBooking = async (req, res) => {
     const user_id = req.user._id; // Giả sử ID người dùng được lưu trong token
 
     try {
-        const booking = await Booking.findOne({ _id: mongoose.Types.ObjectId(booking_id), user_id });
+        const booking = await Booking.findOne({ _id: new mongoose.Types.ObjectId(booking_id), user_id }).populate('flight_id');
         if (!booking) {
             return res.status(404).json({ message: 'Không tìm thấy đặt vé' });
         }
 
         const currentTime = new Date();
-        const departureTime = booking.flight_id[0].departure_time; 
+        const departureTime = booking.flight_id.departure_time; 
 
         if (departureTime - currentTime < 24 * 60 * 60 * 1000) { 
             return res.status(400).json({ message: 'Không thể hủy đặt vé trong vòng 24 giờ trước khi khởi hành' });

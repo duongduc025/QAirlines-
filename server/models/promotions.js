@@ -1,25 +1,17 @@
 import mongoose from 'mongoose';
 
 const promotionSchema = new mongoose.Schema({
-    promotion_code: {
-        type: String,
+    title: { type: String, required: true },
+    category: { 
+        type: String, 
         required: true,
-        unique: true
+        enum: ['Khuyến mãi', 'Giới thiệu', 'Tin tức', 'Thông báo']
     },
-    discount: {
-        type: Number,
-        required: true
-    },
-    expiration_date: {
-        type: Date,
-        required: true
-    },
-    condition: {
-        type: String,
-        required: true
-    }
+    brief: { type: String, required: true },
+    mark: { type: String, required: true },
+    content: { type: String, required: true },
+    image: { type: String, required: true },
+    posted_at: { type: Date, default: Date.now }
 });
 
-const Promotion = mongoose.model('Promotion', promotionSchema);
-
-export default Promotion;
+export default mongoose.model('Promotion', promotionSchema);

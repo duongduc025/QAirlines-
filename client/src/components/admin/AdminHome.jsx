@@ -9,9 +9,13 @@ import {
 } from "lucide-react";
 import AdminSideBar from './AdminSideBar';
 import useGetAllFlight from '@/hook/useGetAllFlight';
+import useGetAllAirCraft from '@/hook/useGetAllAirCraft';
+import useGetAllPromotion from '@/hook/useGetAllPromotion';
 
 const AdminIntro = () => {
   useGetAllFlight();
+  useGetAllAirCraft();
+  useGetAllPromotion();
   return (
     <div className="min-h-screen bg-gray-100 flex">
         <AdminSideBar />
