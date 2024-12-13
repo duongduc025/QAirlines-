@@ -112,7 +112,7 @@ const MyBooking = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Ngày bay</p>
-                    <p className="font-medium">{formatDate(booking.departure_time)} </p>
+                    <p className="font-medium">{booking.departure_time} </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Tổng thời gian bay</p>

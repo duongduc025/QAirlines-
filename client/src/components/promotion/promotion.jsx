@@ -11,7 +11,10 @@ import {
   Hotel,
   Car,
   CreditCard,
-  X
+  X,
+  Bell,
+  Newspaper,
+  User
 } from 'lucide-react';
 import { 
   Dialog, 
@@ -23,76 +26,61 @@ import {
 import Navbar from '../shared/Navbar';
 import Footer from '../shared/Footer';
 import QApro from '../../assets/image/QApro.png';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import Airplane from '../../assets/image/airplane.png';
+
+
 
 const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
   if (!promotion) return null;
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-xl">
-        <div className="relative">
-          
-          
+        <div className="relative mt-4">
           <img
-            src={promotion.imagePath || "/api/placeholder/400/200"}
+            src={promotion.image || Airplane}
             alt={promotion.title}
             className="w-full h-64 object-cover rounded-t-xl"
           />
-          
           <div className="absolute top-6 right-6 bg-[#DAA520] text-white px-4 py-1 rounded-full font-bold">
-            -{promotion.discount}%
+            {promotion.mark}
           </div>
         </div>
-        
         <div className="p-6">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-[#008080] mb-2">
-              {promotion.title}
-            </DialogTitle>
-            <DialogDescription className="text-gray-600 mb-4">
-              {promotion.desc}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <Clock className="w-5 h-5 mr-3 text-[#DAA520]" />
-              <span className="text-gray-700">
-                Hiệu lực đến: <strong>{promotion.validUntil}</strong>
-              </span>
+          <div className="grid grid-cols-1 gap-4">
+            <DialogHeader className="space-y-2">
+              <DialogTitle className="text-2xl font-bold text-[#008080]">
+                {promotion.title}
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
+                {promotion.brief}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <Clock className="w-5 h-5 mr-3 text-[#DAA520]" />
+                <span className="text-gray-700">
+                  Bắt đầu từ: <strong>{new Date(promotion.posted_at).toLocaleDateString('vi-VN')}</strong>
+                </span>
+              </div>
             </div>
             
-            <div className="flex items-center">
-              <Tag className="w-5 h-5 mr-3 text-[#DAA520]" />
-              <span className="text-gray-700">
-                Mã khuyến mãi: <strong>QAIRLINE{promotion.id}</strong>
-              </span>
+            <div className="bg-[#008080]/10 p-4 rounded-lg max-h-64 overflow-y-auto">
+              <h4 className="text-[#008080] font-bold mb-2">Chi tiết:</h4>
+              <div>{promotion.content}</div>
             </div>
             
-            <div className="flex items-center">
-              <Calendar className="w-5 h-5 mr-3 text-[#DAA520]" />
-              <span className="text-gray-700">
-                Ngày áp dụng: Từ ngày công bố đến {promotion.validUntil}
-              </span>
+            <div className="flex justify-end">
+              <button 
+                onClick={onClose}
+                className="bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-[#006666] transition duration-300"
+              >
+                Đóng
+              </button>
             </div>
-          </div>
-          
-          <div className="mt-6 bg-[#008080]/10 p-4 rounded-lg">
-            <h4 className="text-[#008080] font-bold mb-2">Điều kiện áp dụng:</h4>
-            <ul className="list-disc list-inside text-gray-600 space-y-1">
-              <li>Áp dụng cho tất cả khách hàng</li>
-              <li>Không áp dụng đồng thời với các chương trình khuyến mãi khác</li>
-              <li>Số lượng ưu đãi có hạn</li>
-              <li>QAirline có quyền điều chỉnh và thay đổi điều kiện mà không cần báo trước</li>
-            </ul>
-          </div>
-          
-          <div className="mt-6 flex justify-end">
-            <button 
-              onClick={onClose}
-              className="bg-[#008080] text-white px-6 py-3 rounded-lg hover:bg-[#006666] transition duration-300"
-            >
-              Đóng
-            </button>
           </div>
         </div>
       </DialogContent>
@@ -100,28 +88,26 @@ const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
   );
 };
 
-
-
 const PromotionCard = ({ promotion, onShowDetails }) => (
   <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-[#008080]/10">
     <div className="relative h-48">
       <img
-        src={promotion.imagePath || "/api/placeholder/400/200"}
+        src={promotion.image || "/home/hdd/Documents/QAirlineX/QAirlines/client/src/assets/image/QApro.png"}
         alt={promotion.title}
         className="w-full h-full object-cover"
       />
       <div className="absolute top-4 right-4 bg-[#DAA520] text-white px-4 py-1 rounded-full font-bold">
-        -{promotion.discount}%
+        {promotion.mark}
       </div>
     </div>
     <div className="p-6">
       <h3 className="text-xl font-bold text-[#008080] mb-2">{promotion.title}</h3>
-      <p className="text-gray-600 mb-4">{promotion.desc}</p>
+      <p className="text-gray-600 mb-4 line-clamp-2">{promotion.brief}</p>
       <div className="flex items-center justify-between">
         <div className="flex items-center text-[#DAA520]">
           <Clock className="w-4 h-4 mr-2" />
-          <span className="text-sm">Đến {promotion.validUntil}</span>
-        </div>
+          <strong> {new Date(promotion.posted_at).toLocaleDateString('vi-VN')}</strong>
+          </div>
         <button 
           onClick={() => onShowDetails(promotion)}
           className="flex items-center text-[#008080] hover:text-[#006666] font-medium"
@@ -135,6 +121,10 @@ const PromotionCard = ({ promotion, onShowDetails }) => (
 );
 
 const QairlinePromotions = () => {
+  const { allPromotions } = useSelector((store)=> store.promotion);
+  const [promotions, setPromotions] = useState(allPromotions);
+  const navigate = useNavigate();
+
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedPromotion, setSelectedPromotion] = useState(null);
@@ -142,77 +132,10 @@ const QairlinePromotions = () => {
 
   const categories = [
     { id: 'all', name: 'Tất cả', icon: Star },
-    { id: 'flights', name: 'Khuyến mãi', icon: Plane },
-    { id: 'hotels', name: 'Thông báo', icon: Hotel },
-    { id: 'cars', name: 'Tin tức', icon: Car },
-    { id: 'credit', name: 'Giới thiệu', icon: CreditCard },
-  ];
-
-  const promotions = [
-    {
-      id: 1,
-      category: 'flights',
-      title: 'Bay Châu Âu Giá Rẻ',
-      desc: 'Khám phá châu Âu với giá vé ưu đãi đặc biệt. Áp dụng cho các chuyến bay từ Hà Nội và TP.HCM.',
-      validUntil: '31/12/2024',
-      discount: 30
-    },
-    {
-      id: 2,
-      category: 'hotels',
-      title: 'Combo Nghỉ Dưỡng 5 Sao',
-      desc: 'Tận hưởng kỳ nghỉ tại các khách sạn 5 sao với ưu đãi đặc biệt khi đặt cùng vé máy bay.',
-      validUntil: '30/11/2024',
-      discount: 25
-    },
-    {
-      id: 3,
-      category: 'flights',
-      title: 'Ưu Đãi Đông Nam Á',
-      desc: 'Khám phá Đông Nam Á với giá vé siêu tiết kiệm. Áp dụng cho mọi điểm đến trong khu vực.',
-      validUntil: '30/09/2024',
-      discount: 40
-    },
-    {
-      id: 4,
-      category: 'credit',
-      title: 'Hoàn Tiền Thẻ Tín Dụng',
-      desc: 'Hoàn tiền lên đến 15% cho chủ thẻ tín dụng Qairline khi đặt vé trực tuyến.',
-      validUntil: '31/12/2024',
-      discount: 15
-    },
-    {
-      id: 5,
-      category: 'flights',
-      title: 'Du Lịch Nhật Bản',
-      desc: 'Trải nghiệm mùa thu Nhật Bản với ưu đãi đặc biệt cho các chuyến bay thẳng.',
-      validUntil: '30/10/2024',
-      discount: 35
-    },
-    {
-      id: 6,
-      category: 'cars',
-      title: 'Thuê Xe Tự Lái',
-      desc: 'Ưu đãi đặc biệt khi thuê xe tự lái tại các điểm đến nội địa và quốc tế.',
-      validUntil: '31/12/2024',
-      discount: 20
-    },
-    {
-      id: 7,
-      category: 'flights',
-      title: 'Bay Úc Siêu Tiết Kiệm',
-      desc: 'Khám phá nước Úc xinh đẹp với giá vé ưu đãi đặc biệt từ Qairline.',
-      validUntil: '31/12/2024',
-      discount: 45
-    },
-    {
-      id: 8,
-      category: 'hotels',
-      title: 'Resort Maldives 5 Sao',
-      desc: 'Nghỉ dưỡng tại Maldives với ưu đãi đặc biệt cho combo vé máy bay và resort.',
-      validUntil: '30/11/2024',
-      discount: 30
-    }
+    { id: 'Khuyến mãi', name: 'Khuyến mãi', icon: Tag },
+    { id: 'Thông báo', name: 'Thông báo', icon: Bell },
+    { id: 'Tin tức', name: 'Tin tức', icon: Newspaper },
+    { id: 'Giới thiệu', name: 'Giới thiệu', icon: User },
   ];
 
   const filteredPromotions = selectedCategory === 'all' 
@@ -235,10 +158,17 @@ const QairlinePromotions = () => {
     }
   };
 
-  // Reset page when category changes
   React.useEffect(() => {
     setCurrentPage(0);
   }, [selectedCategory]);
+
+  React.useEffect(() => {
+    setPromotions(allPromotions);
+  }, [allPromotions]);
+
+  const handleBookNow = () => {
+    navigate('/flight');
+  };
 
   return (
     <>
@@ -248,7 +178,7 @@ const QairlinePromotions = () => {
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#008080] mb-4">
-            Ưu Đãi Đặc Biệt từ <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>Airline</span>
+            Ưu Đãi Đặc Biệt từ <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>QAirline</span>
 
           </h1>
           <p className="text-gray-600 max-w-xl mx-auto">
@@ -266,13 +196,16 @@ const QairlinePromotions = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-[#008080]/90 to-transparent flex items-center">
             <div className="text-white p-12">
               <div className="inline-block bg-[#DAA520] px-4 py-1 rounded-full text-sm font-bold mb-4">
-                Ưu đãi hot
+                HOT
               </div>
-              <h2 className="text-4xl font-bold mb-4">SIÊU ƯU ĐÃI GIẢM ĐẾN 50%</h2>
+              <h2 className="text-4xl font-bold mb-4">KHUYẾN MÃI & TIN TỨC</h2>
               <p className="mb-6 max-w-[29rem]">
                 Đặt vé ngay hôm nay để nhận ưu đãi đặc biệt cho các chuyến bay trong và ngoài nước.
               </p>
-              <button className="bg-white text-[#008080] px-8 py-3 rounded-full font-bold hover:bg-[#DAA520] hover:text-white transition duration-300">
+              <button 
+                onClick={handleBookNow}
+                className="bg-white text-[#008080] px-8 py-3 rounded-full font-bold hover:bg-[#DAA520] hover:text-white transition duration-300"
+              >
                 Đặt ngay
               </button>
             </div>
@@ -310,7 +243,7 @@ const QairlinePromotions = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {displayedPromotions.map(promo => (
                 <PromotionCard 
-                  key={promo.id} 
+                  key={promo._id} 
                   promotion={promo} 
                   onShowDetails={(promotion) => setSelectedPromotion(promotion)} 
                 />

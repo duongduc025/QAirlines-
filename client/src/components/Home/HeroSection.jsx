@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, Clock, CreditCard, Shield } from 'lucide-react';
 import Airplane from '../../assets/image/airplane.png';
-import Clouds from '../../assets/image/cloud.png';
 
 
 const FeatureItem = ({ icon: Icon, text }) => (
