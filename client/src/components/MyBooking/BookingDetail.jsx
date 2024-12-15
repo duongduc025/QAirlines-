@@ -5,28 +5,33 @@ import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { setSingleBooking } from '@/redux/bookingSlice';
+import {BOOKING_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME} from '@/utils/constraint';
 
 
 const BookingDetail = () => {
   const {singleBooking} = useSelector((state) => state.booking);
   const {user} = useSelector((state) => state.auth);
-  
- 
+  const params = useParams();
+  const bookingID = params.id;
 
-  // useEffect(() => {
-  //   const fetchSingleBooking = async () => {
-  //     try {
-  //       const response = await axios.get(`${BOOKING_API_ENDPOINT}/get/${bookingID}`, {withCredentials: true});
-  //        if(response.data === "Success") {
-  //           dispatch(setSingleBooking(response.data));
-  //        }
-  //     } catch (error) {
-  //       console.error("Error during booking:", error);
-  //       toast.error("An error occurred during booking.");
-  //     }
-  //     fetchSingleBooking();
-  //   }
-  // }, [bookingID, dispatch, user?._id]);
+  useEffect(() => {
+    const fetchSingleBooking = async () => {
+      try {
+        const response = await axios.get(`${BOOKING_API_END_POINT}/users/${user._id}/bookings/${boookingID}`, {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+            }
+        });
+        if (response.status === 200) {
+          dispatch(setSingleBooking(response.data));
+        }
+      } catch (error) {
+        console.error(error);
+      } 
+    };
+    fetchSingleBooking();
+  }, [bookingID, user._id, dispatch]);
+
   
   const exampleTicket = {
     flight: {

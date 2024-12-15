@@ -10,8 +10,8 @@ const router = express.Router();
 // ...existing code...
 
 router.get('/bookingslist', authenticateJWT, isAdmin, listAllBookings);
-router.get('/users/:id/bookings', authenticateJWT, isCustomer, getBookingByUserId);
-router.get('/users/:id/bookings/:booking_id', authenticateJWT, isCustomer, getSpecificBookingByUserId);
+router.get('/users/:_id/bookings', authenticateJWT, isCustomer, getBookingByUserId);
+router.get('/users/:_id/bookings/:booking_id', authenticateJWT, isCustomer, getSpecificBookingByUserId);
 router.post('/bookings', authenticateJWT, isCustomer, createBookingValidation, handleValidationErrors, createBooking);
 router.delete('/bookings/:booking_id', authenticateJWT, isCustomer, cancelBooking);
 
