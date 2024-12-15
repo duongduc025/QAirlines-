@@ -81,40 +81,44 @@ const Navbar = () => {
     return (
         <div className='bg-white relative'>
             {/* Desktop and Mobile Header */}
-            <div className='flex items-center justify-between mx-auto max-w-7xl h-16 px-4'>
+            <div className='flex items-center justify-between mx-auto max-w-[95rem] h-20 px-4'>
                 {/* Logo Section */}
-                <div style={{ display: 'flex', alignItems: 'center' }}> 
-                    <img id='userImg' width={30} src={logo} alt="QAirline Logo" />
-                    <h1 className='ml-2 text-2xl font-bold text-[#DAA520]'>Q<span className='text-[#008080]'>Airline</span></h1>
+                <div className="flex items-center">
+                    <img id='userImg' width={40} height={40} src={logo} alt="QAirline Logo" className="rounded-full" />
+                    <h1 className='ml-2 text-3xl font-bold text-[#DAA520]'>Q<span className='text-[#008080]'>Airline</span></h1>
                 </div>
 
                 {/* Desktop Navigation */}
                 <div className='hidden md:flex items-center gap-12'>
                     <ul className='flex font-medium items-center gap-5'>
                         {navLinks.map((link, index) => (
-                            <li key={index}>
-                                <NavLink
-                                    to={link.path}
-                                    className={({ isActive }) =>
-                                        isActive
-                                            ? 'text-[#DAA520] text-[16px] leading-7 font-[600]'
-                                            : 'text-textColor text-[16px] leading-7 font-[500] hover:text-primaryColor'
-                                    }
-                                >
-                                    {link.display}
-                                </NavLink>
-                            </li>
+                            <React.Fragment key={index}>
+                                <li>
+                                    <NavLink
+                                        to={link.path}
+                                        className={({ isActive }) =>
+                                            isActive
+                                                ? 'text-[#DAA520] text-[18px] leading-8 font-[600]'
+                                                : 'text-textColor text-[18px] leading-8 font-[500] hover:text-primaryColor'
+                                        }
+                                    >
+                                        {link.display}
+                                    </NavLink>
+                                </li>
+                                {index < navLinks.length - 1 && (
+                                    <div className="h-6 border-l border-gray-300 mx-2"></div>
+                                )}
+                            </React.Fragment>
                         ))}
                     </ul>
 
-                    {/* Desktop Authentication and Notification Section */}
                     {!user ? (
                         <div className='flex items-center gap-2'> 
                             <Link to='/login'>
-                                <Button variant="outline">Login</Button>
+                                <Button className="bg-[#DAA520] text-white hover:bg-[#006666] text-base px-5 py-1.5">Đăng nhập</Button>
                             </Link>
                             <Link to='/register'>
-                                <Button className='bg-[#008080] text-white hover:bg-[#006666]'>Register</Button>
+                                <Button className='bg-[#008080] text-white hover:bg-[#DAA520] text-base px-5 py-1.5'>Đăng ký</Button>
                             </Link>
                         </div>
                     ) : (
@@ -250,7 +254,7 @@ const Navbar = () => {
                                             className='text-textColor text-[16px] leading-7 font-[500] hover:text-primaryColor block'
                                             onClick={toggleMobileMenu}
                                         >
-                                            Đăng kí
+                                            Đăng ký
                                         </NavLink>
                                     </li>
                                 </>

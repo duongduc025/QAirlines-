@@ -12,6 +12,9 @@ const flightSlice = createSlice({
         updateFlightList: (state, action) => {
             state.allFlight = action.payload;
         },
+        setLoading: (state, action) => {
+            state.loading = action.payload;
+        },
     }
 });
 export const { setAllFlight, updateFlightList } = flightSlice.actions;

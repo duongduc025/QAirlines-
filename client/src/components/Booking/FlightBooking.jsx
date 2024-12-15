@@ -18,6 +18,45 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
     ticket_quantity: '',
   });
 
+  const sampleFlights = [
+    {
+      id: 4,
+      airline: "Pacific Airlines",
+      departure: "SGN",
+      arrival: "DAD",
+      departureDate: "21/11/2024",
+      departureTime: "06:00",
+      arrivalTime: "07:20",
+      price: 990000,
+    },
+    {
+      id: 5,
+      airline: "Vietnam Airlines",
+      departure: "SGN",
+      arrival: "DAD",
+      departureDate: "21/11/2024",
+      departureTime: "09:00",
+      arrivalTime: "10:20",
+      price: 1290000,
+    },
+    {
+      id: 6,
+      airline: "Bamboo Airways",
+      departure: "SGN",
+      arrival: "DAD",
+      departureDate: "21/11/2024",
+      departureTime: "11:30",
+      arrivalTime: "12:50",
+      price: 1190000,
+    },
+  ];
+
+  const [flightList, setFlightList] = useState(flights);
+  const [flightReturnList, setFlightReturnList] = useState(sampleFlights);
+  console.log('Flight Return List:', flightReturnList);
+  const [departure_flight, setDepartureFlight] = useState([null]);
+  const [return_flight, setReturnFlight] = useState([null]);
+  const [isSelectingReturn, setIsSelectingReturn] = useState(false);
 
   const [searchResults, setSearchResults] = useState([]);
   const [sortBy, setSortBy] = useState('price');
@@ -37,56 +76,72 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
     e.preventDefault();
     const isValidDeparture = airportCodes.some(airport => airport.code === formData.departure_location);
     const isValidDestination = airportCodes.some(airport => airport.code === formData.destination);
+    setSearchResults(flights);
+    // if (!isValidDeparture || !isValidDestination) {
+    //   toast.error('Vui lòng chọn điểm khởi hành và điểm đến hợp lệ');
+    //   return;
+    // }
 
-    if (!isValidDeparture || !isValidDestination) {
-      toast.error('Vui lòng chọn điểm khởi hành và điểm đến hợp lệ');
-      return;
-    }
+    // setFormData({ ...formData, ticket_quantity: passengers.adults });
+    // const searchInput = {
+    //   departure_location: formData.departure_location,
+    //   destination: formData.destination,
+    //   departure_date: formData.departure_date,
+    //   ticket_quantity: passengers.adults,
+    // };
 
-    setFormData({ ...formData, ticket_quantity: passengers.adults });
-    const searchInput = {
-      departure_location: formData.departure_location,
-      destination: formData.destination,
-      departure_date: formData.departure_date,
-      ticket_quantity: passengers.adults,
-    };
+    // try {
+    //   const response = await axios.get(`${FLIGHT_API_END_POINT}/search`, searchInput, {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
+    //     },
+    //   });
 
-    try {
-      const response = await axios.get(`${FLIGHT_API_END_POINT}/search`, searchInput, {
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
-        },
-      });
+    //   const departureFlights = response.data;
+    //   console.log('Departure Flights:', departureFlights);
 
-      const departureFlights = response.data;
-      console.log('Departure Flights:', departureFlights);
+    //   let returnFlights = [];
 
-      let returnFlights = [];
+    //   if (formData.returnDate) {
+    //     const returnSearchInput = {
+    //       departure_location: formData.destination,
+    //       destination: formData.departure_location,
+    //       departure_date: formData.returnDate,
+    //       ticket_quantity: passengers.adults,
+    //     };
 
-      if (formData.returnDate) {
-        const returnSearchInput = {
-          departure_location: formData.destination,
-          destination: formData.departure_location,
-          departure_date: formData.returnDate,
-          ticket_quantity: passengers.adults,
-        };
+    //     const returnResponse = await axios.get(`${FLIGHT_API_END_POINT}/search`, returnSearchInput, {
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
+    //       },
+    //     });
 
-        const returnResponse = await axios.get(`${FLIGHT_API_END_POINT}/search`, returnSearchInput, {
-          headers: {
-            'Content-Type': 'application/json',
-            "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
-          },
-        });
+    //     returnFlights = returnResponse.data;
+    //     console.log('Return Flights:', returnFlights);
+    //   }
 
-        returnFlights = returnResponse.data;
-        console.log('Return Flights:', returnFlights);
-      }
+    //   setSearchResults([...departureFlights, ...returnFlights]);
+    // } catch (error) {
+    //   toast.error('Có lỗi xảy ra khi tìm kiếm chuyến bay');
+    //   console.error('Error fetching flights:', error);
+    // }
+  };
 
-      setSearchResults([...departureFlights, ...returnFlights]);
-    } catch (error) {
-      toast.error('Có lỗi xảy ra khi tìm kiếm chuyến bay');
-      console.error('Error fetching flights:', error);
+  const handleSelectFlight = (flight) => {
+    if (isRoundTrip && !isSelectingReturn) {
+      setDepartureFlight(flight);
+      setSearchResults(flightReturnList);
+      setIsSelectingReturn(true);
+      onSelectFlight(flight);
+      onSetNumberOfPassenger(passengers.adults);
+      console.log('1');
+    } else {
+      console.log('2');
+      setReturnFlight(flight);
+      onSelectFlight(flight);
+      onSetNumberOfPassenger(passengers.adults);
     }
   };
 
@@ -340,10 +395,7 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
                   <div>
                     <p className="text-xl font-bold text-[#008080]">{flight.price.toLocaleString()} VND</p>
                     <button className="mt-2 px-4 py-2 bg-[#DAA520] text-white rounded-lg hover:bg-[#008080] transition"
-                      onClick={() => {
-                        onSelectFlight(flight);
-                        onSetNumberOfPassenger(passengers.adults);
-                      }}>
+                      onClick={() => handleSelectFlight(flight)}>
                       Chọn chuyến bay
                     </button>
                   </div>

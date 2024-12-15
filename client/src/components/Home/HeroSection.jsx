@@ -56,7 +56,7 @@ const HeroSection = () => {
               ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'}
             `}
           >
-            Trải nghiệm dịch vụ hàng không 5 sao với giá cả hợp lý
+            Trải nghiệm dịch vụ hàng không hàng đầu Việt Nam
           </p>
 
           {/* CTA Buttons */}
@@ -99,9 +99,7 @@ const HeroSection = () => {
               ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'}
             `}
           >
-            <FeatureItem icon={Clock} text="Bay đúng giờ" />
-            <FeatureItem icon={CreditCard} text="Giá tốt nhất" />
-            <FeatureItem icon={Shield} text="An toàn 100%" />
+           
           </div>
         </div>
 
