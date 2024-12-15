@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Calendar, Plane, ArrowRight, Filter, SortDesc, UserPlus, UserMinus } from 'lucide-react';
+import { FLIGHT_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
 import airportCodes from '@/utils/airport_code';
+import { toast } from 'sonner';
+import axios from 'axios';
 
 const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
   const [originSuggestions, setOriginSuggestions] = useState([]);
@@ -8,11 +11,14 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
   const [isRoundTrip, setIsRoundTrip] = useState(false);
   const [passengers, setPassengers] = useState({ adults: 1 });
   const [formData, setFormData] = useState({
-    from: '',
-    to: '',
-    departureDate: '',
-    returnDate: ''
+    departure_location: '',
+    destination: '',
+    departure_date: '',
+    returnDate: '',
+    ticket_quantity: '',
   });
+
+
   const [searchResults, setSearchResults] = useState([]);
   const [sortBy, setSortBy] = useState('price');
 
@@ -27,11 +33,61 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    const filteredResults = flights;
-    setSearchResults(filteredResults);
+    const isValidDeparture = airportCodes.some(airport => airport.code === formData.departure_location);
+    const isValidDestination = airportCodes.some(airport => airport.code === formData.destination);
+
+    if (!isValidDeparture || !isValidDestination) {
+      toast.error('Vui lòng chọn điểm khởi hành và điểm đến hợp lệ');
+      return;
+    }
+
+    setFormData({ ...formData, ticket_quantity: passengers.adults });
+    const searchInput = {
+      departure_location: formData.departure_location,
+      destination: formData.destination,
+      departure_date: formData.departure_date,
+      ticket_quantity: passengers.adults,
+    };
+
+    try {
+      const response = await axios.get(`${FLIGHT_API_END_POINT}/search`, searchInput, {
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
+        },
+      });
+
+      const departureFlights = response.data;
+      console.log('Departure Flights:', departureFlights);
+
+      let returnFlights = [];
+
+      if (formData.returnDate) {
+        const returnSearchInput = {
+          departure_location: formData.destination,
+          destination: formData.departure_location,
+          departure_date: formData.returnDate,
+          ticket_quantity: passengers.adults,
+        };
+
+        const returnResponse = await axios.get(`${FLIGHT_API_END_POINT}/search`, returnSearchInput, {
+          headers: {
+            'Content-Type': 'application/json',
+            "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
+          },
+        });
+
+        returnFlights = returnResponse.data;
+        console.log('Return Flights:', returnFlights);
+      }
+
+      setSearchResults([...departureFlights, ...returnFlights]);
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi tìm kiếm chuyến bay');
+      console.error('Error fetching flights:', error);
+    }
   };
 
   const handleSearch = (input, type) => {
@@ -100,12 +156,12 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
                   <Plane className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#DAA520]" />
                   <input
                     type="text"
-                    name="from"
-                    value={formData.from}
+                    name="departure_location"
+                    value={formData.departure_location}
                     className="w-full p-3 pl-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] focus:border-transparent"
                     placeholder="Chọn điểm đi"
                     onChange={(e) => {
-                      setFormData({ ...formData, from: e.target.value });
+                      setFormData({ ...formData, departure_location: e.target.value });
                       handleSearch(e.target.value, 'origin');
                     }}
                   />
@@ -116,7 +172,7 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
                           key={airport.code}
                           className="p-2 hover:bg-gray-100 cursor-pointer"
                           onClick={() => {
-                            setFormData({ ...formData, from: airport.code });
+                            setFormData({ ...formData, departure_location: airport.code });
                             setOriginSuggestions([]);
                           }}
                         >
@@ -134,10 +190,10 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
                   <Plane className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#DAA520] rotate-90" />
                   <input
                     type="text"
-                    name="to"
-                    value={formData.to}
+                    name="destination"
+                    value={formData.destination}
                     onChange={(e) => {
-                      setFormData({ ...formData, to: e.target.value });
+                      setFormData({ ...formData, destination: e.target.value });
                       handleSearch(e.target.value, 'destination');
                     }}
                     className="w-full p-3 pl-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] focus:border-transparent"
@@ -150,7 +206,7 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
                           key={airport.code}
                           className="p-2 hover:bg-gray-100 cursor-pointer"
                           onClick={() => {
-                            setFormData({ ...formData, to: airport.code });
+                            setFormData({ ...formData, destination: airport.code });
                             setDestSuggestions([]);
                           }}
                         >
@@ -168,8 +224,8 @@ const FlightBooking = ({ flights, onSelectFlight, onSetNumberOfPassenger }) => {
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#DAA520]" />
                   <input
                     type="date"
-                    name="departureDate"
-                    value={formData.departureDate}
+                    name="departure_date"
+                    value={formData.departure_date}
                     onChange={handleInputChange}
                     className="w-full p-3 pl-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] focus:border-transparent"
                   />

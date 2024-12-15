@@ -8,9 +8,6 @@ import PassengerInfo from './PassengerInfo'
 import FlightConfirmation from './FlightConfirmation'
 
 
-
-
-
 const Flightpage = () => {
 
   const [currentStep, setCurrentStep] = useState('select');
@@ -19,7 +16,7 @@ const Flightpage = () => {
     setCurrentStep('passenger');
   };
   const handlePassengerSubmit = () => {
-    //alert
+  
     alert('Booking successful');
   }
 

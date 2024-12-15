@@ -94,7 +94,7 @@ const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
 
 const PromotionCard = ({ promotion, onShowDetails }) => (
   <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-[#008080]/10">
-    <div className="relative w-full h-0 pb-[56.25%]"> {/* Adjusted aspect ratio to 16:9 */}
+    <div className="relative w-full h-0 pb-[56.25%]"> 
       <img
         src={promotion.image || "/home/hdd/Documents/QAirlineX/QAirlines/client/src/assets/image/QApro.png"}
         alt={promotion.title}
@@ -169,7 +169,7 @@ const QairlinePromotions = () => {
   }, [selectedCategory]);
 
   React.useEffect(() => {
-    setPromotions(allPromotions);
+    setPromotions([...allPromotions]);
   }, [allPromotions]);
 
   const handleBookNow = () => {

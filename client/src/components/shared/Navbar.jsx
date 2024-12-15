@@ -47,10 +47,6 @@ const mobileNavLinks = [
       path: '/mybookings',
       display: 'Chuyến bay của tôi',
   },
-  {
-    path: '/Account',
-    display: 'Tài khoản của tôi',
-  },
 ]
 
 const Navbar = () => {
@@ -237,6 +233,38 @@ const Navbar = () => {
                                     </NavLink>
                                 </li>
                             ))}
+                            {!user ? (
+                                <>
+                                    <li className='border-b pb-2'>
+                                        <NavLink
+                                            to='/login'
+                                            className='text-textColor text-[16px] leading-7 font-[500] hover:text-primaryColor block'
+                                            onClick={toggleMobileMenu}
+                                        >
+                                            Đăng nhập
+                                        </NavLink>
+                                    </li>
+                                    <li className='border-b pb-2'>
+                                        <NavLink
+                                            to='/register'
+                                            className='text-textColor text-[16px] leading-7 font-[500] hover:text-primaryColor block'
+                                            onClick={toggleMobileMenu}
+                                        >
+                                            Đăng kí
+                                        </NavLink>
+                                    </li>
+                                </>
+                            ) : (
+                                <li className='border-b pb-2'>
+                                    <NavLink
+                                        to='/account'
+                                        className='text-textColor text-[16px] leading-7 font-[500] hover:text-primaryColor block'
+                                        onClick={toggleMobileMenu}
+                                    >
+                                        Tài khoản của tôi
+                                    </NavLink>
+                                </li>
+                            )}
                         </ul>
                     </div>
                 </div>

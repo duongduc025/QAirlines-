@@ -15,7 +15,7 @@ const FlightConfirmation = ({ selectedFlight, flightType = 'oneway', numberOfPas
         </CardContent>
       </Card>
     );
-  }
+  }s
 
   const FlightInfo = ({ flight, label }) => (
     <div className="mb-4">
