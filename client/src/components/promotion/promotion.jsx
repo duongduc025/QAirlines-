@@ -184,11 +184,11 @@ const QairlinePromotions = () => {
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#008080] mb-4">
-            Ưu Đãi Đặc Biệt từ <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>QAirline</span>
+            Ưu Đãi Đặc Biệt từ <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>Airline</span>
 
           </h1>
-          <p className="text-gray-600 max-w-xl mx-auto">
-            Khám phá những ưu đãi độc quyền và tiết kiệm với các chương trình khuyến mãi hấp dẫn từ QAirline.
+          <p className="text-gray-600 max-w-xl mx-auto text-xl">
+            Khám phá những ưu đãi độc quyền với các chương trình khuyến mãi hấp dẫn từ QAirline.
           </p>
         </div>
 

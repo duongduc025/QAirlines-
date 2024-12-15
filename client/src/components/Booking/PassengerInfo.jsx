@@ -17,7 +17,7 @@ const initialPassengerState = {
   idNumber: ''
 };
 
-const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) => {
+const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPassenger, onBack }) => {
     const [passengers, setPassengers] = useState(
         Array(numberOfPassenger).fill(null).map(() => ({ ...initialPassengerState }))
       );
@@ -84,7 +84,9 @@ const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) 
 
 
   const calculateTotalPrice = () => {
-    return selectedFlight ? selectedFlight.price * passengers.length : 0;
+    const departurePrice = selectedFlight ? selectedFlight.price * passengers.length : 0;
+    const returnPrice = returnFlight ? returnFlight.price * passengers.length : 0;
+    return departurePrice + returnPrice;
   };
 
   return (
@@ -106,7 +108,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) 
         {/* Flight Info */}
         {selectedFlight && (
           <div className="bg-[#008080]/10 p-6 border-b border-[#008080]/20">
-            <h3 className="text-[#008080] font-semibold mb-4">Thông tin chuyến bay đã chọn:</h3>
+            <h3 className="text-[#008080] font-semibold mb-4">Thông tin chiều đi:</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="flex justify-between py-2">
@@ -126,6 +128,42 @@ const PassengerInfo = ({ onSubmit, selectedFlight, numberOfPassenger, onBack }) 
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Giờ bay:</span>
                   <span className="font-medium">{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</span>
+                </p>
+                <p className="flex justify-between py-2">
+                  <span className="text-gray-600">Số hành khách:</span>
+                  <span className="font-medium">{passengers.length}</span>
+                </p>
+                <p className="flex justify-between py-2">
+                  <span className="text-gray-600">Tổng giá vé:</span>
+                  <span className="font-medium text-[#DAA520]">{calculateTotalPrice().toLocaleString()}đ</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {returnFlight && (
+          <div className="bg-[#008080]/10 p-6 border-b border-[#008080]/20">
+            <h3 className="text-[#008080] font-semibold mb-4">Thông tin chiều về:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="flex justify-between py-2">
+                  <span className="text-gray-600">Hãng bay:</span>
+                  <span className="font-medium">{returnFlight.airline}</span>
+                </p>
+                <p className="flex justify-between py-2">
+                  <span className="text-gray-600">Chuyến bay:</span>
+                  <span className="font-medium">{returnFlight.departure} - {returnFlight.arrival}</span>
+                </p>
+                <p className="flex justify-between py-2">
+                  <span className="text-gray-600">Ngày bay:</span>
+                  <span className="font-medium">{returnFlight.departureDate}</span>
+                </p>
+              </div>
+              <div>
+                <p className="flex justify-between py-2">
+                  <span className="text-gray-600">Giờ bay:</span>
+                  <span className="font-medium">{returnFlight.departureTime} - {returnFlight.arrivalTime}</span>
                 </p>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Số hành khách:</span>
