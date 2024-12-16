@@ -52,7 +52,7 @@ const guessNavLinks = createBrowserRouter([
     element: <MyBookingpage />
   },
   {
-    path: 'test',
+    path: 'flight',
     element: <FlightPage />
   }
 
@@ -80,10 +80,10 @@ const appRouter = createBrowserRouter([
     path: '/promotion',
     element: <Promotion />
   },
-  // {
-  //   path: '/flight',
-  //   element: <Flightpage />
-  // },
+  {
+    path: 'flight',
+    element: <FlightPage />
+  },
   {
     path: '/mybookings',
     element: <MyBookingpage />
