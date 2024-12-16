@@ -6,18 +6,21 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { setSingleBooking } from '@/redux/bookingSlice';
 import {BOOKING_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME} from '@/utils/constraint';
-
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const BookingDetail = () => {
   const {singleBooking} = useSelector((state) => state.booking);
   const {user} = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const params = useParams();
   const bookingID = params.id;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSingleBooking = async () => {
       try {
-        const response = await axios.get(`${BOOKING_API_END_POINT}/users/${user._id}/bookings/${boookingID}`, {
+        const response = await axios.get(`${BOOKING_API_END_POINT}/users/${user._id}/bookings/${bookingID}`, {
           headers: {
             "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
             }
@@ -66,6 +69,10 @@ const BookingDetail = () => {
         {/* Header */}
         <div className="bg-[#008080] p-6 text-white">
           <div className="flex items-center gap-4">
+            <ArrowLeft 
+              className="cursor-pointer" 
+              onClick={() => navigate('/mybookings')}
+            />
             <h2 className="text-2xl font-bold">Chi Tiết Vé Đặt</h2>
           </div>
         </div>
@@ -161,7 +168,7 @@ const BookingDetail = () => {
                 </p>
                 <div className="border-t border-[#008080]/20 my-2"></div>
                 <p className="flex justify-between text-lg font-semibold">
-                  <span className="text-gray-800">Tổng tiền:</span>
+                  <span className="text-gray-800">Tổng ti��n:</span>
                   <span className="text-[#DAA520]">{(selectedFlight.price * passengers.length).toLocaleString()}đ</span>
                 </p>
               </div>

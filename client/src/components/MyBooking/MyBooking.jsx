@@ -23,6 +23,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner'; 
 import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
 import { BOOKING_API_END_POINT } from '@/utils/constraint';
+import { useNavigate } from 'react-router-dom';
 
 const MyBooking = () => {
   const [searchId, setSearchId] = useState('');
@@ -32,6 +33,7 @@ const MyBooking = () => {
 
   const { allBooking } = useSelector((store) => store.booking);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -151,8 +153,10 @@ const MyBooking = () => {
                   </div>
                 </div>
                 <div className="mt-4 flex justify-end gap-3">
-                  <Button variant="outline" className="border-[#008080] text-[#008080] hover:bg-[#008080] hover:text-white"
-                  
+                  <Button 
+                    variant="outline" 
+                    className="border-[#008080] text-[#008080] hover:bg-[#008080] hover:text-white"
+                    onClick={() => navigate(`/bookingdetail/${booking._id}`)}
                   >
                     View Details
                   </Button>

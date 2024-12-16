@@ -93,7 +93,7 @@ const appRouter = createBrowserRouter([
     element: <UserAccount />
   },
   {
-    path: '/bookingdetail',
+    path: '/bookingdetail/:id',
     element: <BookingDetail />
   },
   {
