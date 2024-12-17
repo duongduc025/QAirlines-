@@ -12,7 +12,7 @@ const router = express.Router();
 router.get('/allFlights', authenticateJWT, isAdmin, showAllFlights);
 router.post('/addFlight', authenticateJWT, isAdmin, validateNewFlight, handleValidationErrors, addNewFlight);
 router.get('/search', authenticateJWT, isCustomer, validateSearchFlights, handleValidationErrors, searchFlights);
-router.get('/searchRound', validateSearchRoundFlights, handleValidationErrors, searchRoundFlights);
+router.get('/searchRound', authenticateJWT, isCustomer, validateSearchRoundFlights, handleValidationErrors, searchRoundFlights);
 router.put('/updateDepartureTime/:flightId', authenticateJWT, isAdmin, updateDepartureTime);
 router.delete('/deleteFlight/:flightId', authenticateJWT, isAdmin, deleteFlightById);
 

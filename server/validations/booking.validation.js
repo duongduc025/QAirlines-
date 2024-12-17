@@ -5,7 +5,6 @@ export const createBookingValidation = [
     body('ticket_quantity').isInt({ min: 1 }).withMessage('Ticket quantity must be at least 1'),
     body('passengers').isArray({ min: 1 }).withMessage('Passengers information is required'),
     body('passengers.*.fullname').notEmpty().withMessage('Fullname is required'),
-    body('passengers.*.email').isEmail().withMessage('Valid email is required'),
     body('passengers.*.gender').notEmpty().withMessage('Gender is required'),
     body('passengers.*.dob').isDate().withMessage('Valid date of birth is required'),
     body('passengers.*.identity_number').notEmpty().withMessage('Identity number is required')
@@ -17,7 +16,6 @@ export const createRoundBookingValidation = [
     body('ticket_quantity').isInt({ min: 1 }).withMessage('Ticket quantity must be at least 1'),
     body('passengers').isArray({ min: 1 }).withMessage('Passengers information is required'),
     body('passengers.*.fullname').notEmpty().withMessage('Fullname is required'),
-    body('passengers.*.email').isEmail().withMessage('Valid email is required'),
     body('passengers.*.gender').notEmpty().withMessage('Gender is required'),
     body('passengers.*.dob').isDate().withMessage('Valid date of birth is required'),
     body('passengers.*.identity_number').notEmpty().withMessage('Identity number is required')
