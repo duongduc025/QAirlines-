@@ -17,3 +17,11 @@ export const validateSearchFlights = [
     query('departure_date').isISO8601().toDate().withMessage('Departure date must be a valid date'),
     query('ticket_quantity').isInt({ min: 1 }).withMessage('Ticket quantity must be a positive integer')
 ];
+
+export const validateSearchRoundFlights = [
+    query('departure_location').notEmpty().withMessage('Departure location is required'),
+    query('destination').notEmpty().withMessage('Destination is required'),
+    query('departure_date').isISO8601().toDate().withMessage('Departure date must be a valid date'),
+    query('return_date').isISO8601().toDate().withMessage('Return date must be a valid date'),
+    query('ticket_quantity').isInt({ min: 1 }).withMessage('Ticket quantity must be a positive integer')
+];

@@ -32,6 +32,7 @@ const MyBooking = () => {
   const bookingsPerPage = 4;
 
   const { allBooking } = useSelector((store) => store.booking);
+  const [ userBooking, setUserbooking ] = useState(allBooking);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -41,7 +42,7 @@ const MyBooking = () => {
   };
 
   const handleSearch = () => {
-    console.log(allBooking);
+    console.log(userBooking);
   };
 
   const handleCancelBooking = async () => {
@@ -57,10 +58,11 @@ const MyBooking = () => {
 
         if (response.ok) {
           toast.success('Booking cancelled successfully');
-          const updatedBookings = allBooking.map(booking => 
+          const updatedBookings = userBooking.map(booking => 
             booking._id === selectedBooking._id ? { ...booking, booking_status: 'Đã hủy' } : booking
           );
-          dispatch(setAllBooking([...updatedBookings]));
+          dispatch(setAllBooking(updatedBookings));
+          setUserbooking([...updatedBookings]); 
           setSelectedBooking(null);
         } else {
           toast.error('Failed to cancel booking');
@@ -73,15 +75,20 @@ const MyBooking = () => {
   };
 
   const filteredBookings = searchId
-    ? allBooking.filter(booking => booking._id.toLowerCase().includes(searchId.toLowerCase()))
-    : allBooking;
+    ? userBooking.filter(booking => booking._id.toLowerCase().includes(searchId.toLowerCase()))
+    : userBooking;
 
-  const sortedBookings = filteredBookings.sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date));
+  const sortedBookings = [...filteredBookings].sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date));
 
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
   const currentBookings = sortedBookings.slice(indexOfFirstBooking, indexOfLastBooking);
   const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0); 
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -115,11 +122,10 @@ const MyBooking = () => {
               <CardHeader className="bg-[#008080]/10">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-[#008080]">
-                    Booking #{index + 1} 
+                    Booking #{booking._id.slice(-4)}
                   </CardTitle>
                   <Badge 
-                    variant={booking.booking_status === 'Confirmed' ? 'default' : 'secondary'}
-                    className={booking.status === 'Confirmed' ? 'bg-[#008080]' : 'bg-yellow-500'}
+                    className={booking.booking_status === 'Đã đặt' ? 'bg-teal-100 text-teal-700 hover:bg-[#008080] hover:text-[#DAA520]'  : 'bg-orange-100 text-orange-700 hover:bg-[#008080] hover:text-[#DAA520]'}
                   >
                     {booking.booking_status}
                   </Badge>
@@ -196,7 +202,7 @@ const MyBooking = () => {
                         ? "bg-[#008080] text-white"
                         : "border-[#008080] text-[#008080] hover:bg-[#008080] hover:text-white"
                       }
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => handlePageChange(page)}
                     >
                       {page}
                     </Button>
@@ -226,7 +232,7 @@ const MyBooking = () => {
               <DialogTitle>Confirm Cancellation</DialogTitle>
               <DialogDescription></DialogDescription>
             </DialogHeader>
-            <p>Are you sure you want to cancel booking #{selectedBooking?._id}?</p>
+            <p>Are you sure you want to cancel booking #{selectedBooking?._id.slice(-4)}?</p>
             <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" onClick={() => setSelectedBooking(null)}>Keep Booking</Button>
               <Button 

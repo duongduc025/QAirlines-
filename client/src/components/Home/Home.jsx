@@ -7,10 +7,12 @@ import Footer from '../shared/Footer';
 import useGetAllBooking from '@/hook/useGetAllBooking';
 import RemarkablePromotions from './RemarkablePromotions';
 import { useSelector } from 'react-redux';
+import useGetAllPromotion from '@/hook/useGetAllPromotion';
+import { use } from 'react';
 
 const Home = () => {
+  useGetAllPromotion();
   useGetAllBooking();
-  const { allBooking } = useSelector(store => store.booking);
   
   return (
     <>

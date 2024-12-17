@@ -8,14 +8,20 @@ import {
   CreditCard, 
   Check, 
   X, 
-  ArrowLeft 
+  ArrowLeft,
+  Timer 
 } from 'lucide-react';
-
-
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // Confirmation Component
 const FlightConfirmation = ({ selectedFlight, onConfirm, numberOfPassenger }) => {
   if (!selectedFlight) return null;
+
+  const formatTime = (time) => {
+    const date = new Date(time);
+    return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div className="w-full max-w-md bg-white shadow-2xl rounded-2xl p-6 space-y-6">
@@ -27,19 +33,16 @@ const FlightConfirmation = ({ selectedFlight, onConfirm, numberOfPassenger }) =>
         <div className="flex items-center space-x-4">
           <Plane className="text-[#008080]" />
           <div>
-            <p className="font-semibold">{selectedFlight.airline}</p>
+            <p className="font-semibold ">{selectedFlight.flight_code}</p>
             <p className="text-sm text-gray-500">{selectedFlight.id}</p>
-          </div>
+           </div>
         </div>
 
-        <div className="flex justify-between">
-          <div className="flex items-center space-x-2">
+        <div className="space-y-4">
+          <div className="flex items-center space-x-4">
             <Clock className="text-amber-500" />
-            <span>{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</span>
+            <p className = "text-gray-500 font-semibold">{formatTime(selectedFlight.departure_time)}</p>
           </div>
-          <span className="text-[#DAA520] font-bold">
-            {selectedFlight.duration}
-          </span>
         </div>
 
         <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
@@ -56,7 +59,7 @@ const FlightConfirmation = ({ selectedFlight, onConfirm, numberOfPassenger }) =>
             <span>Tổng giá</span>
           </div>
           <span className="text-2xl font-bold text-[#DAA520]">
-            {(selectedFlight.price * numberOfPassenger).toLocaleString()} VND
+            {(selectedFlight.economy_price * numberOfPassenger).toLocaleString()} VND
           </span>
         </div>
 
@@ -84,6 +87,11 @@ const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, f
     onSelectFlight(selectedFlight);
   };
 
+  const formatTime = (time) => {
+    const date = new Date(time);
+    return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
     <>
       <div className="bg-gray-50 min-h-screen py-12">
@@ -105,52 +113,83 @@ const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, f
 
           <div className="flex space-x-8">
             {/* Flight List Section */}
-            <div className="w-2/3 space-y-6">
+            <div className="w-2/3 space-y-4">
               {flights.map((flight) => (
-                <div 
-                  key={flight.id} 
-                  className="bg-white rounded-2xl shadow-lg p-6 flex justify-between items-center hover:shadow-xl transition"
+                <Card 
+                  key={flight._id}
+                  className="group hover:shadow-xl transition-all duration-300 border-l-4 border-l-[#008080] hover:border-l-[#DAA520]"
                 >
-                  <div className="flex-1">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-xl font-bold text-[#008080]">
-                        {flight.airline}
-                      </h3>
-                      <span className="text-[#DAA520] font-semibold">
-                        {flight.type}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="text-center">
-                          <p className="font-bold">{flight.departureTime}</p>
-                          <p className="text-sm text-gray-500">{flight.departureAirport}</p>
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-4">
+                          <Plane className="text-[#008080] transform -rotate-45" />
+                          <h3 className="text-xl font-bold text-[#008080]">
+                            <span className="text-[#DAA520]">Q</span>Airline
+                          </h3>
+                          <Badge variant="secondary" className="bg-gray-100">
+                            {flight.flight_code}
+                          </Badge>
                         </div>
-                        <ArrowRight className="text-[#008080]" />
-                        <div className="text-center">
-                          <p className="font-bold">{flight.arrivalTime}</p>
-                          <p className="text-sm text-gray-500">{flight.destinationAirport}</p>
+                        
+                        <div className="flex items-center space-x-8">
+                          <div className="text-center relative">
+                            <p className="text-lg font-semibold text-gray-900">
+                              {formatTime(flight.departure_time).split(' ')[1]}
+                            </p>
+                            <p className="text-sm font-medium text-gray-600">
+                              {formatTime(flight.departure_time).split(' ')[0]}
+                            </p>
+                            <p className="text-sm font-medium text-[#008080]">
+                              {flight.departure_location}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col items-center">
+                            <div className="h-[2px] w-24 bg-gradient-to-r from-[#008080] to-[#DAA520]" />
+                            <div className="flex items-center space-x-2 my-1">
+                              <Timer size={14} className="text-gray-400" />
+                              <span className="text-xs text-gray-500">
+                                {flight.travel_time}h
+                              </span>
+                            </div>
+                            <ArrowRight className="text-[#008080]" />
+                          </div>
+
+                          <div className="text-center">
+                            <p className="text-lg font-semibold text-gray-900">
+                              {formatTime(new Date(new Date(flight.departure_time).getTime() + flight.travel_time * 3600000)).split(' ')[1]}
+                            </p>
+                            <p className="text-sm font-medium text-gray-600">
+                              {formatTime(new Date(new Date(flight.departure_time).getTime() + flight.travel_time * 3600000)).split(' ')[0]}
+                            </p>
+                            <p className="text-sm font-medium text-[#008080]">
+                              {flight.destination}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
+
+                      <div className="text-right space-y-2">
                         <p className="text-2xl font-bold text-[#DAA520]">
-                          {flight.price.toLocaleString()} VND
+                          {flight.economy_price.toLocaleString()} VND
                         </p>
-                        <p className="text-sm text-gray-500">
-                          Còn {flight.availableSeats} chỗ
-                        </p>
+                        <Badge variant="outline" className="border-[#008080] text-[#008080]">
+                          Còn {flight.economy_seats} chỗ
+                        </Badge>
+                        <button 
+                          onClick={() => handleSelectFlight(flight)}
+                          className="mt-2 w-full bg-[#008080] text-white px-6 py-2.5 rounded-lg 
+                          hover:bg-[#006666] transition-colors duration-200 flex items-center justify-center space-x-2
+                          group-hover:bg-[#DAA520]"
+                        >
+                          <span>Chọn</span>
+                          <ArrowRight size={18} />
+                        </button>
                       </div>
                     </div>
-                  </div>
-                  <button 
-                    onClick={() => handleSelectFlight(flight)}
-                    className="ml-6 bg-[#008080] text-white px-6 py-3 rounded-lg 
-                    hover:bg-[#006666] transition flex items-center space-x-2"
-                  >
-                    <span>Chọn</span>
-                    <ArrowRight size={20} />
-                  </button>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
 

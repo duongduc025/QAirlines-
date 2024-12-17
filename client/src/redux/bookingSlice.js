@@ -5,6 +5,7 @@ const bookingSlice = createSlice({
     initialState: {
         allBooking: [],
         singleBooking: null,
+        loading: false,
     },
     reducers: {
         setAllBooking: (state, action) => {
@@ -13,12 +14,15 @@ const bookingSlice = createSlice({
         setSingleBooking: (state, action) => {
             state.singleBooking = action.payload;
         },
-
+        setLoading: (state, action) => {
+            state.loading = action.payload;
+        },
     }
 });
 export const { 
     setAllBooking,
     setSingleBooking,
+    setLoading,
  } = bookingSlice.actions;
 export default bookingSlice.reducer;
 

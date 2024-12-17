@@ -14,19 +14,16 @@ const useGetAllBooking = () => {
     useEffect(()=>{
         const fetchAllBookings = async () => {
             try {
-                console.log(user);
                 const res = await axios.get(`${BOOKING_API_END_POINT}/users/${user?._id}/bookings`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
                     },
                     withCredentials: true,
                 });
-                console.log(`${BOOKING_API_END_POINT}/users/${user?._id}/bookings`);
-                console.log(localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME));
-                console.log(res.data);
+               
                 if(res.data.success){
                     dispatch(setAllBooking(res.data.bookings));
-                    console.log(res.data.bookings);
+                    console.log("Booking: Success");
                 }
                 
             } catch (error) {
@@ -35,7 +32,8 @@ const useGetAllBooking = () => {
             }
         }
         fetchAllBookings();
-    },[user, dispatch])
+    },[user, dispatch]);
+
 }
 
 export default useGetAllBooking;

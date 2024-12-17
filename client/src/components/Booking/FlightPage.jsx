@@ -5,6 +5,13 @@ import FlightSearchPage from './FlightSearch';
 import FlightListPage from './FlightListPage';
 import PassengerInfo from './PassengerInfo';
 import { Select } from 'antd';
+import { toast } from 'sonner'
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLoading } from '@/redux/authSlice';
+
+import { BOOKING_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '../../utils/constraint';
 
 const FlightPage = () => {
   const [currentStep, setCurrentStep] = useState('search');
@@ -13,32 +20,61 @@ const FlightPage = () => {
   const [numberOfPassenger, setNumberOfPassenger] = useState(1);
   const [isRoundTrip, setIsRoundTrip] = useState(true);
 
-  const [sampleDepartureFlights, setSampleDepartureFlights] = useState(null);
-  const [sampleReturnFlights, setSampleReturnFlights] = useState(null);
+  const [departureFlights, setDepartureFlights] = useState(null);
+  const [returnFlights, setReturnFlights] = useState(null);
 
-  const handleSearchSubmit = (passengers, roundTrip, sampleDepartureFlights, sampleReturnFlights) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading } = useSelector(store => store.booking);
+
+  const handleSearchSubmit = (passengers, roundTrip, departureFlights, returnFlights) => {
     setNumberOfPassenger(passengers);
     setIsRoundTrip(roundTrip);
-    setSampleDepartureFlights(sampleDepartureFlights);
-    setSampleReturnFlights(sampleReturnFlights);
+    setDepartureFlights(departureFlights);
+    setReturnFlights(returnFlights);
     setCurrentStep('list');
   };
 
   const handleSelectFlight = (flight) => {
    
-    if (isRoundTrip && !selectedFlight) {
+    if (!isRoundTrip) {
+      setSelectedFlight(flight);
+      console.log('selected flight', selectedFlight);
+      setCurrentStep('passenger');
+    }
+    else if (isRoundTrip && !selectedFlight) {
       setSelectedFlight(flight);
       setCurrentStep('return');
     } else {
       setReturnFlight(flight);
       setCurrentStep('passenger');
     }
-    console.log('selected flight', selectedFlight);
-    console.log('return flight', returnFlight);
+    
   };
 
-  const handlePassengerSubmit = (passengers) => {
-    alert('Booking successful');
+  const handlePassengerSubmit = async (formData) => {
+    dispatch(setLoading(true));
+    console.log('formData', formData);
+    try {
+      const endpoint = isRoundTrip ? `${BOOKING_API_END_POINT}/round-bookings` : `${BOOKING_API_END_POINT}/bookings`;
+      const response = await axios.post(endpoint, formData, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+        },
+      });
+      if (response.status === 201) {
+        toast.success("Đặt vé thành công");
+        window.scrollTo(0, 0);
+        navigate('/');
+      } else {
+        toast.error("Vui lòng thử lại");
+      }
+    } catch (error) {
+      console.error('Error submitting passenger info:', error);
+      toast.error("Vui lòng thử lại");
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   const handleBack = () => {
@@ -71,7 +107,7 @@ const FlightPage = () => {
           onSelectFlight={handleSelectFlight} 
           onBack={handleBack} 
           numberOfPassenger={numberOfPassenger} 
-          flights={sampleDepartureFlights} 
+          flights={departureFlights} 
         />
       )}
       {currentStep === 'return' && (
@@ -80,7 +116,7 @@ const FlightPage = () => {
           onBack={handleBack} 
           isReturn 
           numberOfPassenger={numberOfPassenger} 
-          flights={sampleReturnFlights} 
+          flights={returnFlights} 
         />
       )}
       {currentStep === 'passenger' && (

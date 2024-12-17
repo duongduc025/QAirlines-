@@ -31,7 +31,7 @@ const Features = () => {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => (
             <div key={feature.title} className="flex flex-col items-center text-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#008080] text-white">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#008080] text-[#DAA520]">
                 <feature.icon className="h-6 w-6" />
               </div>
               <h3 className="mb-2 text-lg font-semibold text-[#008080]">{feature.title}</h3>

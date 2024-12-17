@@ -16,7 +16,7 @@ const useGetAllPromotion = () => {
                 const res = await axios.get(`${PROMOTION_API_END_POINT}/showAllPromotions`);
                 if(res.data){
                     dispatch(setAllPromotions(res.data));
-                    console.log(res.data);
+                    console.log("Promotion: Success");
                 }
                 
             } catch (error) {

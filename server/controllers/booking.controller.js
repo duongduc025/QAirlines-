@@ -5,17 +5,17 @@ import Passenger from '../models/passenger.js';
 import mongoose from 'mongoose';
 
 export const getBookingByUserId = async (req, res) => {
-    const { id } = req.params;
-    console.log(`Fetching bookings for user ID: ${id}`);
+    const { _id } = req.params;
+    console.log(`Fetching bookings for user ID: ${_id}`);
    
     try {
-        const user = await User.findById(id);
+        const user = await User.findById(_id);
         if (!user) {
             console.log('User not found');
             return res.status(404).json({ message: 'User not found' });
         }
       
-        const bookings = await Booking.find({ user_id: id });
+        const bookings = await Booking.find({ user_id: _id });
 
         res.json({ success: true, bookings });
     } catch (error) {
@@ -73,10 +73,9 @@ export const createBooking = async (req, res) => {
         // Create passengers and collect their IDs
         const passenger_ids = [];
         for (const passenger of passengers) {
-            const { fullname, email, gender, dob, identity_number } = passenger;
+            const { fullname, gender, dob, identity_number } = passenger;
             const newPassenger = new Passenger({
                 fullname,
-                email,
                 gender,
                 date_of_birth: new Date(dob),
                 id_number: identity_number,
@@ -193,5 +192,102 @@ export const cancelBooking = async (req, res) => {
     } catch (error) {
         console.error('Lỗi máy chủ:', error);
         res.status(500).json({ message: 'Lỗi máy chủ', error });
+    }
+};
+
+export const createRoundBooking = async (req, res) => {
+    const { outbound_flight_id, return_flight_id, ticket_quantity, passengers } = req.body;
+    const user_id = req.user._id; // Assuming the user's ID is stored in the token
+
+    try {
+        // Find the outbound flight by ID
+        const outboundFlight = await Flight.findById(outbound_flight_id);
+        if (!outboundFlight) {
+            return res.status(404).json({ message: 'Outbound flight not found' });
+        }
+
+        // Find the return flight by ID
+        const returnFlight = await Flight.findById(return_flight_id);
+        if (!returnFlight) {
+            return res.status(404).json({ message: 'Return flight not found' });
+        }
+
+        // Check if there are enough economy seats available for both flights
+        if (outboundFlight.economy_seats < ticket_quantity || returnFlight.economy_seats < ticket_quantity) {
+            return res.status(400).json({ message: 'Not enough economy seats available' });
+        }
+
+        // Calculate the total price for both flights
+        const outbound_ticket_price = outboundFlight.economy_price;
+        const return_ticket_price = returnFlight.economy_price;
+        const total_price = ticket_quantity * (outbound_ticket_price + return_ticket_price);
+
+        // Create passengers and collect their IDs
+        const passenger_ids = [];
+        for (const passenger of passengers) {
+            const { fullname, gender, dob, identity_number } = passenger;
+            const newPassenger = new Passenger({
+                fullname,
+                gender,
+                date_of_birth: new Date(dob),
+                id_number: identity_number,
+                flight_id: outbound_flight_id
+            });
+            await newPassenger.save();
+            passenger_ids.push(newPassenger._id);
+        }
+
+        // Find the user by ID
+        const user = await User.findById(user_id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Create a new booking for the outbound flight
+        const newOutboundBooking = new Booking({
+            user_id: user._id,
+            user_email: user.email,
+            flight_id: outbound_flight_id,
+            ticket_quantity,
+            ticket_price: outbound_ticket_price,
+            total_price: ticket_quantity * outbound_ticket_price,
+            booking_date: new Date(),
+            booking_status: 'Đã đặt',
+            passenger_ids,
+            updated_at: new Date()
+        });
+
+        // Create a new booking for the return flight
+        const newReturnBooking = new Booking({
+            user_id: user._id,
+            user_email: user.email,
+            flight_id: return_flight_id,
+            ticket_quantity,
+            ticket_price: return_ticket_price,
+            total_price: ticket_quantity * return_ticket_price,
+            booking_date: new Date(),
+            booking_status: 'Đã đặt',
+            passenger_ids,
+            updated_at: new Date()
+        });
+
+        // Update the flights' available seats
+        outboundFlight.economy_seats -= ticket_quantity;
+        returnFlight.economy_seats -= ticket_quantity;
+        await outboundFlight.save();
+        await returnFlight.save();
+
+        // Save the new bookings
+        await newOutboundBooking.save();
+        await newReturnBooking.save();
+
+        // Update the user's booking list
+        user.booking_id.push(newOutboundBooking._id, newReturnBooking._id);
+        await user.save();
+
+        res.status(201).json({ message: 'Round-trip booking successful', outbound_booking_id: newOutboundBooking._id, return_booking_id: newReturnBooking._id });
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ message: 'Server error', error });
     }
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom'; // Add this import
 import { Clock, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const PromotionCard = ({ promotion, onShowDetails }) => (
@@ -40,6 +41,7 @@ const RemarkablePromotions = () => {
   const { allPromotions } = useSelector(store => store.promotion);
   const [scrollPosition, setScrollPosition] = useState(0);
   const containerRef = React.useRef(null);
+  const navigate = useNavigate(); // Add this line
 
   const scroll = (direction) => {
     const container = containerRef.current;
@@ -50,6 +52,10 @@ const RemarkablePromotions = () => {
         behavior: 'smooth'
       });
     }
+  };
+
+  const handleShowDetails = (promotion) => {
+    navigate('/promotion', { state: { promotion } }); // Add this function
   };
 
   return (
@@ -69,7 +75,7 @@ const RemarkablePromotions = () => {
           <div key={index} className="flex-none">
             <PromotionCard 
               promotion={promotion}
-              onShowDetails={() => {/* handle details */}}
+              onShowDetails={handleShowDetails} // Update this line
             />
           </div>
         ))}

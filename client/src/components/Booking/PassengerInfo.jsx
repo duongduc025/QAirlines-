@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useSelector } from 'react-redux';
+import { Loader2 } from 'lucide-react';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -10,11 +12,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 
 const initialPassengerState = {
-  name: '',
+  fullname: '',
   gender: '',
-  dateOfBirth: '',
-  nationality: '',
-  idNumber: ''
+  dob: '',
+  id_number: ''
 };
 
 const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPassenger, onBack }) => {
@@ -22,6 +23,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
         Array(numberOfPassenger).fill(null).map(() => ({ ...initialPassengerState }))
       );
       const [errors, setErrors] = useState(Array(numberOfPassenger).fill({}));
+      const { loading } = useSelector(store => store.auth);
 
       useEffect(() => {
         if (passengers.length < numberOfPassenger) {
@@ -36,25 +38,34 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
         }
       }, [numberOfPassenger]);
     
+  const formatDateTime = (dateTime) => {
+    const date = new Date(dateTime);
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${formattedHours}:${formattedMinutes} ${ampm}`;
+  };
 
   const validateForm = () => {
     const newErrors = passengers.map(passenger => {
       const passengerErrors = {};
       
-      if (!passenger.lastName.trim()) {
-        passengerErrors.lastName = 'Vui lòng nhập tên';
+      if (!passenger.fullname.trim()) {
+        passengerErrors.fullname = 'Vui lòng nhập tên';
       }
       
       if (!passenger.gender) {
         passengerErrors.gender = 'Vui lòng chọn giới tính';
       }
 
-      if (!passenger.dateOfBirth) {
-        passengerErrors.dateOfBirth = 'Vui lòng nhập ngày sinh';
+      if (!passenger.dob) {
+        passengerErrors.dob = 'Vui lòng nhập ngày sinh';
       }
 
-      if (!passenger.idNumber.trim()) {
-        passengerErrors.idNumber = 'Vui lòng nhập số CMND/Hộ chiếu';
+      if (!passenger.id_number.trim()) {
+        passengerErrors.id_number = 'Vui lòng nhập số CMND/Hộ chiếu';
       }
 
       return passengerErrors;
@@ -68,7 +79,19 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(passengers);
+      const formData = {
+        flight_id: returnFlight ? undefined : selectedFlight._id,
+        outbound_flight_id: returnFlight ? selectedFlight._id : undefined,
+        return_flight_id: returnFlight ? returnFlight._id : undefined,
+        ticket_quantity: passengers.length,
+        passengers: passengers.map(({ fullname, gender, dob, id_number }) => ({
+          fullname,
+          gender,
+          dob,
+          identity_number: id_number
+        }))
+      };
+      onSubmit(formData);
     }
   };
 
@@ -84,8 +107,8 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
 
 
   const calculateTotalPrice = () => {
-    const departurePrice = selectedFlight ? selectedFlight.price * passengers.length : 0;
-    const returnPrice = returnFlight ? returnFlight.price * passengers.length : 0;
+    const departurePrice = selectedFlight ? selectedFlight.economy_price * passengers.length : 0;
+    const returnPrice = returnFlight ? returnFlight.economy_price * passengers.length : 0;
     return departurePrice + returnPrice;
   };
 
@@ -110,24 +133,24 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
           <div className="bg-[#008080]/10 p-6 border-b border-[#008080]/20">
             <h3 className="text-[#008080] font-semibold mb-4">Thông tin chiều đi:</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
+              <div className = 'px-8'>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Hãng bay:</span>
-                  <span className="font-medium">{selectedFlight.airline}</span>
+                  <span className="font-medium">QAirline</span>
                 </p>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Chuyến bay:</span>
-                  <span className="font-medium">{selectedFlight.departure} - {selectedFlight.arrival}</span>
+                  <span className="font-medium">{selectedFlight.departure_location} - {selectedFlight.destination}</span>
                 </p>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Ngày bay:</span>
-                  <span className="font-medium">{selectedFlight.departureDate}</span>
+                  <span className="font-medium">{formatDateTime(selectedFlight.departure_time)}</span>
                 </p>
               </div>
-              <div>
+              <div className = 'px-8'>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Giờ bay:</span>
-                  <span className="font-medium">{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</span>
+                  <span className="font-medium">{selectedFlight.travel_time}</span>
                 </p>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Số hành khách:</span>
@@ -146,24 +169,24 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
           <div className="bg-[#008080]/10 p-6 border-b border-[#008080]/20">
             <h3 className="text-[#008080] font-semibold mb-4">Thông tin chiều về:</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
+              <div className = 'px-8'>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Hãng bay:</span>
-                  <span className="font-medium">{returnFlight.airline}</span>
+                  <span className="font-medium">QAirline</span>
                 </p>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Chuyến bay:</span>
-                  <span className="font-medium">{returnFlight.departure} - {returnFlight.arrival}</span>
+                  <span className="font-medium">{returnFlight.departure_location} - {returnFlight.destination}</span>
                 </p>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Ngày bay:</span>
-                  <span className="font-medium">{returnFlight.departureDate}</span>
+                  <span className="font-medium">{formatDateTime(returnFlight.departure_time)}</span>
                 </p>
               </div>
-              <div>
+              <div className = 'px-8'>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Giờ bay:</span>
-                  <span className="font-medium">{returnFlight.departureTime} - {returnFlight.arrivalTime}</span>
+                  <span className="font-medium">{returnFlight.travel_time}</span>
                 </p>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Số hành khách:</span>
@@ -194,18 +217,18 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   
                     <div>
-                      <Label htmlFor={`lastName-${index}`} className="text-[#008080] font-medium">
+                      <Label htmlFor={`fullname-${index}`} className="text-[#008080] font-medium">
                         Họ và tên
                       </Label>
                       <Input
-                        id={`lastName-${index}`}
-                        value={passenger.lastName}
-                        onChange={(e) => handleChange(index, 'lastName', e.target.value)}
+                        id={`fullname-${index}`}
+                        value={passenger.fullname}
+                        onChange={(e) => handleChange(index, 'fullname', e.target.value)}
                         className="mt-1 border-[#008080]/20 focus:border-[#008080] focus:ring-[#008080]"
                       />
-                      {errors[index]?.lastName && (
+                      {errors[index]?.fullname && (
                         <Alert className="mt-2 text-red-600 bg-red-50 border-red-200">
-                          <AlertDescription>{errors[index].name}</AlertDescription>
+                          <AlertDescription>{errors[index].fullname}</AlertDescription>
                         </Alert>
                       )}
                     </div>
@@ -238,35 +261,35 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    
                     <div>
-                      <Label htmlFor={`dateOfBirth-${index}`} className="text-[#008080] font-medium">
+                      <Label htmlFor={`dob-${index}`} className="text-[#008080] font-medium">
                         Ngày sinh
                       </Label>
                       <Input
-                        id={`dateOfBirth-${index}`}
+                        id={`dob-${index}`}
                         type="date"
-                        value={passenger.dateOfBirth}
-                        onChange={(e) => handleChange(index, 'dateOfBirth', e.target.value)}
+                        value={passenger.dob}
+                        onChange={(e) => handleChange(index, 'dob', e.target.value)}
                         className="mt-1 border-[#008080]/20 focus:border-[#008080] focus:ring-[#008080]"
                       />
-                      {errors[index]?.dateOfBirth && (
+                      {errors[index]?.dob && (
                         <Alert className="mt-2 text-red-600 bg-red-50 border-red-200">
-                          <AlertDescription>{errors[index].dateOfBirth}</AlertDescription>
+                          <AlertDescription>{errors[index].dob}</AlertDescription>
                         </Alert>
                       )}
                     </div>
                     <div>
-                      <Label htmlFor={`idNumber-${index}`} className="text-[#008080] font-medium">
+                      <Label htmlFor={`id_number-${index}`} className="text-[#008080] font-medium">
                         Số CMND/Hộ chiếu
                       </Label>
                       <Input
-                        id={`idNumber-${index}`}
-                        value={passenger.idNumber}
-                        onChange={(e) => handleChange(index, 'idNumber', e.target.value)}
+                        id={`id_number-${index}`}
+                        value={passenger.id_number}
+                        onChange={(e) => handleChange(index, 'id_number', e.target.value)}
                         className="mt-1 border-[#008080]/20 focus:border-[#008080] focus:ring-[#008080]"
                       />
-                      {errors[index]?.idNumber && (
+                      {errors[index]?.id_number && (
                         <Alert className="mt-2 text-red-600 bg-red-50 border-red-200">
-                          <AlertDescription>{errors[index].idNumber}</AlertDescription>
+                          <AlertDescription>{errors[index].id_number}</AlertDescription>
                         </Alert>
                       )}
                     </div>
@@ -290,7 +313,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
                   </p>
                   <p className="flex justify-between text-sm">
                     <span className="text-gray-600">Giá vé mỗi người:</span>
-                    <span className="font-medium">{selectedFlight?.price.toLocaleString()}đ</span>
+                    <span className="font-medium">{selectedFlight?.economy_price.toLocaleString()}đ</span>
                   </p>
                   <div className="border-t border-[#008080]/20 my-2"></div>
                   <p className="flex justify-between text-lg font-semibold">
@@ -304,8 +327,16 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
             <Button 
               type="submit"
               className="w-full bg-[#DAA520] hover:bg-[#DAA520]/90 text-white py-3"
+              disabled={loading}
             >
-              Xác nhận đặt vé
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                'Xác nhận đặt vé'
+              )}
             </Button>
           </div>
         </form>

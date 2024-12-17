@@ -177,3 +177,55 @@ export const searchFlights = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const searchRoundFlights = async (req, res) => {
+    const { departure_location, destination, departure_date, return_date, ticket_quantity } = req.query;
+
+    if (!departure_location || !destination || !departure_date || !return_date || !ticket_quantity) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
+    console.log('Search Parameters:', { departure_location, destination, departure_date, return_date, ticket_quantity });
+
+    try {
+        const startOfDepartureDay = new Date(departure_date);
+        startOfDepartureDay.setUTCHours(0, 0, 0, 0);
+
+        const startOfReturnDay = new Date(return_date);
+        startOfReturnDay.setUTCHours(0, 0, 0, 0);
+
+        const ticketQuantity = parseInt(ticket_quantity, 10);
+        if (isNaN(ticketQuantity)) {
+            return res.status(400).json({ message: "Invalid ticket quantity" });
+        }
+
+        console.log('Start of Departure Day:', startOfDepartureDay);
+        console.log('Start of Return Day:', startOfReturnDay);
+
+        const departureFlights = await Flight.find({
+            departure_location,
+            destination,
+            departure_time: { $gte: startOfDepartureDay }
+        });
+
+        const returnFlights = await Flight.find({
+            departure_location: destination,
+            destination: departure_location,
+            departure_time: { $gte: startOfReturnDay }
+        });
+
+        console.log('Departure Flights Found:', departureFlights);
+        console.log('Return Flights Found:', returnFlights);
+
+        const availableDepartureFlights = departureFlights.filter(flight => flight.economy_seats >= ticketQuantity);
+        const availableReturnFlights = returnFlights.filter(flight => flight.economy_seats >= ticketQuantity);
+
+        console.log('Available Departure Flights:', availableDepartureFlights);
+        console.log('Available Return Flights:', availableReturnFlights);
+
+        res.json({ departureFlights: availableDepartureFlights, returnFlights: availableReturnFlights });
+    } catch (error) {
+        console.error('Error during round flight search:', error);
+        res.status(500).json({ message: error.message });
+    }
+};

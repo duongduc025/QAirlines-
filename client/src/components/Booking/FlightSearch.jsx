@@ -6,16 +6,19 @@ import axios from 'axios';
 import { FLIGHT_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
 import { toast } from 'sonner';
 
+
 const FlightSearchPage = ({ onSubmit }) => {
   const [isRoundTrip, setIsRoundTrip] = useState(true);
   const [formData, setFormData] = useState({
     departure_location: '',
     destination: '',
     departure_date: '',
-    returnDate: ''
+    return_date: '',
+    ticket_quantity: ''
   });
 
   const [passengers, setPassengers] = useState(1);
+  const [returnFlights, setReturnFlights] = useState([]);
 
   const [originSuggestions, setOriginSuggestions] = useState([]);
   const [destSuggestions, setDestSuggestions] = useState([]);
@@ -59,101 +62,41 @@ const FlightSearchPage = ({ onSubmit }) => {
     if (!isValidDeparture || !isValidDestination) {
       toast.error('Vui lòng chọn điểm khởi hành và điểm đến hợp lệ');
       return;
-    } else {
-      toast.success('Tìm kiếm thành công');
-      onSubmit(passengers, isRoundTrip, sampleDepartureFlights, sampleReturnFlights);
     }
-  };
-
-  const sampleDepartureFlights = [
-    {
-      id: 'VN001',
-      airline: 'Vietnam Airlines',
-      departureTime: '07:00',
-      arrivalTime: '08:30',
-      departureAirport: 'Hà Nội (HAN)',
-      destinationAirport: 'TP.HCM (SGN)',
-      duration: '1h 30m',
-      price: 1250000,
-      type: 'Thẳng',
-      availableSeats: 15
-    },
-    {
-      id: 'VJ002',
-      airline: 'VietJet Air',
-      departureTime: '09:15',
-      arrivalTime: '10:45',
-      departureAirport: 'Hà Nội (HAN)',
-      destinationAirport: 'TP.HCM (SGN)',
-      duration: '1h 30m',
-      price: 1100000,
-      type: 'Thẳng',
-      availableSeats: 8
-    },
-    {
-      id: 'QH003',
-      airline: 'Bamboo Airways',
-      departureTime: '11:30',
-      arrivalTime: '13:00',
-      departureAirport: 'Hà Nội (HAN)',
-      destinationAirport: 'TP.HCM (SGN)',
-      duration: '1h 30m',
-      price: 132200000,
-      type: 'Thẳng',
-      availableSeats: 12
-    }
-  ];
   
-  const sampleReturnFlights = [
-    {
-      id: 'VN002',
-      airline: 'Vietnam Airlines',
-      departureTime: '18:00',
-      arrivalTime: '19:30',
-      departureAirport: 'TP.HCM (SGN)',
-      destinationAirport: 'Hà Nội (HAN)',
-      duration: '1h 30m',
-      price: 125022000,
-      type: 'Thẳng',
-      availableSeats: 15
-    },
-    {
-      id: 'VJ004',
-      airline: 'VietJet Air',
-      departureTime: '20:00',
-      arrivalTime: '21:30',
-      departureAirport: 'TP.HCM (SGN)',
-      destinationAirport: 'Hà Nội (HAN)',
-      duration: '1h 30m',
-      price: 110990000,
-      type: 'Thẳng',
-      availableSeats: 8
-    },
-    {
-      id: 'QH005',
-      airline: 'Bamboo Airways',
-      departureTime: '22:00',
-      arrivalTime: '23:30',
-      departureAirport: 'TP.HCM (SGN)',
-      destinationAirport: 'Hà Nội (HAN)',
-      duration: '1h 30m',
-      price: 130009900,
-      type: 'Thẳng',
-      availableSeats: 12
-    }
-  ];
+    try {
+      const token = localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME);
+      const config = {
+        headers: { 
+          "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
+          "Content-Type": "application/json",
+        }
+      };
   
-  const handleSearchSubmit = (passengers, roundTrip) => {
-    setNumberOfPassenger(passengers);
-    setIsRoundTrip(roundTrip);
-    setCurrentStep('list');
+      const endpoint = isRoundTrip ? '/searchRound' : '/search';
+      console.log(isRoundTrip);
+      const response = await axios.get(`${FLIGHT_API_END_POINT}${endpoint}`, {
+        params: {
+          ...formData,
+          ticket_quantity: passengers
+        },
+        ...config
+      });
+  
+      if (response.data) {
+        const departureFlights = isRoundTrip ? response.data.departureFlights : response.data;
+        const returnFlights = isRoundTrip ? response.data.returnFlights : null;
+        onSubmit(passengers, isRoundTrip, departureFlights, returnFlights);
+      }
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi tìm kiếm chuyến bay');
+    }
   };
 
   return (
     <>
     <div className="min-h-screen bg-gray-50 flex justify-center p-12">
     <div className="w-full max-w-7xl mx-auto">
-        {/* New Special Offers Section */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-[#008080] mb-4">
             Trải nghiệm dịch vụ 5 sao cùng <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>Airline</span>
@@ -164,12 +107,9 @@ const FlightSearchPage = ({ onSubmit }) => {
         </div>
       <div className="w-full max-w-7xl mx-auto">
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          {/* Header with Gradient */}
           <div className="bg-gradient-to-r from-[#008080]/90 to-transparent p-8">
             <h2 className="text-3xl font-bold text-white">Tìm Chuyến Bay</h2>
           </div>
-
-          {/* Trip Type Selector */}
           <div className="p-6 flex justify-center">
             <div className="bg-white rounded-full p-2 flex space-x-4 shadow-md">
               {['Khứ hồi', 'Một chiều'].map((type, index) => (
@@ -306,8 +246,8 @@ const FlightSearchPage = ({ onSubmit }) => {
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500" />
                     <input
                       type="date"
-                      name="returnDate"
-                      value={formData.returnDate}
+                      name="return_date"
+                      value={formData.return_date}
                       onChange={handleInputChange}
                       className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] transition"
                     />
