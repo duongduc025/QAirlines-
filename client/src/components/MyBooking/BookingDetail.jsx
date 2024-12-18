@@ -1,17 +1,17 @@
 import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { ArrowLeft, Plane } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { setSingleBooking } from '@/redux/bookingSlice';
-import {BOOKING_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME} from '@/utils/constraint';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { BOOKING_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
+import { format } from 'date-fns';
+import airportCodes from '@/utils/airport_code';
 
 const BookingDetail = () => {
-  const {singleBooking} = useSelector((state) => state.booking);
-  const {user} = useSelector((state) => state.auth);
+
+  const { user } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
   const params = useParams();
   const bookingID = params.id;
@@ -20,54 +20,41 @@ const BookingDetail = () => {
   useEffect(() => {
     const fetchSingleBooking = async () => {
       try {
-        const response = await axios.get(`${BOOKING_API_END_POINT}/users/${user._id}/bookings/${bookingID}`, {
+        
+        const response = await axios.get(`${BOOKING_API_END_POINT}/${bookingID}`, {
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
-            }
+            "Content-Type": "application/json",
+          }
         });
+        console.log(response.data);
         if (response.status === 200) {
-          dispatch(setSingleBooking(response.data));
+          dispatch(setSingleBooking(response.data.booking));
         }
       } catch (error) {
         console.error(error);
-      } 
+      }
     };
     fetchSingleBooking();
   }, [bookingID, user._id, dispatch]);
 
-  
-  const exampleTicket = {
-    flight: {
-      airline: 'Vietnam Airlines',
-      departure: 'Hà Nội',
-      arrival: 'Hồ Chí Minh',
-      departureDate: '2024-12-15', // Changed to valid date format
-      departureTime: '14:30',
-      arrivalTime: '16:00',
-      price: 2500000
-    },
-    passengers: [
-      {
-        lastName: 'Nguyễn Văn A',
-        gender: 'male',
-        dateOfBirth: '1990-05-15', // Changed to valid date format
-        idNumber: '123456789'
-      },
-      {
-        lastName: 'Trần Thị B',
-        gender: 'female',
-        dateOfBirth: '1995-10-20', // Changed to valid date format
-        idNumber: '987654321'
-      }
-    ]
+  const { singleBooking } = useSelector((store) => store.booking);
+  const bookingDetail = singleBooking;
+  console.log("singleBooking:", bookingDetail);
+
+  const formatDate = (dateString, formatString) => {
+    return format(new Date(dateString), formatString);
   };
-  const selectedFlight = exampleTicket.flight;
-  const passengers = exampleTicket.passengers;
+
+  const getAirportName = (code) => {
+    const airport = airportCodes.find(airport => airport.code === code);
+    return airport ? airport.name : code;
+  };
+
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="max-w-4xl mx-auto p-4 animate-fadeIn">
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
         {/* Header */}
-        <div className="bg-[#008080] p-6 text-white">
+        <div className="bg-gradient-to-r from-[#008080] to-[#006666] p-6 text-white">
           <div className="flex items-center gap-4">
             <ArrowLeft 
               className="cursor-pointer" 
@@ -77,45 +64,77 @@ const BookingDetail = () => {
           </div>
         </div>
 
-        {/* Flight Info */}
-        <div className="bg-[#008080]/10 p-6 border-b border-[#008080]/20">
-          <h3 className="text-[#008080] font-semibold mb-4">Thông tin chuyến bay:</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="flex justify-between py-2">
-                <span className="text-gray-600">Hãng bay:</span>
-                <span className="font-medium">{selectedFlight.airline}</span>
-              </p>
-              <p className="flex justify-between py-2">
-                <span className="text-gray-600">Chuyến bay:</span>
-                <span className="font-medium">{selectedFlight.departure} - {selectedFlight.arrival}</span>
-              </p>
-              <p className="flex justify-between py-2">
-                <span className="text-gray-600">Ngày bay:</span>
-                <span className="font-medium">{selectedFlight.departureDate}</span>
-              </p>
+        {/* Flight Info Card */}
+        <Card className="mx-6 mt-6 border-[#008080]/20">
+          <CardContent className="p-0">
+            {/* Card Header */}
+            <div className="p-4 border-b border-[#008080]/20 bg-[#008080]/5">
+              <div className="flex items-center gap-3">
+                <Plane className="w-5 h-5 text-[#008080]" />
+                <h3 className="text-lg font-semibold text-[#008080]">Thông tin chuyến bay</h3>
+              </div>
             </div>
-            <div>
-              <p className="flex justify-between py-2">
-                <span className="text-gray-600">Giờ bay:</span>
-                <span className="font-medium">{selectedFlight.departureTime} - {selectedFlight.arrivalTime}</span>
-              </p>
-              <p className="flex justify-between py-2">
-                <span className="text-gray-600">Số hành khách:</span>
-                <span className="font-medium">{passengers.length}</span>
-              </p>
-              <p className="flex justify-between py-2">
-                <span className="text-gray-600">Tổng giá vé:</span>
-                <span className="font-medium text-[#DAA520]">{(selectedFlight.price * passengers.length).toLocaleString()}đ</span>
-              </p>
+
+            {/* Flight Details */}
+            <div className="p-6 grid grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-500">Mã chuyến bay</label>
+                  <p className="mt-1 font-medium text-[#008080]">
+                    {bookingDetail?.flight_details?.flight_code}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Điểm khởi hành</label>
+                  <p className="mt-1 font-medium">
+                    {getAirportName(bookingDetail?.flight_details?.departure_location)}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Điểm đến</label>
+                  <p className="mt-1 font-medium">
+                    {getAirportName(bookingDetail?.flight_details?.destination)}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-500">Thời gian khởi hành</label>
+                  <p className="mt-1 font-medium">
+                    {formatDate(bookingDetail?.flight_details?.departure_time, 'HH:mm dd/MM/yyyy')}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Thời gian bay</label>
+                  <p className="mt-1 font-medium">
+                    {bookingDetail?.flight_details?.travel_time}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-500">Tổng giá vé</label>
+                  <p className="mt-1 font-medium text-[#DAA520]">
+                    {bookingDetail?.total_price.toLocaleString()}đ
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* Divider */}
+        <div className="h-4"></div>
 
         {/* Passenger Details */}
-        <div className="p-6 space-y-8">
-          {passengers.map((passenger, index) => (
-            <Card key={index} className="border-[#008080]/20">
+        <div className="px-6 pb-6 space-y-4">
+          <div className="flex items-center gap-3 my-4">
+            <h3 className="text-lg font-semibold text-[#008080]">Thông tin hành khách</h3>
+          </div>
+          {bookingDetail?.passenger_details?.map((passenger, index) => (
+            <Card 
+              key={index} 
+              className="border-[#008080]/20 hover:border-[#DAA520] transition-colors duration-300"
+            >
               <CardContent className="p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-lg font-semibold text-[#008080]">
@@ -127,7 +146,7 @@ const BookingDetail = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <p className="text-[#008080] font-medium">Họ và tên</p>
-                      <p className="mt-1">{passenger.lastName}</p>
+                      <p className="mt-1">{passenger.fullname}</p>
                     </div>
                     <div>
                       <p className="text-[#008080] font-medium">Giới tính</p>
@@ -141,11 +160,11 @@ const BookingDetail = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <p className="text-[#008080] font-medium">Ngày sinh</p>
-                      <p className="mt-1">{passenger.dateOfBirth}</p>
+                      <p className="mt-1">{formatDate(passenger.date_of_birth, 'dd/MM/yyyy')}</p>
                     </div>
                     <div>
                       <p className="text-[#008080] font-medium">Số CMND/Hộ chiếu</p>
-                      <p className="mt-1">{passenger.idNumber}</p>
+                      <p className="mt-1">{passenger.id_number}</p>
                     </div>
                   </div>
                 </div>
@@ -154,22 +173,22 @@ const BookingDetail = () => {
           ))}
 
           {/* Summary */}
-          <Card className="border-[#008080]/20">
+          <Card className="border-[#008080]/20 hover:border-[#DAA520] transition-colors duration-300">
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold text-[#008080] mb-4">Tổng kết đặt vé</h3>
               <div className="space-y-2">
                 <p className="flex justify-between text-sm">
                   <span className="text-gray-600">Số lượng hành khách:</span>
-                  <span className="font-medium">{passengers.length}</span>
+                  <span className="font-medium">{bookingDetail?.ticket_quantity}</span>
                 </p>
                 <p className="flex justify-between text-sm">
                   <span className="text-gray-600">Giá vé mỗi người:</span>
-                  <span className="font-medium">{selectedFlight.price.toLocaleString()}đ</span>
+                  <span className="font-medium">{(bookingDetail?.total_price / bookingDetail?.ticket_quantity).toLocaleString()}đ</span>
                 </p>
                 <div className="border-t border-[#008080]/20 my-2"></div>
                 <p className="flex justify-between text-lg font-semibold">
-                  <span className="text-gray-800">Tổng ti��n:</span>
-                  <span className="text-[#DAA520]">{(selectedFlight.price * passengers.length).toLocaleString()}đ</span>
+                  <span className="text-gray-800">Tổng tiền:</span>
+                  <span className="text-[#DAA520]">{bookingDetail?.total_price.toLocaleString()}đ</span>
                 </p>
               </div>
             </CardContent>

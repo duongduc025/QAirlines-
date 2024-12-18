@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import useGetAllPromotion from './hook/useGetAllPromotion'
 
 // Import components
 import Home from './components/Home/Home'
@@ -16,6 +17,13 @@ import AdminFlight from './components/admin/AdminFlight'
 import AdminBooking from './components/admin/AdminBooking'
 import BookingDetail from './components/MyBooking/BookingDetail'
 import FlightPage from './components/Booking/FlightPage'
+
+
+// Function to check if user is authenticated
+const ProtectedRoute = ({ children }) => {
+  const { user } = useSelector(store => store.auth);
+  return user ? children : <Navigate to="/login" replace />;
+};
 
 // Guest navigation links
 const guessNavLinks = createBrowserRouter([
@@ -49,11 +57,11 @@ const guessNavLinks = createBrowserRouter([
   },
   {
     path: '/mybookings',
-    element: <MyBookingpage />
+    element: <ProtectedRoute><MyBookingpage /></ProtectedRoute>
   },
   {
     path: 'flight',
-    element: <FlightPage />
+    element: <ProtectedRoute><FlightPage /></ProtectedRoute>
   }
 
 ])
@@ -82,11 +90,11 @@ const appRouter = createBrowserRouter([
   },
   {
     path: 'flight',
-    element: <FlightPage />
+    element: <ProtectedRoute><FlightPage /></ProtectedRoute>
   },
   {
     path: '/mybookings',
-    element: <MyBookingpage />
+    element: <ProtectedRoute><MyBookingpage /></ProtectedRoute>
   },
   {
     path: '/account',
@@ -139,8 +147,9 @@ const AdminRouter = createBrowserRouter([
 ])
 
 function App() {
-  const { user } = useSelector(store => store.auth);
 
+  const { user } = useSelector(store => store.auth);
+  useGetAllPromotion();
   // Determine which router to use based on user role
   const router = user?.role === 'admin' 
     ? AdminRouter 

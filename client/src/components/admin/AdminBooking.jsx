@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,43 +7,44 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, CalendarDays, Users, Plane, CreditCard } from 'lucide-react';
 import AdminSideBar from './AdminSideBar';
+import { useSelector } from 'react-redux';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const AdminBooking = () => {
+  const { allBooking } = useSelector(store => store.booking);
+  const [ allBookings, setAllBookings ] = useState(allBooking);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   
-  
-  const allTickets = [
-    { 
-      id: "T001",
-      userId: "U123",
-      flightId: "QA101",
-      passengers: 2,
-      bookingDate: new Date("2024-11-25"),
-      totalAmount: "4,500,000",
-      status: "Đã đặt" 
-    },
-    { 
-      id: "T002",
-      userId: "U124",
-      flightId: "QA102",
-      passengers: 1,
-      bookingDate: new Date("2024-11-25"),
-      totalAmount: "2,200,000",
-      status: "Đã sử dụng"
-    },
-    { 
-      id: "T003",
-      userId: "U125",
-      flightId: "QA103",
-      passengers: 3,
-      bookingDate: new Date("2024-11-26"),
-      totalAmount: "6,800,000",
-      status: "Đã hủy"
-    },
-  ];
+  const monthlyStats = useMemo(() => {
+    const months = Array(12).fill(0).map((_, index) => ({
+      name: `Tháng ${index + 1}`,
+      bookings: 0,
+      amount: 0
+    }));
 
+    allBookings.forEach(booking => {
+      const bookingDate = new Date(booking.booking_date);
+      if (bookingDate.getFullYear() === selectedYear) {
+        const monthIndex = bookingDate.getMonth();
+        months[monthIndex].bookings += 1;
+        months[monthIndex].amount += booking.total_price;
+      }
+    });
+
+    return months;
+  }, [allBookings, selectedYear]);
+
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array(5).fill(0).map((_, index) => currentYear - index);
+  }, []);
+  
   // Hàm để kiểm tra xem hai ngày có cùng ngày/tháng/năm không
   const isSameDay = (date1, date2) => {
     return date1.getDate() === date2.getDate() &&
@@ -51,26 +52,87 @@ const AdminBooking = () => {
            date1.getFullYear() === date2.getFullYear();
   };
 
-  // Lọc vé dựa trên ngày được chọn, search query và status filter
-  const filteredTickets = allTickets.filter(ticket => {
-    const matchesDate = isSameDay(ticket.bookingDate, selectedDate);
+  // Update filteredTickets to use the new data structure
+  const filteredTickets = allBookings.filter(ticket => {
+    const bookingDate = new Date(ticket.booking_date);
+    const matchesDate = isSameDay(bookingDate, selectedDate);
     const matchesSearch = searchQuery === '' || 
-                         ticket.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         ticket.userId.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
+                         ticket._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         ticket.user_id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || ticket.booking_status === statusFilter;
     
     return matchesDate && matchesSearch && matchesStatus;
   });
 
-  // Tính tổng số vé và hành khách cho ngày được chọn
+  // Update calculations for totals
   const ticketsToday = filteredTickets.length;
-  const totalAmountToday = filteredTickets.reduce((sum, ticket) => sum + parseInt(ticket.totalAmount.replace(/,/g, '')), 0);
-  const passengersToday = filteredTickets.reduce((sum, ticket) => sum + ticket.passengers, 0);
+  const totalAmountToday = filteredTickets.reduce((sum, ticket) => sum + ticket.total_price, 0);
+  const passengersToday = filteredTickets.reduce((sum, ticket) => sum + ticket.ticket_quantity, 0);
+
+  // Add these calculations after the existing calculations
+  const totalTickets = allBookings.length;
+  const totalPassengers = allBookings.reduce((sum, booking) => sum + booking.ticket_quantity, 0);
+  const totalRevenue = allBookings.reduce((sum, booking) => sum + booking.total_price, 0);
 
   // Format date để hiển thị
   const formatDate = (date) => {
     return date.toLocaleDateString('vi-VN');
   };
+
+  const formatDateTime = (dateStr) => {
+    return new Date(dateStr).toLocaleString('vi-VN');
+  };
+
+  const BookingDetailsDialog = ({ booking }) => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">Chi tiết</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-[800px] max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Chi tiết đặt vé #{booking._id}</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <h3 className="font-semibold">Thông tin chuyến bay</h3>
+              <p>Từ: {booking.flight_details.departure_location}</p>
+              <p>Đến: {booking.flight_details.destination}</p>
+              <p>Thời gian bay: {booking.flight_details.travel_time} giờ</p>
+              <p>Khởi hành: {formatDateTime(booking.flight_details.departure_time)}</p>
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-semibold">Thông tin đặt vé</h3>
+              <p>Người đặt: {booking.user_fullname}</p>
+              <p>Email: {booking.user_email}</p>
+              <p>Số lượng vé: {booking.ticket_quantity}</p>
+              <p>Tổng tiền: {booking.total_price.toLocaleString()} VND</p>
+              <p>Ngày đặt: {formatDateTime(booking.booking_date)}</p>
+              <p>Trạng thái: {booking.booking_status}</p>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="font-semibold">Thông tin hành khách</h3>
+            <div className="grid gap-4">
+              {booking.passenger_details.map((passenger, index) => (
+                <div key={passenger._id} className="border p-3 rounded-lg">
+                  <h4 className="font-medium">Hành khách {index + 1}</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <p>Họ tên: {passenger.fullname}</p>
+                    <p>Giới tính: {passenger.gender}</p>
+                    <p>Ngày sinh: {formatDate(new Date(passenger.date_of_birth))}</p>
+                    <p>CCCD/CMND: {passenger.id_number}</p>
+                    {passenger.email && <p>Email: {passenger.email}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   return (
     <div className=" flex min-h-screen bg-gray-50">
@@ -89,14 +151,14 @@ const AdminBooking = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Update Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <Card>
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm font-medium">Tổng vé </p>
-                  <p className="text-2xl font-bold "></p>
+                  <p className="text-sm font-medium">Tổng vé</p>
+                  <p className="text-2xl font-bold">{totalTickets}</p>
                 </div>
                 <Plane className="h-8 w-8" />
               </div>
@@ -107,25 +169,27 @@ const AdminBooking = () => {
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm font-medium">Tổng hành khách </p>
-                  <p className="text-2xl font-bold "></p>
+                  <p className="text-sm font-medium">Tổng hành khách</p>
+                  <p className="text-2xl font-bold">{totalPassengers}</p>
                 </div>
                 <Users className="h-8 w-8" />
               </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm font-medium">Tổng số tiền </p>
-                  <p className="text-2xl font-bold ">{""}</p>
+                  <p className="text-sm font-medium">Tổng số tiền</p>
+                  <p className="text-2xl font-bold">{totalRevenue.toLocaleString()} VND</p>
                 </div>
-                <Users className="h-8 w-8" />
+                <CreditCard className="h-8 w-8" />
               </div>
             </CardContent>
           </Card>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <Card>
             <CardContent className="p-6">
@@ -226,18 +290,22 @@ const AdminBooking = () => {
                       <TableHead className="font-semibold">Ngày đặt</TableHead>
                       <TableHead className="font-semibold">Tổng tiền</TableHead>
                       <TableHead className="font-semibold">Trạng thái</TableHead>
+                      <TableHead className="font-semibold">Thao tác</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredTickets.map((ticket) => (
-                      <TableRow key={ticket.id} className="hover:bg-gray-50">
-                        <TableCell className="font-medium">{ticket.id}</TableCell>
-                        <TableCell>{ticket.userId}</TableCell>
-                        <TableCell>{ticket.flightId}</TableCell>
-                        <TableCell>{ticket.passengers}</TableCell>
-                        <TableCell>{formatDate(ticket.bookingDate)}</TableCell>
-                        <TableCell>{ticket.totalAmount} VND</TableCell>
-                        <TableCell>  {ticket.status}  </TableCell>
+                      <TableRow key={ticket._id} className="hover:bg-gray-50">
+                        <TableCell className="font-medium">{ticket._id}</TableCell>
+                        <TableCell>{ticket.user_id}</TableCell>
+                        <TableCell>{ticket.flight_id}</TableCell>
+                        <TableCell>{ticket.ticket_quantity}</TableCell>
+                        <TableCell>{formatDate(new Date(ticket.booking_date))}</TableCell>
+                        <TableCell>{ticket.total_price.toLocaleString()} VND</TableCell>
+                        <TableCell>{ticket.booking_status}</TableCell>
+                        <TableCell>
+                          <BookingDetailsDialog booking={ticket} />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -251,6 +319,41 @@ const AdminBooking = () => {
             </CardContent>
           </Card>
         </div>
+
+        <Card className="w-full">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-gray-700">Thống kê vé theo tháng</CardTitle>
+              <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue placeholder="Chọn năm" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map(year => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyStats}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Bar yAxisId="left" dataKey="bookings" fill="#4f46e5" name="Số vé" />
+                  <Bar yAxisId="right" dataKey="amount" fill="#06b6d4" name="Doanh thu (VND)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -11,11 +11,14 @@ import AdminSideBar from './AdminSideBar';
 import useGetAllFlight from '@/hook/useGetAllFlight';
 import useGetAllAirCraft from '@/hook/useGetAllAirCraft';
 import useGetAllPromotion from '@/hook/useGetAllPromotion';
+import useGetAllBookingsAdmin from '@/hook/useGetAllBookingsAdmin';
 
 const AdminIntro = () => {
   useGetAllFlight();
   useGetAllAirCraft();
   useGetAllPromotion();
+  useGetAllBookingsAdmin();
+
   return (
     <div className="min-h-screen bg-gray-100 flex">
         <AdminSideBar />

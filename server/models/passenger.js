@@ -5,7 +5,7 @@ const passengerSchema = new mongoose.Schema({
   gender: { type: String, required: true },
   date_of_birth: { type: Date, required: true },
   id_number: { type: String, required: true },
-  flight_id: { type: String, required: true }
+  flight_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Flight' }
 });
 
 export default mongoose.model('Passenger', passengerSchema);
