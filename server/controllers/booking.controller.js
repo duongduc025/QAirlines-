@@ -52,24 +52,51 @@ export const getBookingByUserId = async (req, res) => {
 };
 
 export const getSpecificBookingByUserId = async (req, res) => {
-    const { id, booking_id } = req.params;
-    console.log(`Fetching specific booking for user ID: ${id}, booking ID: ${booking_id}`);
+    const { _id, booking_id } = req.params;
+    console.log(`Fetching specific booking for user ID: ${_id}, booking ID: ${booking_id}`);
 
     try {
-        const user = await User.findById(id);
+        const user = await User.findById(_id);
         if (!user) {
             console.log('User not found');
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const booking = await Booking.findOne({ _id: new mongoose.Types.ObjectId(booking_id), user_id: id });
+        const booking = await Booking.aggregate([
+            { $match: { _id: new mongoose.Types.ObjectId(booking_id), user_id: new mongoose.Types.ObjectId(_id) } },
+            {
+                $lookup: {
+                    from: 'flights',
+                    localField: 'flight_id',
+                    foreignField: '_id',
+                    as: 'flight_details'
+                }
+            },
+            { $unwind: '$flight_details' },
+            {
+                $project: {
+                    user_id: 1,
+                    flight_id: 1,
+                    ticket_quantity: 1,
+                    total_price: 1,
+                    booking_date: 1,
+                    booking_status: 1,
+                    passenger_ids: 1,
+                    updated_at: 1,
+                    'flight_details.departure_location': 1,
+                    'flight_details.destination': 1,
+                    'flight_details.travel_time': 1,
+                    'flight_details.departure_time': 1
+                }
+            }
+        ]);
 
-        if (!booking) {
+        if (!booking.length) {
             console.log('Booking not found for this user');
             return res.status(404).json({ message: 'Booking not found for this user' });
         }
 
-        res.json({ success: true, booking });
+        res.json({ success: true, booking: booking[0] });
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ success: false, message: 'Server error', error });
