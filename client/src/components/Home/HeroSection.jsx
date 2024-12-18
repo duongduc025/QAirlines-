@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, Clock, CreditCard, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom'; // Update this import
 import Airplane from '../../assets/image/airplane.png';
-import Clouds from '../../assets/image/cloud.png';
 
 
 const FeatureItem = ({ icon: Icon, text }) => (
@@ -56,7 +56,7 @@ const HeroSection = () => {
               ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'}
             `}
           >
-            Trải nghiệm dịch vụ hàng không 5 sao với giá cả hợp lý
+            Trải nghiệm dịch vụ hàng không hàng đầu Việt Nam
           </p>
 
           {/* CTA Buttons */}
@@ -67,20 +67,28 @@ const HeroSection = () => {
               ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'}
             `}
           >
-            <button className="
-              bg-[#008080] text-white 
-              px-8 py-3 rounded-full transition duration-300 
-              transform hover:scale-105
-            ">
-              Đặt vé ngay
-            </button>
-            <button className="
-              bg-transparent border-2 border-white 
-              hover:bg-[#DAA520] hover:text-white text-white 
-              px-8 py-3 rounded-full transition duration-300
-            ">
-              Xem ưu đãi
-            </button>
+            <Link to="/flight">
+              <button 
+                className="
+                  bg-[#008080] text-white 
+                  px-8 py-3 rounded-full transition duration-300 
+                  transform hover:scale-105
+                "
+              >
+                Đặt vé ngay
+              </button>
+            </Link>
+            <Link to="/promotion">
+              <button 
+                className="
+                  bg-transparent border-2 border-white 
+                  hover:bg-[#DAA520] hover:text-white text-white 
+                  px-8 py-3 rounded-full transition duration-300
+                "
+              >
+                Xem ưu đãi
+              </button>
+            </Link>
           </div>
 
           {/* Features */}
@@ -91,9 +99,7 @@ const HeroSection = () => {
               ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'}
             `}
           >
-            <FeatureItem icon={Clock} text="Bay đúng giờ" />
-            <FeatureItem icon={CreditCard} text="Giá tốt nhất" />
-            <FeatureItem icon={Shield} text="An toàn 100%" />
+           
           </div>
         </div>
 

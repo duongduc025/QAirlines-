@@ -5,35 +5,43 @@ import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { setSingleBooking } from '@/redux/bookingSlice';
-
+import {BOOKING_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME} from '@/utils/constraint';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const BookingDetail = () => {
   const {singleBooking} = useSelector((state) => state.booking);
   const {user} = useSelector((state) => state.auth);
-  
- 
+  const dispatch = useDispatch();
+  const params = useParams();
+  const bookingID = params.id;
+  const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const fetchSingleBooking = async () => {
-  //     try {
-  //       const response = await axios.get(`${BOOKING_API_ENDPOINT}/get/${bookingID}`, {withCredentials: true});
-  //        if(response.data === "Success") {
-  //           dispatch(setSingleBooking(response.data));
-  //        }
-  //     } catch (error) {
-  //       console.error("Error during booking:", error);
-  //       toast.error("An error occurred during booking.");
-  //     }
-  //     fetchSingleBooking();
-  //   }
-  // }, [bookingID, dispatch, user?._id]);
+  useEffect(() => {
+    const fetchSingleBooking = async () => {
+      try {
+        const response = await axios.get(`${BOOKING_API_END_POINT}/users/${user._id}/bookings/${bookingID}`, {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+            }
+        });
+        if (response.status === 200) {
+          dispatch(setSingleBooking(response.data));
+        }
+      } catch (error) {
+        console.error(error);
+      } 
+    };
+    fetchSingleBooking();
+  }, [bookingID, user._id, dispatch]);
+
   
   const exampleTicket = {
     flight: {
       airline: 'Vietnam Airlines',
       departure: 'Hà Nội',
       arrival: 'Hồ Chí Minh',
-      departureDate: '15/12/2024',
+      departureDate: '2024-12-15', // Changed to valid date format
       departureTime: '14:30',
       arrivalTime: '16:00',
       price: 2500000
@@ -42,13 +50,13 @@ const BookingDetail = () => {
       {
         lastName: 'Nguyễn Văn A',
         gender: 'male',
-        dateOfBirth: '15/05/1990',
+        dateOfBirth: '1990-05-15', // Changed to valid date format
         idNumber: '123456789'
       },
       {
         lastName: 'Trần Thị B',
         gender: 'female',
-        dateOfBirth: '20/10/1995',
+        dateOfBirth: '1995-10-20', // Changed to valid date format
         idNumber: '987654321'
       }
     ]
@@ -61,6 +69,10 @@ const BookingDetail = () => {
         {/* Header */}
         <div className="bg-[#008080] p-6 text-white">
           <div className="flex items-center gap-4">
+            <ArrowLeft 
+              className="cursor-pointer" 
+              onClick={() => navigate('/mybookings')}
+            />
             <h2 className="text-2xl font-bold">Chi Tiết Vé Đặt</h2>
           </div>
         </div>
@@ -156,7 +168,7 @@ const BookingDetail = () => {
                 </p>
                 <div className="border-t border-[#008080]/20 my-2"></div>
                 <p className="flex justify-between text-lg font-semibold">
-                  <span className="text-gray-800">Tổng tiền:</span>
+                  <span className="text-gray-800">Tổng ti��n:</span>
                   <span className="text-[#DAA520]">{(selectedFlight.price * passengers.length).toLocaleString()}đ</span>
                 </p>
               </div>

@@ -43,17 +43,16 @@ const Login = () => {
             });
             if (res.data.success) {
                 dispatch(setUser(res.data.user));
-                localStorage.setItem('user', JSON.stringify(res.data.user));
                 localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, res.data.token);
                 navigate("/");
                 toast.success("Đăng nhập thành công");
             } else {
                 toast.error(res.data);
-                console.log("Thất bại");
+                console.log("Mật khẩu hoặc email không đúng");
             }
         } catch (error) {
             console.log("Lỗi")
-            toast.error(error.response.data.message);
+            toast.error("Có lỗi xảy ra trong quá trình đăng nhập");
         } finally {
             dispatch(setLoading(false));
         }

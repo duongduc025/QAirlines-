@@ -1,29 +1,29 @@
-import { BOOKING_API_END_POINT } from '@/utils/constraint';
 import React from 'react'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-import { setAllBooking } from '@/redux/bookingSlice';
 import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
+import { FLIGHT_API_END_POINT } from '@/utils/constraint';
+import { setAllFlight } from '@/redux/flightSlice';
 
-const useGetAllBooking = () => {
+const useGetAllFlight = () => {
     const dispatch = useDispatch();
-    const {user} = useSelector(state => state.auth);
+    const { user } = useSelector(state => state.auth);
     useEffect(()=>{
-        const fetchAllBookings = async () => {
+        const fetchAllFlights = async () => {
             try {
-                const res = await axios.get(`${BOOKING_API_END_POINT}/users/${user?._id}/bookings`, {
+                const res = await axios.get(`${FLIGHT_API_END_POINT}/allFlights`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
                     },
                     withCredentials: true,
                 });
-               
-                if(res.data.success){
-                    dispatch(setAllBooking(res.data.bookings));
-                    console.log("Booking: Success");
+                
+                if(res.data){
+                    dispatch(setAllFlight(res.data));
+                    console.log(res.data);
                 }
                 
             } catch (error) {
@@ -31,9 +31,8 @@ const useGetAllBooking = () => {
             
             }
         }
-        fetchAllBookings();
-    },[user, dispatch]);
-
+        fetchAllFlights();
+    },[user, dispatch])
 }
 
-export default useGetAllBooking;
+export default useGetAllFlight;

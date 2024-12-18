@@ -1,114 +1,150 @@
 import AdminSideBar from './AdminSideBar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { PlusCircle, Trash2, Clock, Search } from "lucide-react";
-
-const airports = {
-  HAN: "Hà nội - Nội bài airport",
-  BKK: "Bangkok - Suvarnabhumi airport",
-  SGN: "Hồ chí minh - Tân sơn nhất airport",
-  DAD: "Đà nẵng international airport",
-};
-
-const aircrafts = {
-  A321: "Airbus A321 - 180 seats",
-  A330: "Airbus A330 - 240 seats",
-  B787: "Boeing 787 - 300 seats",
-  B777: "Boeing 777 - 350 seats",
-};
-
-
-const initialFlights = [
-  {
-    id: 1,
-    flightId: "VN123",
-    aircraft: "A321",
-    seats: 180,
-    price: 2000000,
-    departure: "HAN",
-    destination: "BKK",
-    departureTime: "2024-11-23T10:00",
-    arrivalTime: "2024-11-23T12:00",
-    status: "On Time"
-  },
-  {
-    id: 2,
-    flightId: "VN456",
-    aircraft: "B787",
-    seats: 300,
-    price: 3500000,
-    departure: "SGN",
-    destination: "DAD",
-    departureTime: "2024-11-23T14:00",
-    arrivalTime: "2024-11-23T15:30",
-    status: "Delayed"
-  }
-];
+import { useSelector, useDispatch } from 'react-redux';
+import store from '@/redux/store';
+import { setAllFlight } from '@/redux/flightSlice';
+import { FLIGHT_API_END_POINT } from '@/utils/constraint';
+import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
+import { toast } from 'sonner';
+import airportCodes from '@/utils/airport_code';
 
 const AdminFlight = () => {
-  const [flights, setFlights] = useState(initialFlights);
+  const dispatch = useDispatch();
+  const { allAirCraft } = useSelector((store) => store.aircraft);
+  const { allFlight } = useSelector((store) => store.flight);
+  const [flights, setFlights] = useState(allFlight);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDelayDialogOpen, setIsDelayDialogOpen] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [flightToDelete, setFlightToDelete] = useState(null);
+
+  const [departureSearch, setDepartureSearch] = useState("");
+  const [destinationSearch, setDestinationSearch] = useState("");
+  const [originSuggestions, setOriginSuggestions] = useState([]);
+  const [destSuggestions, setDestSuggestions] = useState([]);
+
   const filteredFlights = flights.filter(flight => 
-    flight.flightId.toLowerCase().includes(searchQuery.toLowerCase())
+    flight.flight_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleRemoveFlight = (id) => {
-    setFlights(flights.filter(flight => flight.id !== id));
+  const handleRemoveFlight = async (_id) => {
+    try {
+      const response = await fetch(`${FLIGHT_API_END_POINT}/deleteFlight/${_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+        }
+      });
+
+      if (response.ok) {
+        toast.success('Xóa chuyến bay thành công');
+        setFlights(flights.filter(flight => flight._id !== _id));
+        dispatch(setAllFlight(flights.filter(flight => flight._id !== _id)));
+      } else {
+        console.error('Failed to delete flight');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  const handleAddFlight = (event) => {
+  const handleAddFlight = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const newFlight = {
-      id: flights.length + 1,
-      flightId: formData.get('flightId'),
-      aircraft: formData.get('aircraft'),
-      seats: 180,
-      price: Number(formData.get('price')),
-      departure: formData.get('departure'),
-      destination: formData.get('destination'),
-      departureTime: formData.get('departureTime'),
-      arrivalTime: formData.get('arrivalTime'),
+      flight_code: formData.get('flight_code'),
+      airplane_code: formData.get('airplane_code'), // Changed to airplane_code
+      economy_seats: 180,
+      economy_price: Number(formData.get('economy_price')),
+      departure_location: airportCodes.find(airport => airport.name === departureSearch)?.code,
+      destination: airportCodes.find(airport => airport.name === destinationSearch)?.code,
+      departure_time: formData.get('departure_time'),
+      travel_time: parseFloat(formData.get('travel_time')), // Ensure travel_time is parsed as a float
       status: "On Time"
     };
-    setFlights([...flights, newFlight]);
+
+    try {
+      const response = await fetch(`${FLIGHT_API_END_POINT}/addFlight`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+        },
+        body: JSON.stringify(newFlight)
+      });
+
+      if (response.status === 201) {
+        const addedFlight = await response.json();
+        setFlights([...flights, addedFlight]);
+        dispatch(setAllFlight([...flights, addedFlight]));
+        toast.success('Thêm chuyến bay thành công');
+      } else {
+        console.error('Failed to add flight');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+
     setIsDialogOpen(false);
   };
 
-  const handleDelayFlight = (event) => {
+  const handleDelayFlight = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const delayMinutes = parseInt(formData.get('delayMinutes'));
-    
-    setFlights(flights.map(flight => {
-      if (flight.id === selectedFlight.id) {
-        const newDepartureTime = new Date(flight.departureTime);
-        const newArrivalTime = new Date(flight.arrivalTime);
-        
-        newDepartureTime.setMinutes(newDepartureTime.getMinutes() + delayMinutes);
-        newArrivalTime.setMinutes(newArrivalTime.getMinutes() + delayMinutes);
 
-        return {
-          ...flight,
-          departureTime: newDepartureTime.toISOString().slice(0, 16),
-          arrivalTime: newArrivalTime.toISOString().slice(0, 16),
-          status: "Delayed"
-        };
+    const newDepartureTime = new Date(selectedFlight.departure_time);
+    newDepartureTime.setMinutes(newDepartureTime.getMinutes() + delayMinutes);
+
+    try {
+      const response = await fetch(`${FLIGHT_API_END_POINT}/updateDepartureTime/${selectedFlight._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+        },
+        body: JSON.stringify({ newDepartureTime: newDepartureTime.toISOString() })
+      });
+
+      if (response.ok) {
+        const updatedFlight = await response.json();
+        setFlights(flights.map(flight => flight._id === selectedFlight._id ? updatedFlight : flight));
+        dispatch(setAllFlight(flights.map(flight => flight._id === selectedFlight._id ? updatedFlight : flight)));
+        toast.success('Cập nhật thời gian bay thành công');
+      } else {
+        console.error('Failed to update departure time');
       }
-      return flight;
-    }));
-    
+    } catch (error) {
+      console.error('Error:', error);
+    }
+
     setIsDelayDialogOpen(false);
+  };
+
+  const handleSearch = (input, type) => {
+    if (!input) return type === 'origin' ? setOriginSuggestions([]) : setDestSuggestions([]);
+    
+    const filtered = airportCodes.filter(airport => 
+      airport.name.toLowerCase().includes(input.toLowerCase()) ||
+      airport.code.toLowerCase().includes(input.toLowerCase())
+    );
+    
+    if (type === 'origin') {
+      setOriginSuggestions(filtered);
+    } else {
+      setDestSuggestions(filtered);
+    }
   };
 
   return (
@@ -132,12 +168,13 @@ const AdminFlight = () => {
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>Thêm chuyến bay mới</DialogTitle>
+                    <DialogDescription>Điền thông tin chi tiết để thêm chuyến bay mới.</DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleAddFlight} className="space-y-6">
                     <div className="space-y-2">
                       <Label>Mã chuyến bay</Label>
                       <Input 
-                        name="flightId"
+                        name="flight_code"
                         placeholder="VN123"
                         required
                       />
@@ -145,24 +182,23 @@ const AdminFlight = () => {
 
                     <div className="space-y-2">
                       <Label>Máy bay</Label>
-                      <Select name="aircraft" required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn loại máy bay" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(aircrafts).map(([code, name]) => (
-                            <SelectItem key={code} value={code}>
-                              {name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <select 
+                        name="airplane_code"
+                        required
+                        className="w-full p-2 border rounded-md"
+                      >
+                        {allAirCraft.map((aircraft) => (
+                          <option key={aircraft.airplane_code} value={aircraft.airplane_code}>
+                            {aircraft.airplane_code}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div className="space-y-2">
                       <Label>Giá vé (VND)</Label>
                       <Input 
-                        name="price"
+                        name="economy_price"
                         type="number"
                         placeholder="2000000"
                         required
@@ -171,50 +207,80 @@ const AdminFlight = () => {
 
                     <div className="space-y-2">
                       <Label>Điểm khởi hành</Label>
-                      <Select name="departure" required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn sân bay khởi hành" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(airports).map(([code, name]) => (
-                            <SelectItem key={code} value={code}>
-                              {name}
-                            </SelectItem>
+                      <Input
+                        name="departure_location"
+                        value={departureSearch}
+                        onChange={(e) => {
+                          setDepartureSearch(e.target.value);
+                          handleSearch(e.target.value, 'origin');
+                        }}
+                        placeholder="Nhập tên sân bay khởi hành"
+                        required
+                      />
+                      {originSuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full bg-white border rounded-md shadow-lg mt-1">
+                          {originSuggestions.map((airport) => (
+                            <div
+                              key={airport.code}
+                              className="p-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => {
+                                setDepartureSearch(airport.name);
+                                setOriginSuggestions([]);
+                              }}
+                            >
+                              {airport.name}
+                            </div>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-2">
                       <Label>Điểm đến</Label>
-                      <Select name="destination" required>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn sân bay đến" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(airports).map(([code, name]) => (
-                            <SelectItem key={code} value={code}>
-                              {name}
-                            </SelectItem>
+                      <Input
+                        name="destination"
+                        value={destinationSearch}
+                        onChange={(e) => {
+                          setDestinationSearch(e.target.value);
+                          handleSearch(e.target.value, 'destination');
+                        }}
+                        placeholder="Nhập tên sân bay đến"
+                        required
+                      />
+                      {destSuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full bg-white border rounded-md shadow-lg mt-1">
+                          {destSuggestions.map((airport) => (
+                            <div
+                              key={airport.code}
+                              className="p-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => {
+                                setDestinationSearch(airport.name);
+                                setDestSuggestions([]);
+                              }}
+                            >
+                              {airport.name}
+                            </div>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-2">
                       <Label>Thời gian khởi hành</Label>
                       <Input
-                        name="departureTime"
+                        name="departure_time"
                         type="datetime-local"
                         required
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Thời gian đến dự kiến</Label>
+                      <Label>Thời gian bay (giờ)</Label>
                       <Input
-                        name="arrivalTime"
-                        type="datetime-local"
+                        name="travel_time"
+                        type="number"
+                        step="0.1"
+                        placeholder="1.5"
                         required
                       />
                     </div>
@@ -241,35 +307,32 @@ const AdminFlight = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Mã chuyến bay</TableHead>
-                  <TableHead>Máy bay</TableHead>
-                  <TableHead>Số ghế</TableHead>
-                  <TableHead>Giá vé (VND)</TableHead>
-                  <TableHead>Điểm khởi hành</TableHead>
-                  <TableHead>Điểm đến</TableHead>
-                  <TableHead>Thời gian khởi hành</TableHead>
-                  <TableHead>Thời gian đến</TableHead>
-                  <TableHead className="w-[150px]">Thao tác</TableHead>
+                  <TableHead className="text-center">Mã chuyến bay</TableHead>
+                  <TableHead className="text-center">Máy bay</TableHead>
+                  <TableHead className="text-center">Số ghế</TableHead>
+                  <TableHead className="text-center">Giá vé (VND)</TableHead>
+                  <TableHead className="text-center">Điểm khởi hành</TableHead>
+                  <TableHead className="text-center">Điểm đến</TableHead>
+                  <TableHead className="text-center">Thời gian khởi hành</TableHead>
+                  <TableHead className="text-center">Thời gian bay</TableHead>
+                  <TableHead className="text-center w-[150px]">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+                <TableBody>
                 {filteredFlights.map((flight) => (
-                  <TableRow key={flight.id}>
-                    <TableCell className="font-medium">{flight.flightId}</TableCell>
-                    <TableCell>{aircrafts[flight.aircraft]}</TableCell>
-                    <TableCell>{flight.seats}</TableCell>
-                    <TableCell>{flight.price.toLocaleString()}</TableCell>
-                    <TableCell>{airports[flight.departure]}</TableCell>
-                    <TableCell>{airports[flight.destination]}</TableCell>
-                    <TableCell>
-                      {new Date(flight.departureTime).toLocaleString()}
+                  <TableRow key={flight._id}>
+                    <TableCell className="text-center font-medium">{flight.flight_code}</TableCell>
+                    <TableCell className="text-center">{flight.airplane_code}</TableCell>
+                    <TableCell className="text-center">{flight.economy_seats}</TableCell>
+                    <TableCell className="text-center">{flight.economy_price.toLocaleString()}</TableCell>
+                    <TableCell className="text-center">{airportCodes.find(airport => airport.code === flight.departure_location)?.name}</TableCell>
+                    <TableCell className="text-center">{airportCodes.find(airport => airport.code === flight.destination)?.name}</TableCell>
+                    <TableCell className="text-center">
+                      {new Date(flight.departure_time).toLocaleString()}
                     </TableCell>
-                    <TableCell>
-                      {new Date(flight.arrivalTime).toLocaleString()}
-                    </TableCell>
-                  
-                    <TableCell className="flex gap-2">
-                      <Dialog open={isDelayDialogOpen && selectedFlight?.id === flight.id} 
+                    <TableCell className="text-center">{flight.travel_time}</TableCell>
+                    <TableCell className="text-center flex gap-2 justify-center">
+                      <Dialog open={isDelayDialogOpen && selectedFlight?._id === flight._id} 
                               onOpenChange={(open) => {
                                 setIsDelayDialogOpen(open);
                                 if (!open) setSelectedFlight(null);
@@ -286,6 +349,7 @@ const AdminFlight = () => {
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>Cập nhật thời gian bay</DialogTitle>
+                            <DialogDescription>Điền số phút delay để cập nhật thời gian bay.</DialogDescription>
                           </DialogHeader>
                           <form onSubmit={handleDelayFlight} className="space-y-6">
                             <div className="space-y-2">
@@ -305,13 +369,40 @@ const AdminFlight = () => {
                         </DialogContent>
                       </Dialog>
                       
-                      <Button 
-                        variant="destructive" 
-                        size="icon"
-                        onClick={() => handleRemoveFlight(flight.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <Dialog open={isConfirmDialogOpen && flightToDelete?._id === flight._id} 
+                              onOpenChange={(open) => {
+                                setIsConfirmDialogOpen(open);
+                                if (!open) setFlightToDelete(null);
+                              }}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="destructive" 
+                            size="icon"
+                            onClick={() => setFlightToDelete(flight)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Xác nhận xóa chuyến bay</DialogTitle>
+                            <DialogDescription>Bạn có chắc chắn muốn xóa chuyến bay này không?</DialogDescription>
+                          </DialogHeader>
+                          <p>Bạn có chắc chắn muốn xóa chuyến bay {flight.flight_code} không?</p>
+                          <div className="flex justify-end gap-2 mt-4">
+                            <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>Hủy</Button>
+                            <Button 
+                              variant="destructive" 
+                              onClick={() => {
+                                handleRemoveFlight(flight._id);
+                                setIsConfirmDialogOpen(false);
+                              }}
+                            >
+                              Xóa
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </TableCell>
                   </TableRow>
                 ))}

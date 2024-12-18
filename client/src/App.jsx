@@ -7,7 +7,6 @@ import Home from './components/Home/Home'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
 import Promotion from './components/promotion/promotion'
-import Flightpage from './components/Booking/Flightpage'
 import MyBookingpage from './components/MyBooking/MyBookingpage'
 import UserAccount from './components/user/UserAccount'
 import AdminHome from './components/admin/AdminHome'
@@ -16,6 +15,7 @@ import AdminAirCraft from './components/admin/AdminAirCraft'
 import AdminFlight from './components/admin/AdminFlight'
 import AdminBooking from './components/admin/AdminBooking'
 import BookingDetail from './components/MyBooking/BookingDetail'
+import FlightPage from './components/Booking/FlightPage'
 
 // Guest navigation links
 const guessNavLinks = createBrowserRouter([
@@ -39,14 +39,23 @@ const guessNavLinks = createBrowserRouter([
     path: '/promotion',
     element: <Promotion />
   },
-  {
-    path: '/flight',
-    element: <Flightpage />
-  },
+  // {
+  //   path: '/flight',
+  //   element: <Flightpage />
+  // },
   {
     path: '*',
     element: <Navigate to="/" replace />
+  },
+  {
+    path: '/mybookings',
+    element: <MyBookingpage />
+  },
+  {
+    path: 'flight',
+    element: <FlightPage />
   }
+
 ])
 
 // User navigation routes
@@ -72,8 +81,8 @@ const appRouter = createBrowserRouter([
     element: <Promotion />
   },
   {
-    path: '/flight',
-    element: <Flightpage />
+    path: 'flight',
+    element: <FlightPage />
   },
   {
     path: '/mybookings',
@@ -84,7 +93,7 @@ const appRouter = createBrowserRouter([
     element: <UserAccount />
   },
   {
-    path: '/bookingdetail',
+    path: '/bookingdetail/:id',
     element: <BookingDetail />
   },
   {

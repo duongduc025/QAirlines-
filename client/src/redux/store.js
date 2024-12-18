@@ -14,6 +14,9 @@ import {
 import storage from 'redux-persist/lib/storage'
 import bookingSlice from "./bookingSlice";
 import flightSlice from "./flightSlice";
+import airCraftSlice from "./airCraftSlice";
+import promotionSlice from "./promotionSlice";
+
 
 
 const persistConfig = {
@@ -26,6 +29,8 @@ const rootReducer = combineReducers({
     auth:authSlice,
     booking: bookingSlice,
     flight: flightSlice,
+    aircraft: airCraftSlice,
+    promotion: promotionSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

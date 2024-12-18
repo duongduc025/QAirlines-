@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Home,
   Ticket,
@@ -20,21 +21,21 @@ import { setUser } from '@/redux/authSlice';
 const AdminSideBar = () => {
   const [expanded, setExpanded] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
     localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
     dispatch(setUser(null));
     navigate('/login');
   }
 
-
   const menuItems = [
-    { icon: Home, label: 'Trang chủ', href: '/' },
-    { icon: Ticket, label: 'Ưu đãi', href: '/promotions' },
-    { icon: Plane, label: 'Tàu bay', href: '/aircrafts' },
-    { icon: Calendar, label: 'Chuyến bay', href: '/flights' },
-    { icon: BookOpen, label: 'Đặt vé', href: '/bookings' },
+    { icon: Home, label: 'Trang chủ', to: '/' },
+    { icon: Ticket, label: 'Ưu đãi', to: '/promotions' },
+    { icon: Plane, label: 'Tàu bay', to: '/aircrafts' },
+    { icon: Calendar, label: 'Chuyến bay', to: '/flights' },
+    { icon: BookOpen, label: 'Đặt vé', to: '/bookings' },
   ];
-
 
   return (
     <TooltipProvider>
@@ -70,32 +71,34 @@ const AdminSideBar = () => {
               {menuItems.map((item, index) => (
                 <li key={index}>
                   {expanded ? (
-                    <a
-                      href={item.href}
-                      className={cn(
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) => cn(
                         "flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200",
                         "hover:bg-gray-100 hover:text-blue-600",
-                        "text-gray-700"
+                        "text-gray-700",
+                        isActive && "bg-blue-50 text-blue-600"
                       )}
                     >
                       <item.icon size={20} />
                       <span className="transition-opacity duration-300">
                         {item.label}
                       </span>
-                    </a>
+                    </NavLink>
                   ) : (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <a
-                          href={item.href}
-                          className={cn(
+                        <NavLink
+                          to={item.to}
+                          className={({ isActive }) => cn(
                             "flex items-center justify-center px-3 py-2 rounded-lg",
                             "hover:bg-gray-100 hover:text-blue-600",
-                            "text-gray-700"
+                            "text-gray-700",
+                            isActive && "bg-blue-50 text-blue-600"
                           )}
                         >
                           <item.icon size={20} />
-                        </a>
+                        </NavLink>
                       </TooltipTrigger>
                       <TooltipContent side="right">
                         <p>{item.label}</p>

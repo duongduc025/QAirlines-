@@ -58,7 +58,7 @@ const Signup = () => {
         }
         catch (error) {
             console.log("Lỗi")
-            toast.error(error.response.data.message);
+            toast.error(error.response.data);
         }
         finally {
             dispatch(setLoading(false));
@@ -73,7 +73,7 @@ const Signup = () => {
                 <form onSubmit={submitHandler} className='w-1/2 border border-gray-200 rounded-md p-4 my-10'>
                     <h1 className='font-bold text-xl mb-5'>Sign Up</h1>
                     <div className='my-2'>
-                        <Label>Full Name</Label>
+                        <Label>Họ và tên</Label>
                         <Input
                             type="text"
                             value={input.fullname}
@@ -93,7 +93,7 @@ const Signup = () => {
                         />
                     </div>
                     <div className='my-2'>
-                        <Label>Phone Number</Label>
+                        <Label>Số điện thoại</Label>
                         <Input
                             type="text"
                             value={input.phoneNumber}
@@ -103,13 +103,22 @@ const Signup = () => {
                         />
                     </div>
                     <div className='my-2'>
-                        <Label>Password</Label>
+                        <Label>Mật khẩu</Label>
                         <Input
                             type="password"
                             value={input.password}
                             name="password"
                             onChange={changeEventHandler}
                             placeholder="************"
+                        />
+                    </div>
+                    <div className = 'my-2'>
+                        <Label>Ảnh đại diện</Label>
+                        <Input
+                            accept = "image/*"
+                            type = "file"
+                            onChange={changeEventHandler}
+                            className = "cursor-pointer"
                         />
                     </div>
                     {

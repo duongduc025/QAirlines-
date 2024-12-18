@@ -200,13 +200,11 @@ export const createRoundBooking = async (req, res) => {
     const user_id = req.user._id; // Assuming the user's ID is stored in the token
 
     try {
-        // Find the outbound flight by ID
         const outboundFlight = await Flight.findById(outbound_flight_id);
         if (!outboundFlight) {
             return res.status(404).json({ message: 'Outbound flight not found' });
         }
 
-        // Find the return flight by ID
         const returnFlight = await Flight.findById(return_flight_id);
         if (!returnFlight) {
             return res.status(404).json({ message: 'Return flight not found' });
@@ -286,6 +284,31 @@ export const createRoundBooking = async (req, res) => {
         await user.save();
 
         res.status(201).json({ message: 'Round-trip booking successful', outbound_booking_id: newOutboundBooking._id, return_booking_id: newReturnBooking._id });
+    } catch (error) {
+        console.error('Server error:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+export const updateBookingStatus = async (req, res) => {
+    const { booking_id } = req.params;
+
+    try {
+        const booking = await Booking.findById(booking_id).populate('flight_id');
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        const currentTime = new Date();
+        const departureTime = booking.flight_id.departure_time;
+
+        if (currentTime > departureTime) {
+            booking.booking_status = 'Đã đi';
+            booking.updated_at = new Date();
+            await booking.save();
+        }
+
+        res.status(200).json({ message: 'Booking status updated', booking });
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({ message: 'Server error', error });

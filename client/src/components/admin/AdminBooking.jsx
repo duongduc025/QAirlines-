@@ -64,6 +64,7 @@ const AdminBooking = () => {
 
   // Tính tổng số vé và hành khách cho ngày được chọn
   const ticketsToday = filteredTickets.length;
+  const totalAmountToday = filteredTickets.reduce((sum, ticket) => sum + parseInt(ticket.totalAmount.replace(/,/g, '')), 0);
   const passengersToday = filteredTickets.reduce((sum, ticket) => sum + ticket.passengers, 0);
 
   // Format date để hiển thị
@@ -94,6 +95,42 @@ const AdminBooking = () => {
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
                 <div>
+                  <p className="text-sm font-medium">Tổng vé </p>
+                  <p className="text-2xl font-bold "></p>
+                </div>
+                <Plane className="h-8 w-8" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium">Tổng hành khách </p>
+                  <p className="text-2xl font-bold "></p>
+                </div>
+                <Users className="h-8 w-8" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium">Tổng số tiền </p>
+                  <p className="text-2xl font-bold ">{""}</p>
+                </div>
+                <Users className="h-8 w-8" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center">
+                <div>
                   <p className="text-sm font-medium">Tổng vé ngày {formatDate(selectedDate)}</p>
                   <p className="text-2xl font-bold ">{ticketsToday}</p>
                 </div>
@@ -118,7 +155,7 @@ const AdminBooking = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm font-medium">Tổng số tiền ngày {formatDate(selectedDate)}</p>
-                  <p className="text-2xl font-bold ">{""}</p>
+                  <p className="text-2xl font-bold ">{totalAmountToday.toLocaleString()} VND</p>
                 </div>
                 <Users className="h-8 w-8" />
               </div>

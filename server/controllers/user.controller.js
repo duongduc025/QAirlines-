@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import Booking from '../models/bookings.js';
 import Flight from '../models/flights.js';
+import mongoose from 'mongoose';
 
 const register = async (req, res) => {
     const { email, fullname, phoneNumber, password } = req.body; 
@@ -107,6 +108,15 @@ const updateUser = async (req, res) => {
 
         if (user) {
             console.log("User updated successfully:", user);
+
+            // Update email in related bookings
+            await Booking.updateMany(
+                { user_id: _id },
+                { user_email: newEmail }
+            );
+
+            console.log("User email updated in related bookings");
+
             res.json(user);
         } else {
             console.log("No user found with that _id");
