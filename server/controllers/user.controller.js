@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import Booking from '../models/bookings.js';
 import Flight from '../models/flights.js';
 import mongoose from 'mongoose';
+import DelayNotice from '../models/delayNotices.js';
 
 const register = async (req, res) => {
     const { email, fullname, phoneNumber, password } = req.body; 
@@ -194,7 +195,29 @@ const logout = (req, res) => {
     res.status(200).json("Logout successful");
 };
 
+const getDelayNotices = async (req, res) => {
+    const { userId } = req.params;
 
+    try {
+        const user = await User.findById(userId).populate('delayNotices');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const delayNotices = [];
+        for (const noticeId of user.delayNotices) {
+            const notice = await DelayNotice.findById(noticeId);
+            if (notice) {
+                delayNotices.push(notice);
+            }
+        }
+
+        res.json(delayNotices);
+    } catch (error) {
+        console.error('Error fetching delay notices:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
 
 const listAllUserBookingInPeriod = async (req, res) => {
     const { period = "month" } = req.query;
@@ -264,5 +287,5 @@ const listAllUserBookingInPeriod = async (req, res) => {
 
 //Tạo chart từ những thông số đã có về booking của các user_id
 
-export { register, login, updateUser, changePassword, addUser, logout, loginWithToken, listAllUserBookingInPeriod };
+export { register, login, updateUser, changePassword, addUser, logout, loginWithToken, listAllUserBookingInPeriod, getDelayNotices };
 

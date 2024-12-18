@@ -51,19 +51,13 @@ export const getBookingByUserId = async (req, res) => {
     }
 };
 
-export const getSpecificBookingByUserId = async (req, res) => {
-    const { _id, booking_id } = req.params;
-    console.log(`Fetching specific booking for user ID: ${_id}, booking ID: ${booking_id}`);
+export const getSpecificBookingById = async (req, res) => {
+    const { booking_id } = req.params;
+    console.log(`Fetching specific booking for booking ID: ${booking_id}`);
 
     try {
-        const user = await User.findById(_id);
-        if (!user) {
-            console.log('User not found');
-            return res.status(404).json({ message: 'User not found' });
-        }
-
         const booking = await Booking.aggregate([
-            { $match: { _id: new mongoose.Types.ObjectId(booking_id), user_id: new mongoose.Types.ObjectId(_id) } },
+            { $match: { _id: new mongoose.Types.ObjectId(booking_id) } },
             {
                 $lookup: {
                     from: 'flights',
@@ -85,8 +79,8 @@ export const getSpecificBookingByUserId = async (req, res) => {
         ]);
 
         if (!booking.length) {
-            console.log('Booking not found for this user');
-            return res.status(404).json({ message: 'Booking not found for this user' });
+            console.log('Booking not found');
+            return res.status(404).json({ message: 'Booking not found' });
         }
 
         const passengerDetails = [];
@@ -191,6 +185,7 @@ export const listAllBookings = async (req, res) => {
                     as: 'flight_details'
                 }
             },
+            { $unwind: '$flight_details' },
             {
                 $lookup: {
                     from: 'users',
@@ -199,27 +194,43 @@ export const listAllBookings = async (req, res) => {
                     as: 'user_details'
                 }
             },
-            { $unwind: '$flight_details' },
             { $unwind: '$user_details' },
             {
                 $project: {
                     _id: 1,
+                    user_id: 1,
                     user_email: '$user_details.email',
-                    flight_code: '$flight_details.flight_code',
-                    departure_location: '$flight_details.departure_location',
-                    destination: '$flight_details.destination',
-                    departure_time: '$flight_details.departure_time',
+                    user_fullname: '$user_details.fullname',
+                    flight_id: 1,
                     ticket_quantity: 1,
                     total_price: 1,
-                    booking_status: 1
+                    booking_date: 1,
+                    booking_status: 1,
+                    passenger_ids: 1,
+                    updated_at: 1,
+                    'flight_details.departure_location': 1,
+                    'flight_details.destination': 1,
+                    'flight_details.travel_time': 1,
+                    'flight_details.departure_time': 1
                 }
             }
         ]);
-        console.log('Bookings:', bookings); // Debug log to check the bookings data
-        res.json({ success:true, bookings});
+
+        for (const booking of bookings) {
+            const passengerDetails = [];
+            for (const passengerId of booking.passenger_ids) {
+                const passenger = await Passenger.findById(passengerId);
+                if (passenger) {
+                    passengerDetails.push(passenger);
+                }
+            }
+            booking.passenger_details = passengerDetails;
+        }
+
+        res.json({ success: true, bookings });
     } catch (error) {
         console.error('Server error:', error);
-        res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ success: false, message: 'Server error', error });
     }
 };
 

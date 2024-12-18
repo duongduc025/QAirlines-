@@ -4,6 +4,8 @@ import mongoose from 'mongoose';
 import { authenticateJWT } from '../middlewares/jwtAuth.js';
 import { isAdmin } from '../middlewares/auth.middleware.js';
 import DelayNotice from '../models/delayNotices.js';
+import User from '../models/users.js';
+import Booking from '../models/bookings.js';
 
 // ...existing code...
 
@@ -111,6 +113,17 @@ export const updateDepartureTime = async (req, res) => {
         });
 
         await delayNotice.save();
+
+        // Tìm tất cả các booking có flight_id đầu vào
+        const bookings = await Booking.find({ flight_id: flightId });
+
+        // Cập nhật delayNotices cho tất cả các user có booking_id tương ứng
+        for (const booking of bookings) {
+            await User.updateMany(
+                { booking_id: booking._id },
+                { $push: { delayNotices: delayNotice._id } }
+            );
+        }
 
         res.json(flight);
     } catch (error) {
