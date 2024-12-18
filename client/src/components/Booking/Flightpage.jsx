@@ -1,136 +1,110 @@
-import React, { useState } from 'react';
-import Navbar from '../shared/Navbar';
-import Footer from '../shared/Footer';
-import FlightSearchPage from './FlightSearch';
-import FlightListPage from './FlightListPage';
-import PassengerInfo from './PassengerInfo';
-import { Select } from 'antd';
-import { toast } from 'sonner'
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { setLoading } from '@/redux/authSlice';
+import React from 'react'
+import { useState } from 'react'
+import Navbar from '../shared/Navbar'
+import FlightBooking from './FlightBooking'
+import Footer from '../shared/Footer'
 
-import { BOOKING_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '../../utils/constraint';
+import PassengerInfo from './PassengerInfo'
+import FlightConfirmation from './FlightConfirmation'
 
-const FlightPage = () => {
-  const [currentStep, setCurrentStep] = useState('search');
-  const [selectedFlight, setSelectedFlight] = useState(null);
-  const [returnFlight, setReturnFlight] = useState(null);
+
+
+
+
+const Flightpage = () => {
+
+  const [currentStep, setCurrentStep] = useState('select');
+
+  const handleConfirm = () => {
+    setCurrentStep('passenger');
+  };
+  const handlePassengerSubmit = () => {
+    //alert
+    alert('Booking successful');
+  }
+
+  const [selectedFlight, setSelectedFlight] = useState({
+    type: 'oneway',
+    departure: null,
+    return: null
+  });
+
   const [numberOfPassenger, setNumberOfPassenger] = useState(1);
-  const [isRoundTrip, setIsRoundTrip] = useState(true);
 
-  const [departureFlights, setDepartureFlights] = useState(null);
-  const [returnFlights, setReturnFlights] = useState(null);
-
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { loading } = useSelector(store => store.booking);
-
-  const handleSearchSubmit = (passengers, roundTrip, departureFlights, returnFlights) => {
-    setNumberOfPassenger(passengers);
-    setIsRoundTrip(roundTrip);
-    setDepartureFlights(departureFlights);
-    setReturnFlights(returnFlights);
-    setCurrentStep('list');
-  };
-
+  
   const handleSelectFlight = (flight) => {
-   
-    if (!isRoundTrip) {
-      setSelectedFlight(flight);
-      console.log('selected flight', selectedFlight);
-      setCurrentStep('passenger');
-    }
-    else if (isRoundTrip && !selectedFlight) {
-      setSelectedFlight(flight);
-      setCurrentStep('return');
-    } else {
-      setReturnFlight(flight);
-      setCurrentStep('passenger');
-    }
-    
+    setSelectedFlight((prev) => ({
+      ...prev,
+      departure: flight, 
+    }));
   };
 
-  const handlePassengerSubmit = async (formData) => {
-    dispatch(setLoading(true));
-    console.log('formData', formData);
-    try {
-      const endpoint = isRoundTrip ? `${BOOKING_API_END_POINT}/round-bookings` : `${BOOKING_API_END_POINT}/bookings`;
-      const response = await axios.post(endpoint, formData, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
-        },
-      });
-      if (response.status === 201) {
-        toast.success("Đặt vé thành công");
-        window.scrollTo(0, 0);
-        navigate('/');
-      } else {
-        toast.error("Vui lòng thử lại");
-      }
-    } catch (error) {
-      console.error('Error submitting passenger info:', error);
-      toast.error("Vui lòng thử lại");
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+  const handleSetNumberOfPassenger = (number) => {
+    setNumberOfPassenger(number);
+  }
 
-  const handleBack = () => {
-    console.log('selected flight', selectedFlight);
-    console.log('return flight', returnFlight);
-    if (currentStep === 'list') {
-      setCurrentStep('search');
-    } else if (currentStep === 'return') {
-      setSelectedFlight(null);
-      setCurrentStep('list');
-    } else if (currentStep === 'passenger') {
-      if (isRoundTrip) {
-        setReturnFlight(null);
-        setCurrentStep('return');
-      } else {
-        setSelectedFlight(null);
-        setCurrentStep('list');
-      }
-    }
-  };
+  const sampleFlights = [
+    {
+      id: 1,
+      airline: "Vietnam Airlines",
+      departure: "HAN",
+      arrival: "SGN", 
+      departureDate: "20/11/2024",
+      departureTime: "07:00",
+      arrivalTime: "09:10",
+      price: 1590000,
+    },
+    {
+      id: 2,
+      airline: "Bamboo Airways",
+      departure: "HAN",
+      arrival: "SGN",
+      date: "20/11/2024", 
+      departureTime: "08:30",
+      arrivalTime: "10:40",
+      price: 1490000,
+    },
+    {
+      id: 3,
+      airline: "VietJet Air",
+      departure: "HAN", 
+      arrival: "SGN",
+      date: "20/11/2024",
+      departureTime: "10:15",
+      arrivalTime: "12:25",
+      price: 1290000,
+    },
+  ];
 
   return (
     <>
-      <Navbar />
-      {currentStep === 'search' && (
-        <FlightSearchPage onSubmit={handleSearchSubmit} />
-      )}
-      {currentStep === 'list' && (
-        <FlightListPage 
-          onSelectFlight={handleSelectFlight} 
-          onBack={handleBack} 
-          numberOfPassenger={numberOfPassenger} 
-          flights={departureFlights} 
+        <Navbar/>      
+      {currentStep === 'select' && (
+       <div>
+       <FlightBooking
+         flights={sampleFlights}
+         onSelectFlight={handleSelectFlight} 
+         onSetNumberOfPassenger={handleSetNumberOfPassenger}
+      />      
+        <FlightConfirmation 
+         selectedFlight={selectedFlight.departure}
+         flightType={selectedFlight.type}
+        numberOfPassenger = {numberOfPassenger}
+        onConfirm={handleConfirm}
         />
-      )}
-      {currentStep === 'return' && (
-        <FlightListPage 
-          onSelectFlight={handleSelectFlight} 
-          onBack={handleBack} 
-          isReturn 
-          numberOfPassenger={numberOfPassenger} 
-          flights={returnFlights} 
-        />
+    </div>
       )}
       {currentStep === 'passenger' && (
-        <PassengerInfo
-          onSubmit={handlePassengerSubmit}
-          selectedFlight={selectedFlight}
-          returnFlight={returnFlight}
-          numberOfPassenger={numberOfPassenger}
-          onBack={handleBack}
-        />
+         <PassengerInfo
+         selectedFlight={selectedFlight.departure}
+         numberOfPassenger = {numberOfPassenger}
+         onSubmit={handlePassengerSubmit}
+         onBack={() => setCurrentStep('select')}
+       />
       )}
-      <Footer />
+        <Footer/>
     </>
-  );
-};
+  )
+}
 
-export default FlightPage;
+export default Flightpage

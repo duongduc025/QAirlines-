@@ -47,12 +47,10 @@ const Login = () => {
                 navigate("/");
                 toast.success("Đăng nhập thành công");
             } else {
-                toast.error(res.data);
-                console.log("Mật khẩu hoặc email không đúng");
+                toast.error("Mật khẩu hoặc email không đúng");
             }
         } catch (error) {
-            console.log("Lỗi")
-            toast.error("Có lỗi xảy ra trong quá trình đăng nhập");
+            toast.error("Mật khẩu hoặc email không đúng");
         } finally {
             dispatch(setLoading(false));
         }
@@ -65,7 +63,7 @@ const Login = () => {
             <div className="min-h-screen bg-gray-50 py-12">
             <div className='flex items-center justify-center max-w-7xl mx-auto'>
                 <form onSubmit={submitHandler} className='w-1/2 border border-gray-200 rounded-md p-4 my-10'>
-                    <h1 className='font-bold text-xl mb-5'>Login</h1>
+                    <h1 className='font-bold text-xl mb-5'>Đăng nhập</h1>
                     <div className='my-2'>
                         <Label>Email</Label>
                         <Input
@@ -73,18 +71,18 @@ const Login = () => {
                             value={input.email}
                             name="email"
                             onChange={changeEventHandler}
-                            placeholder="patel@gmail.com"
+                            placeholder="Nhập email của bạn"
                         />
                     </div>
 
                     <div className='my-2'>
-                        <Label>Password</Label>
+                        <Label>Mật khẩu</Label>
                         <Input
                             type="password"
                             value={input.password}
                             name="password"
                             onChange={changeEventHandler}
-                            placeholder="********"
+                            placeholder="Nhập mật khẩu của bạn"
                         />
                     </div>
                     {

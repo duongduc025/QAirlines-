@@ -8,6 +8,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint'
 import { useSelector, useDispatch } from 'react-redux'
+import { setAllBooking } from '@/redux/bookingSlice'
 import { setUser } from '@/redux/authSlice'
 import { Badge } from '../ui/badge'
 
@@ -68,6 +69,7 @@ const Navbar = () => {
     const handleLogout = async () => {
         localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
         dispatch(setUser(null));
+        dispatch(setAllBooking([]));
         navigate('/login');
     }
 
@@ -89,7 +91,7 @@ const Navbar = () => {
                 </div>
 
                 {/* Desktop Navigation */}
-                <div className='hidden md:flex items-center gap-12'>
+                <div className='hidden xl:flex items-center gap-12'>
                     <ul className='flex font-medium items-center gap-5'>
                         {navLinks.map((link, index) => (
                             <React.Fragment key={index}>
@@ -205,7 +207,7 @@ const Navbar = () => {
                 </div>
 
                 {/* Mobile Menu Toggle */}
-                <div className='md:hidden'>
+                <div className='xl:hidden'>
                     <Button 
                         variant="ghost" 
                         size="icon" 
@@ -218,7 +220,7 @@ const Navbar = () => {
 
             {/* Mobile Menu Overlay */}
             {isMobileMenuOpen && (
-                <div className='fixed inset-0 bg-white z-50 md:hidden'>
+                <div className='fixed inset-0 bg-white z-50 xl:hidden'>
                     <div className='container mx-auto px-4 pt-16'>
                         {/* Mobile Navigation Links */}
                         <ul className='space-y-4'>

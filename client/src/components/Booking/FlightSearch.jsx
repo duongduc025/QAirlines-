@@ -38,6 +38,7 @@ const FlightSearchPage = ({ onSubmit }) => {
     }
   };
 
+  // Cập nhật handleInputChange để xử lý format date
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -54,6 +55,11 @@ const FlightSearchPage = ({ onSubmit }) => {
     );
   };
 
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isValidDeparture = airportCodes.some(airport => airport.code === formData.departure_location);
@@ -62,6 +68,37 @@ const FlightSearchPage = ({ onSubmit }) => {
     if (!isValidDeparture || !isValidDestination) {
       toast.error('Vui lòng chọn điểm khởi hành và điểm đến hợp lệ');
       return;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const departureDate = new Date(formData.departure_date);
+    
+    if (!formData.departure_date) {
+      toast.error('Vui lòng chọn ngày khởi hành');
+      return;
+    }
+
+    if (departureDate < today) {
+      toast.error('Ngày khởi hành không được trong quá khứ');
+      return;
+    }
+
+    if (isRoundTrip) {
+      if (!formData.return_date) {
+        toast.error('Vui lòng chọn ngày về');
+        return;
+      }
+
+      const returnDate = new Date(formData.return_date);
+      if (returnDate < today) {
+        toast.error('Ngày về không được trong quá khứ');
+        return;
+      }
+      if (returnDate < departureDate) {
+        toast.error('Ngày về phải sau ngày khởi hành');
+        return;
+      }
     }
   
     try {
@@ -222,13 +259,14 @@ const FlightSearchPage = ({ onSubmit }) => {
               {/* Departure Date */}
               <div>
                 <label className="block text-[#008080] font-semibold mb-3">
-                  Ngày đi
+                  Ngày khởi hành
                 </label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500" />
                   <input
                     type="date"
                     name="departure_date"
+                    min={getTodayDate()}
                     value={formData.departure_date}
                     onChange={handleInputChange}
                     className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] transition"
@@ -247,6 +285,7 @@ const FlightSearchPage = ({ onSubmit }) => {
                     <input
                       type="date"
                       name="return_date"
+                      min={formData.departure_date || getTodayDate()}
                       value={formData.return_date}
                       onChange={handleInputChange}
                       className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] transition"
