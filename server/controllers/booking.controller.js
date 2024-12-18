@@ -15,7 +15,34 @@ export const getBookingByUserId = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
       
-        const bookings = await Booking.find({ user_id: _id });
+        const bookings = await Booking.aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(_id) } },
+            {
+                $lookup: {
+                    from: 'flights',
+                    localField: 'flight_id',
+                    foreignField: '_id',
+                    as: 'flight_details'
+                }
+            },
+            { $unwind: '$flight_details' },
+            {
+                $project: {
+                    user_id: 1,
+                    flight_id: 1,
+                    ticket_quantity: 1,
+                    total_price: 1,
+                    booking_date: 1,
+                    booking_status: 1,
+                    passenger_ids: 1,
+                    updated_at: 1,
+                    'flight_details.departure_location': 1,
+                    'flight_details.destination': 1,
+                    'flight_details.travel_time': 1,
+                    'flight_details.departure_time': 1
+                }
+            }
+        ]);
 
         res.json({ success: true, bookings });
     } catch (error) {
