@@ -74,6 +74,23 @@ export const getSpecificBookingByUserId = async (req, res) => {
             },
             { $unwind: '$flight_details' },
             {
+                $lookup: {
+                    from: 'airplanes',
+                    localField: 'flight_details.airplane_code',
+                    foreignField: 'airplane_code',
+                    as: 'airplane_details'
+                }
+            },
+            { $unwind: '$airplane_details' },
+            {
+                $lookup: {
+                    from: 'passengers',
+                    localField: 'passenger_ids',
+                    foreignField: '_id',
+                    as: 'passenger_details'
+                }
+            },
+            {
                 $project: {
                     user_id: 1,
                     flight_id: 1,
@@ -83,10 +100,9 @@ export const getSpecificBookingByUserId = async (req, res) => {
                     booking_status: 1,
                     passenger_ids: 1,
                     updated_at: 1,
-                    'flight_details.departure_location': 1,
-                    'flight_details.destination': 1,
-                    'flight_details.travel_time': 1,
-                    'flight_details.departure_time': 1
+                    flight_details: 1,
+                    airplane_details: 1,
+                    passenger_details: 1
                 }
             }
         ]);
