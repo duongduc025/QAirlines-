@@ -81,36 +81,23 @@ export const getSpecificBookingByUserId = async (req, res) => {
                     as: 'airplane_details'
                 }
             },
-            { $unwind: '$airplane_details' },
-            {
-                $lookup: {
-                    from: 'passengers',
-                    localField: 'passenger_ids',
-                    foreignField: '_id',
-                    as: 'passenger_details'
-                }
-            },
-            {
-                $project: {
-                    user_id: 1,
-                    flight_id: 1,
-                    ticket_quantity: 1,
-                    total_price: 1,
-                    booking_date: 1,
-                    booking_status: 1,
-                    passenger_ids: 1,
-                    updated_at: 1,
-                    flight_details: 1,
-                    airplane_details: 1,
-                    passenger_details: 1
-                }
-            }
+            { $unwind: '$airplane_details' }
         ]);
 
         if (!booking.length) {
             console.log('Booking not found for this user');
             return res.status(404).json({ message: 'Booking not found for this user' });
         }
+
+        const passengerDetails = [];
+        for (const passengerId of booking[0].passenger_ids) {
+            const passenger = await Passenger.findById(passengerId);
+            if (passenger) {
+                passengerDetails.push(passenger);
+            }
+        }
+
+        booking[0].passenger_details = passengerDetails;
 
         res.json({ success: true, booking: booking[0] });
     } catch (error) {
@@ -149,7 +136,7 @@ export const createBooking = async (req, res) => {
                 gender,
                 date_of_birth: new Date(dob),
                 id_number: identity_number,
-                flight_id
+                flight_id: new mongoose.Types.ObjectId(flight_id)
             });
             await newPassenger.save();
             passenger_ids.push(newPassenger._id);
@@ -165,7 +152,7 @@ export const createBooking = async (req, res) => {
         const newBooking = new Booking({
             user_id: user._id,
             user_email: user.email,
-            flight_id,
+            flight_id: new mongoose.Types.ObjectId(flight_id),
             ticket_quantity,
             ticket_price,
             total_price,
