@@ -56,7 +56,7 @@ const generateFlights = async () => {
       const price = generateRandomFloat(1000000, 5000000);
       const airplaneCode = `AP${randomInt(1, 100)}`;
       const economySeats = randomInt(100, 300);
-      const travelTime = randomInt(1, 10) * 60; // in minutes
+      const travelTime = randomInt(1, 10); // in hours
 
       flights.push({
         flight_code: `FL${date.getTime()}${i + 1}`,
@@ -89,7 +89,7 @@ const generateFlights = async () => {
   console.log('Sample flights data inserted');
 };
 
-mongoose.connect('mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/test', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/FlightTicketSelling', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(async () => {
     console.log('Connected to MongoDB');
     await generateAirplanes();

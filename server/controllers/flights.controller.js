@@ -33,7 +33,7 @@ export const showAllFlights = async (req, res) => {
                     departure_location: 1,
                     destination: 1,
                     departure_time: 1,
-                    travel_time: { $divide: [{ $abs: { $subtract: ['$departure_time', '$departure_time'] } }, 3600000] }, 
+                    travel_time: 1, 
                     economy_seats: 1,
                     economy_price: 1,
                     airplane_code: 1,
