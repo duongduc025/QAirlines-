@@ -86,7 +86,7 @@ export const addNewFlight = [
 
 export const updateDepartureTime = async (req, res) => {
     const { flightId } = req.params;
-    const { newDepartureTime } = req.body;
+        const { newDepartureTime } = req.body;
 
     if (!newDepartureTime) {
         return res.status(400).json({ message: "New departure time is required" });

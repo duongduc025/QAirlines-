@@ -206,9 +206,12 @@ const getDelayNotices = async (req, res) => {
 
         const delayNotices = [];
         for (const noticeId of user.delayNotices) {
-            const notice = await DelayNotice.findById(noticeId);
+            const notice = await DelayNotice.findById(noticeId).populate('flightId');
             if (notice) {
-                delayNotices.push(notice);
+                delayNotices.push({
+                    ...notice.toObject(),
+                    flightDetails: notice.flightId
+                });
             }
         }
 
