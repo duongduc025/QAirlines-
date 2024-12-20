@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { setAllBooking } from '@/redux/bookingSlice'
 import { setUser } from '@/redux/authSlice'
 import { Badge } from '../ui/badge'
+import { toast } from 'sonner'
 
 const guessNavLinks = [
     {
@@ -68,8 +69,9 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
-        dispatch(setUser(null));
+        dispatch(setUser(null));    
         dispatch(setAllBooking([]));
+        toast.success('Đăng xuất thành công');
         navigate('/login');
     }
 
