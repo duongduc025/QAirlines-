@@ -13,19 +13,21 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
-// const MONGO_URI = "mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/";
-console.log('MONGO_URI:', process.env.MONGO_URI); // Debug log to check MONGO_URI
+console.log('MONGO_URI:', process.env.MONGO_URI);
+
+// Kết nối đến MongoDB
 mongoose.connect(process.env.MONGO_URI, {
     ssl: true
 })
 .then(() => {
     console.log("Connected to MongoDB");
-    console.log('Connected to database:', mongoose.connection.db.databaseName); // Use databaseName instead of name
+    console.log('Connected to database:', mongoose.connection.db.databaseName); 
 })
 .catch(err => {
     console.error("Failed to connect to MongoDB", err);
 });
 
+// Định nghĩa các route
 app.use('/api/users', userRoutes);
 app.use('/api/flights', flightRoutes);
 app.use('/api/bookings', bookingRoutes);
@@ -37,4 +39,3 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-    

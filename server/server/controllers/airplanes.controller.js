@@ -1,5 +1,6 @@
 import Airplane from '../models/airplanes.js';
 
+// Hàm thêm máy bay mới
 export const addPlane = async (req, res) => {
     try {
         const { airplane_code, model, capacity, manufacture_date} = req.body;
@@ -20,6 +21,7 @@ export const addPlane = async (req, res) => {
     }
 };
 
+// Hàm xóa máy bay theo ID
 export const deletePlane = async (req, res) => {
     try {
         const { id } = req.params;
@@ -30,6 +32,7 @@ export const deletePlane = async (req, res) => {
     }
 };
 
+// Hàm hiển thị tất cả các máy bay
 export const showAllAirplanes = async (req, res) => {
     try {
         const airplanes = await Airplane.find();

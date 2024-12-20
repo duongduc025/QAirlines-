@@ -28,16 +28,15 @@ const Signup = () => {
  
     const dispatch = useDispatch();
 
-
+    // Hàm xử lý khi thay đổi thông tin input
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     }
-    const changeFileHandler = (e) => {
-        setInput({ ...input, file: e.target.files?.[0] });
-    }
+  
+    // Hàm xử lý khi submit form đăng ký
     const submitHandler = async (e) => {
         e.preventDefault();
-        if (!input.fullname || !input.email || !input.phoneNumber || !input.password) {
+        if (!input.email || !input.fullname || !input.phoneNumber || !input.password) {
             toast.error("Vui lòng điền đầy đủ các thông tin");
             return;
         }
@@ -123,15 +122,7 @@ const Signup = () => {
                                 />
                             </div>
 
-                            <div>
-                                <Label className="text-gray-700">Ảnh đại diện</Label>
-                                <Input
-                                    accept="image/*"
-                                    type="file"
-                                    onChange={changeFileHandler}
-                                    className="mt-1 cursor-pointer focus:ring-2 focus:ring-[#008080]"
-                                />
-                            </div>
+                           
                         </div>
 
                         {loading ? (

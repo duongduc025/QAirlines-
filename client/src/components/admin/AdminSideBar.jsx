@@ -19,11 +19,13 @@ import { useDispatch } from 'react-redux';
 import { setUser } from '@/redux/authSlice';
 import { toast } from 'sonner'
 
+// Trạng thái mở rộng của sidebar
 const AdminSideBar = () => {
   const [expanded, setExpanded] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Hàm xử lý đăng xuất
   const handleLogout = async () => {
     localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
     dispatch(setUser(null));
@@ -31,6 +33,7 @@ const AdminSideBar = () => {
     navigate('/login');
   }
 
+  // Danh sách các mục menu
   const menuItems = [
     { icon: Home, label: 'Trang chủ', to: '/' },
     { icon: Ticket, label: 'Ưu đãi', to: '/promotions' },

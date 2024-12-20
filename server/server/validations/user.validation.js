@@ -22,11 +22,11 @@ const validateChangePassword = [
 ];
 
 const validate = (req, res, next) => {
-    const errors = validationResult(req); // Gather validation errors from the request
+    const errors = validationResult(req); 
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() }); // Respond with errors if any
+        return res.status(400).json({ errors: errors.array() }); 
     }
-    next(); // Proceed to the next middleware if no errors
+    next(); 
 };
 
 export { validateUser, validateUpdateUser, validateChangePassword, validate };

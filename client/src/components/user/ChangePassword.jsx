@@ -4,6 +4,7 @@ import axios from 'axios';
 import { LOCAL_STORAGE_TOKEN_NAME, USER_API_END_POINT } from '@/utils/constraint';
 import { useSelector } from 'react-redux';
 import { set } from 'date-fns';
+import { toast } from 'sonner';
 
 
 const ChangePassword = () => {
@@ -16,18 +17,20 @@ const ChangePassword = () => {
 
   const { currentPassword, newPassword, confirmPassword } = formData;
 
+  // Update formData when user changes input
   const handleInputChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Handle form submission
   const submitHandler = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      message.error("Mật khẩu không khớp");
+      toast.error("Mật khẩu xác nhận không khớp");
       return;
     }
     if(newPassword.length < 6){
-      message.error("Mật khẩu phải có ít nhất 6 ký tự");
+      toast.error("Mật khẩu phải có ít nhất 6 ký tự");
       return;
     }
     try {
@@ -40,8 +43,7 @@ const ChangePassword = () => {
       });
       console.log(res.data);
       if (res.data) {
-        message.success("Đổi mật khẩu thành công");
-     
+        toast.success("Cập nhật mật khẩu thành công");
       setFormData({ 
         currentPassword: '',
         newPassword: '',
@@ -60,7 +62,7 @@ const ChangePassword = () => {
         <div className="mb-5 pt-10">
           <input 
             type="password"
-            placeholder="Current Password"
+            placeholder="Mật khẩu hiện tại"
             name="currentPassword"
             value={currentPassword}
             onChange={handleInputChange} 
@@ -72,7 +74,7 @@ const ChangePassword = () => {
         <div className="mb-5">
           <input 
             type="password"
-            placeholder="New Password"
+            placeholder="Mật khẩu mới"
             name="newPassword"
             value={newPassword}
             onChange={handleInputChange}  
@@ -84,7 +86,7 @@ const ChangePassword = () => {
         <div className="mb-5">
           <input 
             type="password"
-            placeholder="Confirm Password"
+            placeholder="Xác nhận mật khẩu"
             name="confirmPassword"
             value={confirmPassword}
             onChange={handleInputChange}  
@@ -97,7 +99,7 @@ const ChangePassword = () => {
           <button
             type="submit"
             className="w-full bg-[#DAA520] text-white text-[18px] leading-[30px] rounded-lg px-4 py-3">
-            Update
+            Cập nhật
           </button>
         </div>
       </form>

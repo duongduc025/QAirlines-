@@ -33,9 +33,11 @@ import Airplane from '../../assets/image/airplane.png';
 
 
 const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
+  // Nếu không có promotion, không hiển thị modal
   if (!promotion) return null;
   
   return (
+    // Hiển thị modal chi tiết khuyến mãi
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-xl md:max-w-2xl">
         <div className="relative mt-4">
@@ -93,6 +95,7 @@ const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
 };
 
 const PromotionCard = ({ promotion, onShowDetails }) => (
+  // Hiển thị thẻ khuyến mãi
   <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-[#008080]/10">
     <div className="relative w-full h-0 pb-[56.25%]"> 
       <img
@@ -127,6 +130,7 @@ const PromotionCard = ({ promotion, onShowDetails }) => (
 );
 
 const QairlinePromotions = () => {
+  // Lấy danh sách tất cả khuyến mãi từ store
   const { allPromotions } = useSelector((store)=> store.promotion);
   const [promotions, setPromotions] = useState(allPromotions);
   const navigate = useNavigate();
@@ -144,6 +148,7 @@ const QairlinePromotions = () => {
     { id: 'Giới thiệu', name: 'Giới thiệu', icon: User },
   ];
 
+  // Lọc khuyến mãi theo danh mục
   const filteredPromotions = selectedCategory === 'all' 
     ? promotions 
     : promotions.filter(promo => promo.category === selectedCategory);
@@ -152,12 +157,14 @@ const QairlinePromotions = () => {
   const startIndex = currentPage * itemsPerPage;
   const displayedPromotions = filteredPromotions.slice(startIndex, startIndex + itemsPerPage);
 
+  // Chuyển sang trang tiếp theo
   const nextPage = () => {
     if (currentPage < totalPages - 1) {
       setCurrentPage(prev => prev + 1);
     }
   };
 
+  // Quay lại trang trước
   const prevPage = () => {
     if (currentPage > 0) {
       setCurrentPage(prev => prev - 1);
@@ -172,6 +179,7 @@ const QairlinePromotions = () => {
     setPromotions([...allPromotions]);
   }, [allPromotions]);
 
+  // Xử lý khi nhấn nút "Đặt ngay"
   const handleBookNow = () => {
     navigate('/flight');
   };

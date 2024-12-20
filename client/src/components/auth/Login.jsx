@@ -27,10 +27,12 @@ const Login = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
+    // Hàm xử lý khi thay đổi thông tin input
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     }
 
+    // Hàm xử lý khi submit form đăng nhập
     const submitHandler = async (e) => {
         e.preventDefault();
         try {

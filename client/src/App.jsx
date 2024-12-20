@@ -3,6 +3,10 @@ import { createBrowserRouter, RouterProvider, Navigate, Outlet, useNavigate } fr
 import { useSelector, useDispatch } from 'react-redux'
 import useGetAllPromotion from './hook/useGetAllPromotion'
 import useGetAllBooking from './hook/useGetAllBooking'
+import useGetAllBookingsAdmin from './hook/useGetAllBookingsAdmin'
+import useGetAllAirCraft from './hook/useGetAllAirCraft'
+import useGetAllFlight from './hook/useGetAllFlight'
+
 import { setUser } from './redux/authSlice'
 import { setAllBooking } from './redux/bookingSlice'
 import { toast } from 'react-toastify'
@@ -155,7 +159,8 @@ function App() {
   const dispatch = useDispatch();
   const { user } = useSelector(store => store.auth);
   useGetAllPromotion();
-  useGetAllBooking();
+  
+
 
   const handleLogout = async () => {
     localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);

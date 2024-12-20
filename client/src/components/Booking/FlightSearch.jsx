@@ -23,6 +23,7 @@ const FlightSearchPage = ({ onSubmit }) => {
   const [originSuggestions, setOriginSuggestions] = useState([]);
   const [destSuggestions, setDestSuggestions] = useState([]);
 
+  // Hàm xử lý tìm kiếm sân bay
   const handleSearch = (input, type) => {
     if (!input) return type === 'origin' ? setOriginSuggestions([]) : setDestSuggestions([]);
     
@@ -38,7 +39,7 @@ const FlightSearchPage = ({ onSubmit }) => {
     }
   };
 
-  // Cập nhật handleInputChange để xử lý format date
+  // Hàm xử lý khi thay đổi thông tin input
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -47,19 +48,18 @@ const FlightSearchPage = ({ onSubmit }) => {
     }));
   };
 
+  // Hàm cập nhật số lượng hành khách
   const updatePassengers = (action) => {
-    setPassengers(prev => 
-      action === 'add' 
-        ? prev + 1 
-        : Math.max(1, prev - 1)
-    );
+    setPassengers(prev => action === 'add' ? prev + 1 : Math.max(1, prev - 1));
   };
 
+  // Hàm lấy ngày hiện tại
   const getTodayDate = () => {
     const today = new Date();
     return today.toISOString().split('T')[0];
   };
 
+  // Hàm xử lý khi submit form tìm kiếm chuyến bay
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isValidDeparture = airportCodes.some(airport => airport.code === formData.departure_location);

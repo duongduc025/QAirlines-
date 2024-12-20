@@ -5,12 +5,13 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { PlusCircle, Trash2, Search } from "lucide-react";
+import { PlusCircle, Trash2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import AdminSideBar from './AdminSideBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAllAirCraft } from '@/redux/airCraftSlice';
 import { AIRCRAFT_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
 import { toast } from 'sonner';
+import useGetAllAirCraft from '@/hook/useGetAllAirCraft';
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -28,11 +29,31 @@ const AdminAircraft = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [aircraftToDelete, setAircraftToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 30;
 
   const filteredAircrafts = aircrafts.filter(aircraft => 
     aircraft.airplane_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredAircrafts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentAircrafts = filteredAircrafts.slice(startIndex, endIndex);
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Hàm xử lý xóa tàu bay
   const handleRemoveAircraft = async (_id) => {
     try {
       const response = await fetch(`${AIRCRAFT_API_END_POINT}/delete/${_id}`, {
@@ -55,6 +76,7 @@ const AdminAircraft = () => {
     }
   };
 
+  // Hàm xử lý thêm tàu bay
   const handleAddAircraft = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -89,6 +111,8 @@ const AdminAircraft = () => {
   
     setIsDialogOpen(false);
   };
+
+  
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -182,7 +206,7 @@ const AdminAircraft = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAircrafts.map((aircraft) => (
+                {currentAircrafts.map((aircraft) => (
                   <TableRow key={aircraft._id}>
                     <TableCell className="font-medium">{aircraft.airplane_code}</TableCell>
                     <TableCell>{formatDate(aircraft.manufacture_date)}</TableCell>
@@ -228,6 +252,33 @@ const AdminAircraft = () => {
                 ))}
               </TableBody>
             </Table>
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between py-4">
+              <div className="text-sm text-gray-500">
+                Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredAircrafts.length)} trong số {filteredAircrafts.length} tàu bay
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="text-sm">
+                  Trang {currentPage} / {totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

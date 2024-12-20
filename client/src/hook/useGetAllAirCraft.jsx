@@ -22,7 +22,7 @@ const useGetAllAirCraft = () => {
                 
                 if(res.data){
                     dispatch(setAllAirCraft(res.data));
-                    console.log(res.data);
+                    console.log("Aircraft: Success");
                 }
                 
             } catch (error) {

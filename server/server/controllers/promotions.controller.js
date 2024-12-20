@@ -10,6 +10,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// Hàm tạo khuyến mãi mới
 export const createPromotion = async (req, res) => {
     const { title, category, brief, mark, content } = req.body;
     console.log(req.body);
@@ -43,6 +44,7 @@ export const createPromotion = async (req, res) => {
     }
 };
 
+// Hàm lấy hình ảnh khuyến mãi theo ID
 export const getImageByPromotionId = async (req, res) => {
     const { id } = req.params;
 
@@ -58,6 +60,7 @@ export const getImageByPromotionId = async (req, res) => {
     }
 };
 
+// Hàm xóa khuyến mãi theo ID
 export const deletePromotionById = async (req, res) => {
     const { id } = req.params;
 
@@ -73,6 +76,7 @@ export const deletePromotionById = async (req, res) => {
     }
 };
 
+// Hàm hiển thị tất cả các khuyến mãi
 export const showAllPromotions = async (req, res) => {
     try {
         const promotions = await Promotion.find();

@@ -18,6 +18,7 @@ const BookingDetail = () => {
   const navigate = useNavigate();
   console.log("bookingID:", bookingID);
   useEffect(() => {
+      // Hàm lấy thông tin chi tiết của một vé đặt
       const fetchSingleBooking = async () => {
         try {
           const response = await axios.get(`${BOOKING_API_END_POINT}/${bookingID}`, {
@@ -40,6 +41,7 @@ const BookingDetail = () => {
   const bookingDetail = singleBooking;
   console.log("singleBooking:", bookingDetail);
 
+  // Hàm định dạng ngày tháng
   const formatDate = (dateString, formatString) => {
     const date = new Date(dateString);
     if (isNaN(date)) {
@@ -48,6 +50,7 @@ const BookingDetail = () => {
     return date.toLocaleDateString('en-GB', { timeZone: 'UTC' }) + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   };
 
+  // Hàm lấy tên sân bay từ mã sân bay
   const getAirportName = (code) => {
     const airport = airportCodes.find(airport => airport.code === code);
     return airport ? airport.name : code;

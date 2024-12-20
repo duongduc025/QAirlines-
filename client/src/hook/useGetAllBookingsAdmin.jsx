@@ -24,7 +24,6 @@ const useGetAllBookingsAdmin = () => {
                 if(res.data.success){
                     dispatch(setAllBooking(res.data.bookings));
                     console.log("BookingAdmin: Success");
-                    console.log(res.data.bookings);
                 }
                 
             } catch (error) {

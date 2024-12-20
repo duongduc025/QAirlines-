@@ -15,6 +15,7 @@ import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
 import { toast } from 'sonner';
 import airportCodes from '@/utils/airport_code';
 import axios from 'axios';
+import useGetAllFlight from '@/hook/useGetAllFlight';
 
 const AdminFlight = () => {
   const dispatch = useDispatch();
@@ -74,6 +75,7 @@ const AdminFlight = () => {
     }
   };
 
+  // Hàm xử lý xóa chuyến bay
   const handleRemoveFlight = async (_id) => {
     try {
       const response = await fetch(`${FLIGHT_API_END_POINT}/deleteFlight/${_id}`, {
@@ -95,6 +97,7 @@ const AdminFlight = () => {
     }
   };
 
+  // Hàm xử lý thêm chuyến bay
   const handleAddFlight = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -144,6 +147,7 @@ const AdminFlight = () => {
     setIsDialogOpen(false);
   };
 
+  // Hàm xử lý delay chuyến bay
   const handleDelayFlight = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -180,6 +184,7 @@ const AdminFlight = () => {
     setIsDelayDialogOpen(false);
   };
 
+  // Hàm xử lý tìm kiếm sân bay
   const handleSearch = (input, type) => {
     if (!input) return type === 'origin' ? setOriginSuggestions([]) : setDestSuggestions([]);
     
@@ -194,6 +199,7 @@ const AdminFlight = () => {
       setDestSuggestions(filtered);
     }
   };
+  
 
   return (
     <div className="flex min-h-screen bg-gray-100">

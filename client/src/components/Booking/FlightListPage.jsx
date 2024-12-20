@@ -9,7 +9,9 @@ import {
   Check, 
   X, 
   ArrowLeft,
-  Timer 
+  Timer,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 const FlightConfirmation = ({ selectedFlight, onConfirm, numberOfPassenger }) => {
   if (!selectedFlight) return null;
 
+  // Hàm định dạng thời gian
   const formatTime = (time) => {
     const date = new Date(time);
     return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
@@ -78,15 +81,68 @@ const FlightConfirmation = ({ selectedFlight, onConfirm, numberOfPassenger }) =>
 
 const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, flights }) => {
   const [selectedFlight, setSelectedFlight] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const flightsPerPage = 5;
 
+  // Calculate pagination values
+  const indexOfLastFlight = currentPage * flightsPerPage;
+  const indexOfFirstFlight = indexOfLastFlight - flightsPerPage;
+  const currentFlights = flights.slice(indexOfFirstFlight, indexOfLastFlight);
+  const totalPages = Math.ceil(flights.length / flightsPerPage);
+
+  // Pagination handlers
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
+  // Add new helper function for pagination
+  const generatePaginationNumbers = () => {
+    const pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+
+  // Hàm xử lý khi chọn chuyến bay
   const handleSelectFlight = (flight) => {
     setSelectedFlight(flight);
   };
 
+  // Hàm xử lý khi xác nhận chọn chuyến bay
   const handleConfirm = () => {
     onSelectFlight(selectedFlight);
   };
 
+  // Hàm định dạng thời gian
   const formatTime = (time) => {
     const date = new Date(time);
     return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
@@ -114,7 +170,7 @@ const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, f
           <div className="flex flex-col lg:flex-row lg:space-x-8 space-y-4 lg:space-y-0">
             {/* Flight List Section */}
             <div className="w-full lg:w-2/3 space-y-3 lg:space-y-4">
-              {flights.map((flight) => (
+              {currentFlights.map((flight) => (
                 <Card 
                   key={flight._id}
                   className="group hover:shadow-xl transition-all duration-300 border-l-4 border-l-[#008080] hover:border-l-[#DAA520]"
@@ -172,7 +228,7 @@ const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, f
                         </div>
                       </div>
 
-                      {/* Desktop price and button section remains unchanged */}
+                      {/* Desktop price and button section */}
                       <div className="hidden lg:flex lg:flex-col items-end justify-start space-y-2">
                         <div className="flex items-center space-x-2">
                           <p className="text-2xl font-bold text-[#DAA520]">
@@ -182,19 +238,21 @@ const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, f
                             Còn {flight.economy_seats} chỗ
                           </Badge>
                         </div>
-                        <button 
-                          onClick={() => handleSelectFlight(flight)}
-                          className="w-full bg-[#008080] text-white px-6 py-2.5 rounded-lg 
-                          hover:bg-[#006666] transition-colors duration-200 flex items-center justify-center space-x-2
-                          group-hover:bg-[#DAA520] text-base"
-                        >
-                          <span>Chọn</span>
-                          <ArrowRight size={16} className="w-5 h-5" />
-                        </button>
+                        <div className="w-[140px]"> {/* Add fixed-width container */}
+                          <button 
+                            onClick={() => handleSelectFlight(flight)}
+                            className="w-full bg-[#008080] text-white px-6 py-2.5 rounded-lg 
+                            hover:bg-[#006666] transition-colors duration-200 flex items-center justify-center space-x-2
+                            group-hover:bg-[#DAA520] text-base"
+                          >
+                            <span>Chọn</span>
+                            <ArrowRight size={16} className="w-5 h-5" />
+                          </button>
+                        </div>
                       </div>
 
                       {/* Mobile Select Button */}
-                      <div className="lg:hidden w-full">
+                      <div className="lg:hidden w-[140px] mx-auto"> {/* Add fixed-width container and center */}
                         <button 
                           onClick={() => handleSelectFlight(flight)}
                           className="w-full bg-[#008080] text-white px-4 py-2 rounded-lg 
@@ -209,6 +267,59 @@ const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, f
                   </CardContent>
                 </Card>
               ))}
+
+              {/* Pagination Controls */}
+              {flights.length > flightsPerPage && (
+                <div className="flex justify-center items-center space-x-2 mt-6">
+                  <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    className={`p-2 rounded-lg transition-all duration-200 ${
+                      currentPage === 1
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-[#008080] hover:bg-[#008080] hover:text-white'
+                    }`}
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+
+                  <div className="flex items-center space-x-1">
+                    {generatePaginationNumbers().map((page, index) => (
+                      <button
+                        key={index}
+                        onClick={() => page !== '...' && setCurrentPage(page)}
+                        disabled={page === '...'}
+                        className={`
+                          min-w-[32px] h-8 flex items-center justify-center rounded-lg
+                          transition-all duration-200 text-sm font-medium
+                          ${page === '...' 
+                            ? 'cursor-default text-gray-400'
+                            : page === currentPage
+                              ? 'bg-[#008080] text-white'
+                              : 'text-gray-600 hover:bg-[#008080]/10'
+                          }
+                        `}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`p-2 rounded-lg transition-all duration-200 ${
+                      currentPage === totalPages
+                        ? 'text-gray-300 cursor-not-allowed'
+                        : 'text-[#008080] hover:bg-[#008080] hover:text-white'
+                    }`}
+                    aria-label="Next page"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Confirmation Section */}

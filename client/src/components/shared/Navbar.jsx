@@ -273,7 +273,7 @@ const Navbar = () => {
                                 <PopoverTrigger asChild>
                                     <Avatar className="cursor-pointer">
                                         <AvatarImage 
-                                            src="https://www.gravatar.com/avatar/?d=mp" 
+                                            src={`https://robohash.org/${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME).slice(-2)}`} 
                                             alt="User Avatar" 
                                         />
                                     </Avatar>

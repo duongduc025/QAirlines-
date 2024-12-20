@@ -23,7 +23,7 @@ const useGetAllFlight = () => {
                 
                 if(res.data){
                     dispatch(setAllFlight(res.data));
-                    console.log(res.data);
+                    console.log("Flight: Success");
                 }
                 
             } catch (error) {

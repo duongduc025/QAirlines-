@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { PlusCircle, Trash2, Search, ImagePlus, Eye } from "lucide-react";
+import { PlusCircle, Trash2, Search, ImagePlus, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import AdminSideBar from './AdminSideBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { setAllPromotions } from '@/redux/promotionSlice';
@@ -47,11 +47,31 @@ const AdminPromotion = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [promotionToDelete, setPromotionToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const filteredPromotions = promotions.filter(promotion => 
     promotion.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredPromotions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentPromotions = filteredPromotions.slice(startIndex, endIndex);
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Hàm xử lý xóa ưu đãi
   const handleRemovePromotion = async (_id) => {
     try {
       const response = await fetch(`${PROMOTION_API_END_POINT}/deletePromotion/${_id}`, {
@@ -73,6 +93,7 @@ const AdminPromotion = () => {
     }
   };
 
+  // Hàm xử lý thay đổi hình ảnh
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     console.log(file);
@@ -87,6 +108,7 @@ const AdminPromotion = () => {
 
   };
 
+  // Hàm xử lý thêm ưu đãi
   const handleAddPromotion = async (event) => {
     event.preventDefault();
     dispatch(setLoading(true));
@@ -123,10 +145,12 @@ const AdminPromotion = () => {
     setImagePreview(null);
 };
 
+  // Hàm xử lý xem nội dung ưu đãi
   const handleViewContent = (promotion) => {
     setSelectedPromotion(promotion);
     setIsViewDialogOpen(true);
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
@@ -276,7 +300,7 @@ const AdminPromotion = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPromotions.map((promotion) => (
+                {currentPromotions.map((promotion) => (
                   <TableRow key={promotion._id}>
                     <TableCell className="font-medium">{promotion.title}</TableCell>
                     <TableCell>{categories.find(c => c.id === promotion.category)?.name}</TableCell>
@@ -340,6 +364,33 @@ const AdminPromotion = () => {
                 ))}
               </TableBody>
             </Table>
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between py-4">
+              <div className="text-sm text-gray-500">
+                Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredPromotions.length)} trong số {filteredPromotions.length} ưu đãi
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="text-sm">
+                  Trang {currentPage} / {totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

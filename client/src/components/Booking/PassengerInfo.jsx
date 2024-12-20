@@ -38,24 +38,24 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
         }
       }, [numberOfPassenger]);
     
+  // Hàm định dạng ngày giờ
   const formatDateTime = (dateTime) => {
     const date = new Date(dateTime);
     return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   };
 
+  // Hàm kiểm tra định dạng số CMND/Hộ chiếu
   const validateIdNumber = (idNumber) => {
     const passportRegex = /^[A-Z0-9]{8,9}$/;
     const cccdRegex = /^[0-9]{12}$/;
     return passportRegex.test(idNumber) || cccdRegex.test(idNumber);
   };
 
+  // Hàm kiểm tra tính hợp lệ của form
   const validateForm = () => {
     const newErrors = passengers.map(passenger => {
       const passengerErrors = {};
       
-      if (!passenger.fullname.trim()) {
-        passengerErrors.fullname = 'Vui lòng nhập tên';
-      }
       
       if (!passenger.gender) {
         passengerErrors.gender = 'Vui lòng chọn giới tính';
@@ -80,7 +80,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
     return newErrors.every(error => Object.keys(error).length === 0);
   };
 
-
+  // Hàm xử lý khi submit form
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -100,6 +100,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
     }
   };
 
+  // Hàm xử lý khi thay đổi thông tin hành khách
   const handleChange = (index, field, value) => {
     const updatedPassengers = [...passengers];
     updatedPassengers[index] = {
@@ -109,8 +110,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
     setPassengers(updatedPassengers);
   };
 
-
-
+  // Hàm tính tổng giá vé
   const calculateTotalPrice = () => {
     const departurePrice = selectedFlight ? selectedFlight.economy_price * passengers.length : 0;
     const returnPrice = returnFlight ? returnFlight.economy_price * passengers.length : 0;

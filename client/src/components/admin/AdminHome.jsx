@@ -14,6 +14,7 @@ import useGetAllPromotion from '@/hook/useGetAllPromotion';
 import useGetAllBookingsAdmin from '@/hook/useGetAllBookingsAdmin';
 
 const AdminIntro = () => {
+  // Gọi các hook để lấy dữ liệu
   useGetAllFlight();
   useGetAllAirCraft();
   useGetAllPromotion();

@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
+// Component quản lý đặt vé
 const AdminBooking = () => {
   const { allBooking } = useSelector(store => store.booking);
   const [ allBookings, setAllBookings ] = useState(allBooking);
@@ -45,7 +46,7 @@ const AdminBooking = () => {
     return Array(5).fill(0).map((_, index) => currentYear - index);
   }, []);
   
-  // Hàm để kiểm tra xem hai ngày có cùng ngày/tháng/năm không
+  // Hàm kiểm tra xem hai ngày có cùng ngày/tháng/năm không
   const isSameDay = (date1, date2) => {
     return date1.getDate() === date2.getDate() &&
            date1.getMonth() === date2.getMonth() &&
@@ -74,15 +75,17 @@ const AdminBooking = () => {
   const totalPassengers = allBookings.reduce((sum, booking) => sum + booking.ticket_quantity, 0);
   const totalRevenue = allBookings.reduce((sum, booking) => sum + booking.total_price, 0);
 
-  // Format date để hiển thị
+  // Hàm định dạng ngày
   const formatDate = (date) => {
     return date.toLocaleDateString('vi-VN');
   };
 
+  // Hàm định dạng ngày giờ
   const formatDateTime = (dateStr) => {
     return new Date(dateStr).toLocaleString('vi-VN');
   };
 
+  // Component hiển thị chi tiết đặt vé
   const BookingDetailsDialog = ({ booking }) => (
     <Dialog>
       <DialogTrigger asChild>

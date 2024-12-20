@@ -15,6 +15,7 @@ const MyAccount = () => {
     const navigate = useNavigate();
     const { user } = useSelector(store => store.auth);
 
+    // Handle user logout
     const handleLogout = async () => {
         localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
         dispatch(setUser(null));    
@@ -32,7 +33,7 @@ const MyAccount = () => {
                         <div className="flex items-center justify-center">
                             <figure className="w-[100px] h-[100px] rounded-full border-2 border-solid border-primaryColor">
                                 <img 
-                                    src="https://www.gravatar.com/avatar/?d=mp" 
+                                     src={`https://robohash.org/${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME).slice(-2)}`} 
                                     alt="" 
                                     className="w-full h-full rounded-full" 
                                 />
@@ -54,7 +55,7 @@ const MyAccount = () => {
                             <button 
                                 className="w-full bg-[#008080] hover:bg-[#006666] p-3 text-[16px] font-bold leading-7 rounded-md text-white"
                                 onClick={handleLogout} >
-                                Logout
+                                Đăng xuất
                             </button>
                         </div>
                     </div>
@@ -67,7 +68,7 @@ const MyAccount = () => {
                                     tab === "profile" && "bg-[#008080] text-white font-semibold"
                                 } p-2 mr-5 px-5 rounded-md text-headingColor font-semibold text-[16px] leading-7 border border-solid border-primaryColor`} 
                             >
-                                Profile    
+                                Hồ sơ    
                             </button>
                             <button 
                                 onClick={() => setTab("changepassword")} 
@@ -75,7 +76,7 @@ const MyAccount = () => {
                                     tab === "changepassword" && "bg-[#008080] text-white font-semibold"
                                 } p-2 mr-5 px-5 rounded-md text-headingColor font-semibold text-[16px] leading-7 border border-solid border-primaryColor`} 
                             > 
-                                Change Password   
+                                Đổi mật khẩu   
                             </button>
                         </div>
 
