@@ -104,7 +104,7 @@ const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, f
               <ArrowLeft size={20} className="lg:w-6 lg:h-6" />
             </button>
             <h1 className="text-2xl lg:text-4xl font-bold text-[#008080] mb-2 lg:mb-4">
-              {isReturn ? 'Chọn Chuyến Bay Về' : 'Danh Sách Chuyến Bay'}
+              {isReturn ? 'Chọn chuyến bay về' : 'Danh sách chuyến đi'}
             </h1>
             <p className="text-sm lg:text-base text-gray-600 max-w-xl mx-auto">
               {isReturn ? 'Chọn chuyến bay về phù hợp với lịch trình của bạn' : 'Khám phá các chuyến bay phù hợp với lịch trình của bạn'}

@@ -4,45 +4,48 @@ import { ArrowLeft, Plane } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { setSingleBooking } from '@/redux/bookingSlice';
-import { BOOKING_API_END_POINT, LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
+import { BOOKING_API_END_POINT } from '@/utils/constraint';
 import { format } from 'date-fns';
 import airportCodes from '@/utils/airport_code';
 
 const BookingDetail = () => {
 
-  const { user } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
   const params = useParams();
   const bookingID = params.id;
   const navigate = useNavigate();
-
+  console.log("bookingID:", bookingID);
   useEffect(() => {
-    const fetchSingleBooking = async () => {
-      try {
-        
-        const response = await axios.get(`${BOOKING_API_END_POINT}/${bookingID}`, {
-          headers: {
-            "Content-Type": "application/json",
+      const fetchSingleBooking = async () => {
+        try {
+          const response = await axios.get(`${BOOKING_API_END_POINT}/${bookingID}`, {
+            headers: {
+              "Content-Type": "application/json",
+            }
+          });
+          if (response.data.success) {
+            dispatch(setSingleBooking(response.data.booking));
           }
-        });
-        console.log(response.data);
-        if (response.status === 200) {
-          dispatch(setSingleBooking(response.data.booking));
+        } catch (error) {
+          console.error(error);
+          toast.error("Đã có lỗi xảy ra, vui lòng thử lại sau");
         }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchSingleBooking();
-  }, [bookingID, user._id, dispatch]);
+      };
+      fetchSingleBooking();
+  }, [bookingID]);
 
   const { singleBooking } = useSelector((store) => store.booking);
   const bookingDetail = singleBooking;
   console.log("singleBooking:", bookingDetail);
 
   const formatDate = (dateString, formatString) => {
-    return format(new Date(dateString), formatString);
+    const date = new Date(dateString);
+    if (isNaN(date)) {
+      return 'Invalid date';
+    }
+    return format(date, formatString);
   };
 
   const getAirportName = (code) => {

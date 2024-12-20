@@ -48,6 +48,12 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${formattedHours}:${formattedMinutes} ${ampm}`;
   };
 
+  const validateIdNumber = (idNumber) => {
+    const passportRegex = /^[A-Z0-9]{8,9}$/;
+    const cccdRegex = /^[0-9]{12}$/;
+    return passportRegex.test(idNumber) || cccdRegex.test(idNumber);
+  };
+
   const validateForm = () => {
     const newErrors = passengers.map(passenger => {
       const passengerErrors = {};
@@ -66,6 +72,10 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
 
       if (!passenger.id_number.trim()) {
         passengerErrors.id_number = 'Vui lòng nhập số CMND/Hộ chiếu';
+      }
+
+      if (!validateIdNumber(passenger.id_number.trim())) {
+        passengerErrors.id_number = 'Số CMND/Hộ chiếu không hợp lệ';
       }
 
       return passengerErrors;

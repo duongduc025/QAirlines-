@@ -39,11 +39,6 @@ const MyBooking = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return format(date, 'HH:mm, dd/MM/yyyy');
-  };
-
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -51,9 +46,7 @@ const MyBooking = () => {
     }).format(price);
   };
 
-  const handleSearch = () => {
-    console.log(userBooking);
-  };
+  
 
   const handleCancelBooking = async () => {
     if (selectedBooking) {
@@ -104,6 +97,7 @@ const MyBooking = () => {
   };
 
   const handleViewDetails = (bookingId) => {
+    //Viết cho tôi hàm get
     window.scrollTo(0, 0);
     navigate(`/bookingdetail/${bookingId}`);
   };

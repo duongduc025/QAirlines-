@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { PlusCircle, Trash2, Clock, Search } from "lucide-react";
+import { PlusCircle, Trash2, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSelector, useDispatch } from 'react-redux';
 import store from '@/redux/store';
 import { setAllFlight } from '@/redux/flightSlice';
@@ -34,9 +34,44 @@ const AdminFlight = () => {
   const [originSuggestions, setOriginSuggestions] = useState([]);
   const [destSuggestions, setDestSuggestions] = useState([]);
 
-  const filteredFlights = flights.filter(flight => 
-    flight.flight_code.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 30;
+
+  const [departureFilter, setDepartureFilter] = useState("");
+  const [destinationFilter, setDestinationFilter] = useState("");
+
+  const filteredFlights = flights.filter(flight => {
+    const matchesCode = flight.flight_code.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDeparture = departureFilter === "" || 
+      (airportCodes.find(airport => airport.code === flight.departure_location)?.name
+        .toLowerCase()
+        .includes(departureFilter.toLowerCase()) ||
+      flight.departure_location.toLowerCase().includes(departureFilter.toLowerCase()));
+    const matchesDestination = destinationFilter === "" || 
+      (airportCodes.find(airport => airport.code === flight.destination)?.name
+        .toLowerCase()
+        .includes(destinationFilter.toLowerCase()) ||
+      flight.destination.toLowerCase().includes(destinationFilter.toLowerCase()));
+    
+    return matchesCode && matchesDeparture && matchesDestination;
+  });
+
+  const totalPages = Math.ceil(filteredFlights.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentFlights = filteredFlights.slice(startIndex, endIndex);
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   const handleRemoveFlight = async (_id) => {
     try {
@@ -62,17 +97,23 @@ const AdminFlight = () => {
   const handleAddFlight = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
+    
+    // Tạo đối tượng Date và điều chỉnh múi giờ
+    const localDate = new Date(formData.get('departure_time'));
+    const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+    
     const newFlight = {
       flight_code: formData.get('flight_code'),
-      airplane_code: formData.get('airplane_code'), // Changed to airplane_code
+      airplane_code: formData.get('airplane_code'),
       economy_seats: 180,
       economy_price: Number(formData.get('economy_price')),
       departure_location: airportCodes.find(airport => airport.name === departureSearch)?.code,
       destination: airportCodes.find(airport => airport.name === destinationSearch)?.code,
-      departure_time: formData.get('departure_time'),
-      travel_time: parseFloat(formData.get('travel_time')), // Ensure travel_time is parsed as a float
+      departure_time: utcDate.toISOString(),
+      travel_time: parseFloat(formData.get('travel_time')), 
       status: "On Time"
     };
+    console.log(newFlight.departure_time);
 
     try {
       const response = await fetch(`${FLIGHT_API_END_POINT}/addFlight`, {
@@ -294,12 +335,24 @@ const AdminFlight = () => {
             </div>
             {/* Search Bar */}
             <div className="mt-4 relative grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground " />
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Tìm kiếm theo mã chuyến bay..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
               <Input
-                placeholder="Tìm kiếm theo mã chuyến bay..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8"
+                placeholder="Tìm kiếm điểm khởi hành (tên/mã)..."
+                value={departureFilter}
+                onChange={(e) => setDepartureFilter(e.target.value)}
+              />
+              <Input
+                placeholder="Tìm kiếm điểm đến (tên/mã)..."
+                value={destinationFilter}
+                onChange={(e) => setDestinationFilter(e.target.value)}
               />
             </div>
           </CardHeader>
@@ -319,7 +372,7 @@ const AdminFlight = () => {
                 </TableRow>
               </TableHeader>
                 <TableBody>
-                {filteredFlights.map((flight) => (
+                {currentFlights.map((flight) => (
                   <TableRow key={flight._id}>
                     <TableCell className="text-center font-medium">{flight.flight_code}</TableCell>
                     <TableCell className="text-center">{flight.airplane_code}</TableCell>
@@ -386,7 +439,7 @@ const AdminFlight = () => {
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>Xác nhận xóa chuyến bay</DialogTitle>
-                            <DialogDescription>Bạn có chắc chắn muốn xóa chuyến bay này không?</DialogDescription>
+                            <DialogDescription></DialogDescription>
                           </DialogHeader>
                           <p>Bạn có chắc chắn muốn xóa chuyến bay {flight.flight_code} không?</p>
                           <div className="flex justify-end gap-2 mt-4">
@@ -408,6 +461,34 @@ const AdminFlight = () => {
                 ))}
               </TableBody>
             </Table>
+            
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between py-4">
+              <div className="text-sm text-gray-500">
+                Hiển thị {startIndex + 1}-{Math.min(endIndex, filteredFlights.length)} trong số {filteredFlights.length} chuyến bay
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="text-sm">
+                  Trang {currentPage} / {totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

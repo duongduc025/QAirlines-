@@ -5,16 +5,21 @@ import { useSelector } from "react-redux";
 import { LOCAL_STORAGE_TOKEN_NAME } from "../../utils/constraint";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/authSlice";
+import { setAllBooking } from "../../redux/bookingSlice";
+import { toast } from "sonner";
+import { useNavigate } from 'react-router-dom';
 
 const MyAccount = () => {
     const [tab, setTab] = useState("");
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { user } = useSelector(store => store.auth);
+
     const handleLogout = async () => {
         localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
-        console.log("logout");
-        localStorage.removeItem('user');
-        dispatch(setUser(null));
+        dispatch(setUser(null));    
+        dispatch(setAllBooking([]));
+        toast.success('Đăng xuất thành công');
         navigate('/login');
     }
 
