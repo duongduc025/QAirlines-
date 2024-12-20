@@ -33,22 +33,25 @@ const generateAirplanes = async () => {
   console.log('Sample airplanes data inserted');
 };
 
+const popularLocations = ['HAN', 'SGN', 'DAD', 'PQC', 'CXR', 'HUI'];
+const flightTimes = [0, 30, 60]; // 12h00, 12h30, 13h00 in minutes
+
 const generateFlights = async () => {
   const flights = [];
-  const startDate = new Date('2024-12-20');
-  const endDate = new Date('2024-12-30');
+  const startDate = new Date('2024-12-21');
+  const endDate = new Date('2024-12-28');
 
   for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
     for (let i = 0; i < 40; i++) {
-      const departureLocation = locations[randomInt(0, locations.length)];
+      const departureLocation = popularLocations[randomInt(0, popularLocations.length)];
       let destination;
       do {
-        destination = locations[randomInt(0, locations.length)];
+        destination = popularLocations[randomInt(0, popularLocations.length)];
       } while (destination === departureLocation);
 
       const departureTime = new Date(date);
-      departureTime.setHours(0, 0, 0, 0);
-      departureTime.setMinutes(i * 30);
+      departureTime.setHours(12, 0, 0, 0);
+      departureTime.setMinutes(flightTimes[i % flightTimes.length]);
 
       const returnDate = new Date(departureTime);
       returnDate.setDate(returnDate.getDate() + randomInt(1, 15));
@@ -70,7 +73,8 @@ const generateFlights = async () => {
       });
 
       const returnFlightDepartureTime = new Date(returnDate);
-      returnFlightDepartureTime.setHours(randomInt(0, 24), randomInt(0, 60));
+      returnFlightDepartureTime.setHours(12, 0, 0, 0);
+      returnFlightDepartureTime.setMinutes(flightTimes[randomInt(0, flightTimes.length)]);
 
       flights.push({
         flight_code: `FL${date.getTime()}${i + 101}`,

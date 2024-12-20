@@ -9,7 +9,7 @@ const bookingSchema = new mongoose.Schema({
   total_price: { type: Number, required: true },
   booking_date: { type: Date, required: true },
   booking_status: { type: String, enum: ['Đã đặt', 'Đã hủy'], required: true },
-  passenger_ids: { type: [String], required: true },
+  passenger_ids: { type: [mongoose.Schema.Types.ObjectId], required: true, ref: 'Passenger' },
   updated_at: { type: Date, default: Date.now }
 });
 

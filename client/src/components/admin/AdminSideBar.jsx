@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { LOCAL_STORAGE_TOKEN_NAME } from "../../utils/constraint";
 import { useDispatch } from 'react-redux';
 import { setUser } from '@/redux/authSlice';
+import { toast } from 'sonner'
 
 const AdminSideBar = () => {
   const [expanded, setExpanded] = useState(false);
@@ -26,6 +27,7 @@ const AdminSideBar = () => {
   const handleLogout = async () => {
     localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
     dispatch(setUser(null));
+    toast.success('Đăng xuất thành công');
     navigate('/login');
   }
 
