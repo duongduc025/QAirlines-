@@ -195,39 +195,6 @@ const logout = (req, res) => {
     res.status(200).json("Logout successful");
 };
 
-const getDelayNotices = async (req, res) => {
-    const { userId } = req.params;
-
-    try {
-        const user = await User.findById(userId).populate('delayNotices');
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        const delayNotices = [];
-        for (const noticeId of user.delayNotices) {
-            const notice = await DelayNotice.findById(noticeId).populate('flightId');
-            if (notice) {
-                notice.status = 'Đã xem';
-                await notice.save();
-
-                const booking = await Booking.findOne({ flight_id: notice.flightId._id, user_id: userId });
-
-                delayNotices.push({
-                    ...notice.toObject(),
-                    flightDetails: notice.flightId,
-                    bookingDetails: booking
-                });
-            }
-        }
-
-        res.json(delayNotices);
-    } catch (error) {
-        console.error('Error fetching delay notices:', error);
-        res.status(500).json({ message: error.message });
-    }
-};
-
 const listAllUserBookingInPeriod = async (req, res) => {
     const { period = "month" } = req.query;
     let startDate;
@@ -294,7 +261,61 @@ const listAllUserBookingInPeriod = async (req, res) => {
     }
 };
 
+const getDelayNotices = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await User.findById(userId).populate('delayNotices');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const delayNotices = [];
+        for (const noticeId of user.delayNotices) {
+            const notice = await DelayNotice.findById(noticeId).populate('flightId');
+            if (notice) {
+                const booking = await Booking.findOne({ flight_id: notice.flightId._id, user_id: userId });
+
+                delayNotices.push({
+                    ...notice.toObject(),
+                    flightDetails: notice.flightId,
+                    bookingDetails: booking
+                });
+            }
+        }
+
+        res.json(delayNotices);
+    } catch (error) {
+        console.error('Error fetching delay notices:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const updateDelayNotices = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await User.findById(userId).populate('delayNotices');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        for (const noticeId of user.delayNotices) {
+            const notice = await DelayNotice.findById(noticeId);
+            if (notice) {
+                notice.status = 'Đã xem';
+                await notice.save();
+            }
+        }
+
+        res.json({ message: "All delay notices updated to 'Đã xem'" });
+    } catch (error) {
+        console.error('Error updating delay notices:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 //Tạo chart từ những thông số đã có về booking của các user_id
 
-export { register, login, updateUser, changePassword, addUser, logout, loginWithToken, listAllUserBookingInPeriod, getDelayNotices };
+export { register, login, updateUser, changePassword, addUser, logout, loginWithToken, listAllUserBookingInPeriod, getDelayNotices, updateDelayNotices };
 
