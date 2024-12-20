@@ -7,9 +7,16 @@ import { promotionValidationRules } from '../validations/promotions.validation.j
 
 const router = express.Router();
 
+// Tạo khuyến mãi mới
 router.post('/createPromotion', authenticateJWT, isAdmin, upload.single('image'), promotionValidationRules, createPromotion);
+
+// Lấy hình ảnh khuyến mãi theo ID
 router.get('/image/:id', getImageByPromotionId);
+
+// Xóa khuyến mãi theo ID
 router.delete('/deletePromotion/:id', authenticateJWT, isAdmin, deletePromotionById);
+
+// Hiển thị tất cả các khuyến mãi
 router.get('/showAllPromotions', showAllPromotions);
 
-export default router;       
+export default router;

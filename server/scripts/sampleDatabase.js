@@ -19,6 +19,13 @@ const generateRandomFloat = (min, max) => {
   return (Math.random() * (max - min) + min).toFixed(2);
 };
 
+function generateRandomIntDivisibleBy(min, max, divisor) {
+  const minMultiplier = Math.ceil(min / divisor);
+  const maxMultiplier = Math.floor(max / divisor);
+  const randomMultiplier = Math.floor(Math.random() * (maxMultiplier - minMultiplier + 1)) + minMultiplier;
+  return randomMultiplier * divisor;
+}
+
 const generateAirplanes = async () => {
   const airplanes = [];
   for (let i = 0; i < 100; i++) {
@@ -56,7 +63,7 @@ const generateFlights = async () => {
       const returnDate = new Date(departureTime);
       returnDate.setDate(returnDate.getDate() + randomInt(1, 15));
 
-      const price = generateRandomFloat(1000000, 5000000);
+      const price = generateRandomIntDivisibleBy(1000000, 5000000, 200000);
       const airplaneCode = `AP${randomInt(1, 100)}`;
       const economySeats = randomInt(100, 300);
       const travelTime = randomInt(1, 10); // in hours
@@ -93,11 +100,81 @@ const generateFlights = async () => {
   console.log('Sample flights data inserted');
 };
 
+const generateSpecificFlights = async () => {
+  const specificFlights = [];
+  const specificStartDate = new Date('2024-12-25');
+  const specificReturnDate = new Date('2024-12-28');
+  const specificDepartureLocation = 'HAN';
+  const specificDestination = 'SIN';
+
+  // Generate 6 flights from HAN to SIN on 2024-12-25
+  for (let i = 0; i < 6; i++) {
+    const departureTime = new Date(specificStartDate);
+    departureTime.setHours(12, 0, 0, 0);
+    departureTime.setMinutes(i * 30);
+
+    specificFlights.push({
+      flight_code: `FL${specificStartDate.getTime()}${i + 1}`,
+      airplane_code: `AP${randomInt(1, 100)}`,
+      departure_location: specificDepartureLocation,
+      destination: specificDestination,
+      departure_time: departureTime,
+      travel_time: randomInt(1, 10),
+      economy_seats: randomInt(100, 300),
+      economy_price: generateRandomIntDivisibleBy(1000000, 5000000, 200000)
+    });
+  }
+
+  // Generate 7 return flights from SIN to HAN on 2024-12-28
+  for (let i = 0; i < 7; i++) {
+    const returnDepartureTime = new Date(specificReturnDate);
+    returnDepartureTime.setHours(12, 0, 0, 0);
+    returnDepartureTime.setMinutes(i * 30);
+
+    specificFlights.push({
+      flight_code: `FL${specificReturnDate.getTime()}${i + 101}`,
+      airplane_code: `AP${randomInt(1, 100)}`,
+      departure_location: specificDestination,
+      destination: specificDepartureLocation,
+      departure_time: returnDepartureTime,
+      travel_time: randomInt(1, 10),
+      economy_seats: randomInt(100, 300),
+      economy_price: generateRandomIntDivisibleBy(1000000, 5000000, 200000)
+    });
+  }
+
+  // Generate 10 flights from HAN to SGN on a specific day
+  const specificDay = new Date('2024-12-26');
+  const specificDayDepartureLocation = 'HAN';
+  const specificDayDestination = 'SGN';
+
+  for (let i = 0; i < 10; i++) {
+    const departureTime = new Date(specificDay);
+    departureTime.setHours(12, 0, 0, 0);
+    departureTime.setMinutes(i * 30);
+
+    specificFlights.push({
+      flight_code: `FL${specificDay.getTime()}${i + 201}`,
+      airplane_code: `AP${randomInt(1, 100)}`,
+      departure_location: specificDayDepartureLocation,
+      destination: specificDayDestination,
+      departure_time: departureTime,
+      travel_time: randomInt(1, 10),
+      economy_seats: randomInt(100, 300),
+      economy_price: generateRandomIntDivisibleBy(1000000, 5000000, 200000)
+    });
+  }
+
+  await Flight.insertMany(specificFlights);
+  console.log('Specific flights data inserted');
+};
+
 mongoose.connect('mongodb+srv://tnemo65ldt:mongo%40123@flight.upyhm.mongodb.net/FlightTicketSelling', { useNewUrlParser: true, useUnifiedTopology: true })
   .then(async () => {
     console.log('Connected to MongoDB');
     await generateAirplanes();
     await generateFlights();
+    await generateSpecificFlights();
     mongoose.disconnect();
   })
   .catch(err => console.error('Could not connect to MongoDB', err));
