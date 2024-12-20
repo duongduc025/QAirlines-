@@ -9,8 +9,7 @@ export const validateNewFlight = [
     body('departure_time').isISO8601().toDate().withMessage('Departure time must be a valid date'),
     body('economy_seats').isInt({ min: 1 }).withMessage('Economy seats must be a positive integer'),
     body('economy_price').isNumeric().withMessage('Economy price must be a number'),
-    body('business_seats').isInt({ min: 1 }).withMessage('Business seats must be a positive integer'),
-    body('business_price').isNumeric().withMessage('Business price must be a number')
+
 ];
 
 export const validateSearchFlights = [

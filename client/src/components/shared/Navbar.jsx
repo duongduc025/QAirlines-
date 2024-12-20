@@ -12,6 +12,8 @@ import { setAllBooking } from '@/redux/bookingSlice'
 import { setUser } from '@/redux/authSlice'
 import { Badge } from '../ui/badge'
 import { toast } from 'sonner'
+import { USER_API_END_POINT } from '@/utils/constraint'
+import axios from 'axios'
 
 const guessNavLinks = [
     {
@@ -58,10 +60,34 @@ const Navbar = () => {
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [navLinks, setNavLinks] = useState(guessNavLinks);
+    const [delayNotices, setDelayNotices] = useState([]);
+    const [hasNewNotifications, setHasNewNotifications] = useState(true);
 
     useEffect(() => {
       setNavLinks(isMobileMenuOpen ? mobileNavLinks : guessNavLinks);
     }, [isMobileMenuOpen]);
+
+    useEffect(() => {
+        const fetchDelayNotices = async () => {
+            try {
+                const response = await axios.get(`${USER_API_END_POINT}/delayNotices/${user._id}`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+            if (response.data) {
+                setDelayNotices(response.data);
+                setHasNewNotifications(true);
+                console.log(response.data);
+            }
+            } catch (error) {
+                console.error('Có lỗi xảy ra', error);
+            }
+        };
+
+        fetchDelayNotices();
+    }, []);
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -78,9 +104,29 @@ const Navbar = () => {
     const handleViewMoreNotifications = () => {
         navigate('/promotion');
     }
+
+    const handleViewNotifications = () => {
+        setHasNewNotifications(false);
+    }
+
+    const handleNoticeClick = (noticeId) => {
+        navigate(`/bookingdetail/${noticeId}`);
+    }
+
+    
     const { allPromotions } = useSelector(store => store.promotion);
     //lấy ra 5 promotions mới nhất
     const latestPromotions = allPromotions.slice(0, 5);
+
+    const formatUTCDate = (dateString) => {
+        const date = new Date(dateString);
+        const hours = date.getUTCHours().toString().padStart(2, '0');
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+        const day = date.getUTCDate().toString().padStart(2, '0');
+        const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+        const year = date.getUTCFullYear();
+        return `${hours}:${minutes} ${day}/${month}/${year}`;
+    };
 
     return (
         <div className='bg-white relative'>
@@ -129,37 +175,40 @@ const Navbar = () => {
                         <div className='flex items-center gap-4'>
                          <Popover>
     <PopoverTrigger asChild>
-        <div className='relative cursor-pointer'>
+        <div className='relative cursor-pointer' onClick={handleViewNotifications}>
             <Bell className='text-black hover:text-[#DAA520] w-6 h-6' />
-            
         </div>
     </PopoverTrigger>
     <PopoverContent 
-        align="start" 
+        align="center" 
         className="w-[350px] p-0 shadow-xl rounded-xl mt-2"
     >
         <div className='bg-[#DAA520] text-white px-4 py-3 rounded-t-xl flex justify-center'>
             <h2 className='text-lg font-semibold'>Thông Báo</h2>
         </div>
         <div className='max-h-[350px] overflow-y-auto'>
-            {latestPromotions.map((promotion) => (
+            {delayNotices.map((notice) => (
                 <div 
-                    key={promotion._id} 
+                    key={notice._id} 
                     className='px-4 py-2 border-b last:border-b-0 hover:bg-gray-50 transition-colors duration-200 cursor-pointer group'
+                    onClick={() => handleNoticeClick(notice.bookingDetails._id)}
                 >
                     <div className='flex items-center max-w-full'>
-                        <div className='flex-1 min-w-0'
-                              onClick={handleViewMoreNotifications}
-                        >
+                        <div className='flex-1 min-w-0'>
                             <h4 className='font-semibold text-sm text-gray-800 group-hover:text-[#DAA520] transition-colors truncate max-w-full'>
-                            
-                                {promotion.title}
+                                Delay chuyến bay số #{notice.flightDetails.flight_code}  
                             </h4>
                             <p className='text-xs text-gray-600 truncate max-w-full'>
-                                {promotion.brief}
+                                {`Từ: ${notice.flightDetails.departure_location} đến: ${notice.flightDetails.destination}`}
+                            </p>
+                            <p className='text-xs text-gray-600 truncate max-w-full'>
+                                {`Thời gian khởi hành mới: ${formatUTCDate(notice.newDepartureTime)}`}
+                            </p>
+                            <p className='text-xs text-gray-600 truncate max-w-full'>
+                                {`Thời gian khởi hành cũ: ${formatUTCDate(notice.previousDepartureTime)}`}
                             </p>
                             <span className='text-xs text-gray-400 block truncate max-w-full'>
-                                {promotion.posted_at}
+                                {notice.date}
                             </span>
                         </div>
                         <div className='pl-2 flex-shrink-0'>

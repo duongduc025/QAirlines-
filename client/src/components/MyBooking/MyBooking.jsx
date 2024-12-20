@@ -31,6 +31,7 @@ const MyBooking = () => {
   const [searchId, setSearchId] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(''); // Modify this state
   const bookingsPerPage = 4;
 
   const { allBooking } = useSelector((store) => store.booking);
@@ -78,6 +79,8 @@ const MyBooking = () => {
 
   const filteredBookings = searchId
     ? userBooking.filter(booking => booking._id.toLowerCase().includes(searchId.toLowerCase()))
+    : selectedDate
+    ? userBooking.filter(booking => format(new Date(booking.flight_details.departure_time), 'yyyy-MM-dd') === selectedDate)
     : userBooking;
 
   const sortedBookings = [...filteredBookings].sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date));
@@ -138,13 +141,28 @@ const MyBooking = () => {
         </Card>        
 
         {/* Enhanced Banner Section */}
-        <div className="mb-4 relative">
-          <div className="flex items-center justify-center py-4 px-8 bg-gradient-to-r from-[#008080]/5 to-[#DAA520]/5 rounded-lg border border-[#008080]/10"> {/* Reduced padding from py-6 to py-4 */}
+        <div className="mb-6 relative">
+          <div className="flex items-center justify-between py-4 px-8 bg-gradient-to-r from-[#008080]/5 to-[#DAA520]/5 rounded-lg border border-[#008080]/10">
             <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b from-[#008080] to-[#DAA520]"></div>
             <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-b from-[#DAA520] to-[#008080]"></div>
+            
             <h2 className="text-2xl font-semibold bg-gradient-to-r from-[#DAA520] to-[#DAA520] bg-clip-text text-transparent">
               Danh sách vé
             </h2>
+
+            {/* Date Filter */}
+            <div className="flex items-center gap-4">
+              <label className="text-[#008080] font-medium">Tìm theo ngày khởi hành:</label>
+              <div className="relative w-48">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 w-4 h-4" />
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] transition text-sm"
+                />
+              </div>
+            </div>
           </div>
         </div>
 

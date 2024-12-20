@@ -5,7 +5,8 @@ import Footer from '../shared/Footer'
 import useGetAllBooking from '@/hook/useGetAllBooking';
 const MyBookingpage = () => {
   
-  
+  useGetAllBooking();
+
   return (
     <>
            <Navbar/>

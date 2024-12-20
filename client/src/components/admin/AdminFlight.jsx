@@ -14,6 +14,7 @@ import { FLIGHT_API_END_POINT } from '@/utils/constraint';
 import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
 import { toast } from 'sonner';
 import airportCodes from '@/utils/airport_code';
+import axios from 'axios';
 
 const AdminFlight = () => {
   const dispatch = useDispatch();
@@ -101,19 +102,18 @@ const AdminFlight = () => {
     // Tạo đối tượng Date và điều chỉnh múi giờ
     const localDate = new Date(formData.get('departure_time'));
     const utcDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
-    
+    const selectedAirplane = allAirCraft.find(aircraft => aircraft.airplane_code === formData.get('airplane_code'));
+
     const newFlight = {
       flight_code: formData.get('flight_code'),
       airplane_code: formData.get('airplane_code'),
-      economy_seats: 180,
+      economy_seats: selectedAirplane.capacity,
       economy_price: Number(formData.get('economy_price')),
-      departure_location: airportCodes.find(airport => airport.name === departureSearch)?.code,
-      destination: airportCodes.find(airport => airport.name === destinationSearch)?.code,
+      departure_location: formData.get('departure_location'),
+      destination: formData.get('destination'),
       departure_time: utcDate.toISOString(),
       travel_time: parseFloat(formData.get('travel_time')), 
-      status: "On Time"
     };
-    console.log(newFlight.departure_time);
 
     try {
       const response = await fetch(`${FLIGHT_API_END_POINT}/addFlight`, {
@@ -130,6 +130,10 @@ const AdminFlight = () => {
         setFlights([...flights, addedFlight]);
         dispatch(setAllFlight([...flights, addedFlight]));
         toast.success('Thêm chuyến bay thành công');
+        
+        // Reset form values
+        setDepartureSearch("");
+        setDestinationSearch("");
       } else {
         console.error('Failed to add flight');
       }
@@ -145,29 +149,32 @@ const AdminFlight = () => {
     const formData = new FormData(event.target);
     const delayMinutes = parseInt(formData.get('delayMinutes'));
 
-    const newDepartureTime = new Date(selectedFlight.departure_time);
-    newDepartureTime.setMinutes(newDepartureTime.getMinutes() + delayMinutes);
+    const originalDepartureTime = new Date(selectedFlight.departure_time);
+    const newDepartureTime = new Date(originalDepartureTime.getTime() + delayMinutes * 60000);
 
     try {
-      const response = await fetch(`${FLIGHT_API_END_POINT}/updateDepartureTime/${selectedFlight._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
-        },
-        body: JSON.stringify({ newDepartureTime: newDepartureTime.toISOString() })
-      });
+      const response = await axios.put(
+        `${FLIGHT_API_END_POINT}/updateDepartureTime/${selectedFlight._id}`,
+        { newDepartureTime: newDepartureTime.toISOString() },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
+          }
+        }
+      );
 
-      if (response.ok) {
-        const updatedFlight = await response.json();
+      if (response.status === 200) {
+        const updatedFlight = response.data;
         setFlights(flights.map(flight => flight._id === selectedFlight._id ? updatedFlight : flight));
         dispatch(setAllFlight(flights.map(flight => flight._id === selectedFlight._id ? updatedFlight : flight)));
         toast.success('Cập nhật thời gian bay thành công');
       } else {
-        console.error('Failed to update departure time');
+        toast.error('Có lỗi xảy ra khi cập nhật thời gian bay');
       }
     } catch (error) {
       console.error('Error:', error);
+      toast.error('Có lỗi xảy ra khi cập nhật thời gian bay');
     }
 
     setIsDelayDialogOpen(false);
@@ -255,7 +262,7 @@ const AdminFlight = () => {
                           setDepartureSearch(e.target.value);
                           handleSearch(e.target.value, 'origin');
                         }}
-                        placeholder="Nhập tên sân bay khởi hành"
+                        placeholder="Nhập tên hoặc mã sân bay khởi hành"
                         required
                       />
                       {originSuggestions.length > 0 && (
@@ -265,11 +272,11 @@ const AdminFlight = () => {
                               key={airport.code}
                               className="p-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
-                                setDepartureSearch(airport.name);
+                                setDepartureSearch(airport.code);
                                 setOriginSuggestions([]);
                               }}
                             >
-                              {airport.name}
+                              {airport.name} ({airport.code})
                             </div>
                           ))}
                         </div>
@@ -285,7 +292,7 @@ const AdminFlight = () => {
                           setDestinationSearch(e.target.value);
                           handleSearch(e.target.value, 'destination');
                         }}
-                        placeholder="Nhập tên sân bay đến"
+                        placeholder="Nhập tên hoặc mã sân bay đến"
                         required
                       />
                       {destSuggestions.length > 0 && (
@@ -295,18 +302,18 @@ const AdminFlight = () => {
                               key={airport.code}
                               className="p-2 hover:bg-gray-100 cursor-pointer"
                               onClick={() => {
-                                setDestinationSearch(airport.name);
+                                setDestinationSearch(airport.code);
                                 setDestSuggestions([]);
                               }}
                             >
-                              {airport.name}
+                              {airport.name} ({airport.code})
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                       <Label>Thời gian khởi hành</Label>
                       <Input
                         name="departure_time"
@@ -315,7 +322,7 @@ const AdminFlight = () => {
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <Label>Thời gian bay (giờ)</Label>
                       <Input
                         name="travel_time"
@@ -366,7 +373,7 @@ const AdminFlight = () => {
                   <TableHead className="text-center">Giá vé (VND)</TableHead>
                   <TableHead className="text-center">Điểm khởi hành</TableHead>
                   <TableHead className="text-center">Điểm đến</TableHead>
-                  <TableHead className="text-center">Thời gian khởi hành</TableHead>
+                  <TableHead className="text-center w-[150px]">Thời gian khởi hành</TableHead>
                   <TableHead className="text-center">Thời gian bay</TableHead>
                   <TableHead className="text-center w-[150px]">Thao tác</TableHead>
                 </TableRow>
@@ -381,7 +388,7 @@ const AdminFlight = () => {
                     <TableCell className="text-center">{airportCodes.find(airport => airport.code === flight.departure_location)?.name}</TableCell>
                     <TableCell className="text-center">{airportCodes.find(airport => airport.code === flight.destination)?.name}</TableCell>
                     <TableCell className="text-center">
-                      {new Date(flight.departure_time).toLocaleString()}
+                      {new Date(flight.departure_time).toLocaleString('en-US', { timeZone: 'UTC' })}
                     </TableCell>
                     <TableCell className="text-center">{flight.travel_time}</TableCell>
                     <TableCell className="text-center flex gap-2 justify-center">

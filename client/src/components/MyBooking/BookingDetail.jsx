@@ -45,7 +45,7 @@ const BookingDetail = () => {
     if (isNaN(date)) {
       return 'Invalid date';
     }
-    return format(date, formatString);
+    return format(date.toISOString(), formatString);
   };
 
   const getAirportName = (code) => {

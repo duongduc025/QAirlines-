@@ -2,7 +2,7 @@ import express from 'express';
 import { register, login, updateUser, changePassword, addUser, loginWithToken, listAllUserBookingInPeriod, getDelayNotices } from '../controllers/user.controller.js';
 import { validateUser, validateUpdateUser, validateChangePassword, validate } from '../validations/user.validation.js';
 import { authenticateJWT } from '../middlewares/jwtAuth.js';
-import { isAdmin } from '../middlewares/auth.middleware.js';
+import { isAdmin, isCustomer } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -13,6 +13,6 @@ router.put('/change-password/:_id', authenticateJWT, validateChangePassword, val
 router.post('/add-user', addUser);
 router.post('/loginWithToken', validate, loginWithToken);
 router.get('/listAllUserBookingInPeriod', authenticateJWT, isAdmin, listAllUserBookingInPeriod);
-router.get('/delayNotices/:userId', authenticateJWT, getDelayNotices);
+router.get('/delayNotices/:userId', authenticateJWT, isCustomer, getDelayNotices);
 
 export default router;
