@@ -347,6 +347,9 @@ export const createRoundBooking = async (req, res) => {
         await newOutboundBooking.save();
         await newReturnBooking.save();
 
+        console.log('Outbound Booking ID:', newOutboundBooking._id);
+        console.log('Return Booking ID:', newReturnBooking._id);
+
         // Update the user's booking list
         user.booking_id.push(newOutboundBooking._id, newReturnBooking._id);
         await user.save();

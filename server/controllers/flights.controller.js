@@ -33,7 +33,7 @@ export const showAllFlights = async (req, res) => {
                     departure_location: 1,
                     destination: 1,
                     departure_time: 1,
-                    travel_time: { $divide: [{ $abs: { $subtract: ['$departure_time', '$departure_time'] } }, 3600000] }, 
+                    travel_time: 1, 
                     economy_seats: 1,
                     economy_price: 1,
                     airplane_code: 1,
@@ -165,17 +165,21 @@ export const searchFlights = async (req, res) => {
         const startOfDay = new Date(departure_date);
         startOfDay.setUTCHours(0, 0, 0, 0);
 
+        const endOfDay = new Date(departure_date);
+        endOfDay.setUTCHours(23, 59, 59, 999);
+
         const ticketQuantity = parseInt(ticket_quantity, 10);
         if (isNaN(ticketQuantity)) {
             return res.status(400).json({ message: "Invalid ticket quantity" });
         }
 
         console.log('Start of Day:', startOfDay);
+        console.log('End of Day:', endOfDay);
 
         const flights = await Flight.find({
             departure_location,
             destination,
-            departure_time: { $gte: startOfDay }
+            departure_time: { $gte: startOfDay, $lte: endOfDay }
         });
 
         console.log('Flights Found:', flights);
@@ -204,8 +208,14 @@ export const searchRoundFlights = async (req, res) => {
         const startOfDepartureDay = new Date(departure_date);
         startOfDepartureDay.setUTCHours(0, 0, 0, 0);
 
+        const endOfDepartureDay = new Date(departure_date);
+        endOfDepartureDay.setUTCHours(23, 59, 59, 999);
+
         const startOfReturnDay = new Date(return_date);
         startOfReturnDay.setUTCHours(0, 0, 0, 0);
+
+        const endOfReturnDay = new Date(return_date);
+        endOfReturnDay.setUTCHours(23, 59, 59, 999);
 
         const ticketQuantity = parseInt(ticket_quantity, 10);
         if (isNaN(ticketQuantity)) {
@@ -213,18 +223,20 @@ export const searchRoundFlights = async (req, res) => {
         }
 
         console.log('Start of Departure Day:', startOfDepartureDay);
+        console.log('End of Departure Day:', endOfDepartureDay);
         console.log('Start of Return Day:', startOfReturnDay);
+        console.log('End of Return Day:', endOfReturnDay);
 
         const departureFlights = await Flight.find({
             departure_location,
             destination,
-            departure_time: { $gte: startOfDepartureDay }
+            departure_time: { $gte: startOfDepartureDay, $lte: endOfDepartureDay }
         });
 
         const returnFlights = await Flight.find({
             departure_location: destination,
             destination: departure_location,
-            departure_time: { $gte: startOfReturnDay }
+            departure_time: { $gte: startOfReturnDay, $lte: endOfReturnDay }
         });
 
         console.log('Departure Flights Found:', departureFlights);
