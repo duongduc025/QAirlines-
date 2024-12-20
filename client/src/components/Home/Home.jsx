@@ -11,7 +11,6 @@ import { use } from 'react';
 
 const Home = () => {
 
-  useGetAllBooking();
   
   return (
     <>

@@ -111,7 +111,6 @@ const FlightSearchPage = ({ onSubmit }) => {
       };
   
       const endpoint = isRoundTrip ? '/searchRound' : '/search';
-      console.log(isRoundTrip);
       const response = await axios.get(`${FLIGHT_API_END_POINT}${endpoint}`, {
         params: {
           ...formData,
@@ -121,6 +120,7 @@ const FlightSearchPage = ({ onSubmit }) => {
       });
   
       if (response.data) {
+        console.log(response.data);
         const departureFlights = isRoundTrip ? response.data.departureFlights : response.data;
         const returnFlights = isRoundTrip ? response.data.returnFlights : null;
         onSubmit(passengers, isRoundTrip, departureFlights, returnFlights);

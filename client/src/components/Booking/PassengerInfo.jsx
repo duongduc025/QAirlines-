@@ -40,12 +40,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
     
   const formatDateTime = (dateTime) => {
     const date = new Date(dateTime);
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = hours % 12 || 12;
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${formattedHours}:${formattedMinutes} ${ampm}`;
+    return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   };
 
   const validateIdNumber = (idNumber) => {

@@ -62,6 +62,7 @@ const Navbar = () => {
     const [navLinks, setNavLinks] = useState(guessNavLinks);
     const [delayNotices, setDelayNotices] = useState([]);
     const [hasNewNotifications, setHasNewNotifications] = useState(true);
+    const [unreadCount, setUnreadCount] = useState(0);
 
     useEffect(() => {
       setNavLinks(isMobileMenuOpen ? mobileNavLinks : guessNavLinks);
@@ -77,7 +78,8 @@ const Navbar = () => {
                     },
                 });
             if (response.data) {
-                setDelayNotices(response.data);
+                const sortedNotices = response.data.sort((a, b) => new Date(b.noticeDate) - new Date(a.noticeDate));
+                setDelayNotices(sortedNotices.slice(0, 20));
                 setHasNewNotifications(true);
                 console.log(response.data);
             }
@@ -89,8 +91,14 @@ const Navbar = () => {
         fetchDelayNotices();
     }, []);
 
-    const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen)
+    useEffect(() => {
+        // Calculate unread notifications count
+        const unreadNotices = delayNotices.filter(notice => notice.status === "Chưa xem").length;
+        setUnreadCount(unreadNotices);
+    }, [delayNotices]);
+
+    const toggleMobileMenu = async () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
     }
 
     const handleLogout = async () => {
@@ -105,8 +113,35 @@ const Navbar = () => {
         navigate('/promotion');
     }
 
-    const handleViewNotifications = () => {
-        setHasNewNotifications(false);
+    const handleViewNotifications = async () => {
+        if (!user) return;
+        
+        try {
+            console.log('Cập nhật thông báo');
+            const response = await axios.put(
+                `${USER_API_END_POINT}/updateDelayNotices/${user._id}`,
+                {},
+                {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                setDelayNotices(prevNotices => 
+                    prevNotices.map(notice => ({
+                        ...notice,
+                        status: "Đã xem"
+                    }))
+                );
+                setUnreadCount(0);
+                setHasNewNotifications(false);
+            }
+        } catch (error) {
+            console.error('Lỗi khi cập nhật thông báo:', error);
+        }
     }
 
     const handleNoticeClick = (noticeId) => {
@@ -177,6 +212,11 @@ const Navbar = () => {
     <PopoverTrigger asChild>
         <div className='relative cursor-pointer' onClick={handleViewNotifications}>
             <Bell className='text-black hover:text-[#DAA520] w-6 h-6' />
+            {unreadCount > 0 && (
+                <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    {unreadCount}
+                </div>
+            )}
         </div>
     </PopoverTrigger>
     <PopoverContent 

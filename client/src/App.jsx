@@ -1,9 +1,12 @@
-import { useState } from 'react'
-import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useState, useEffect } from 'react'
+import { createBrowserRouter, RouterProvider, Navigate, Outlet, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 import useGetAllPromotion from './hook/useGetAllPromotion'
+import useGetAllBooking from './hook/useGetAllBooking'
+import { setUser } from './redux/authSlice'
+import { setAllBooking } from './redux/bookingSlice'
+import { toast } from 'react-toastify'
 
-// Import components
 import Home from './components/Home/Home'
 import Login from './components/auth/Login'
 import Register from './components/auth/Register'
@@ -17,6 +20,8 @@ import AdminFlight from './components/admin/AdminFlight'
 import AdminBooking from './components/admin/AdminBooking'
 import BookingDetail from './components/MyBooking/BookingDetail'
 import FlightPage from './components/Booking/FlightPage'
+import { LOCAL_STORAGE_TOKEN_NAME } from './utils/constraint'
+
 
 
 // Function to check if user is authenticated
@@ -147,9 +152,25 @@ const AdminRouter = createBrowserRouter([
 ])
 
 function App() {
-
+  const dispatch = useDispatch();
   const { user } = useSelector(store => store.auth);
   useGetAllPromotion();
+  useGetAllBooking();
+
+  const handleLogout = async () => {
+    localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);
+    dispatch(setUser(null));    
+    dispatch(setAllBooking([]));
+  }
+
+  useEffect(() => {
+    const logoutTimer = setTimeout(() => {
+      handleLogout();
+    }, 3600000); 
+
+    return () => clearTimeout(logoutTimer);
+  }, [dispatch]);
+
   // Determine which router to use based on user role
   const router = user?.role === 'admin' 
     ? AdminRouter 

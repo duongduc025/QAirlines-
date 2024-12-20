@@ -20,13 +20,13 @@ const FlightConfirmation = ({ selectedFlight, onConfirm, numberOfPassenger }) =>
 
   const formatTime = (time) => {
     const date = new Date(time);
-    return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white shadow-2xl rounded-2xl p-4 lg:p-6 space-y-4 lg:space-y-6">
+    <div className="w-full max-w-md mx-auto bg-white shadow-2xl rounded-2xl p-4 lg:p-6 space-y-4 lg:space-y-6 h-96">
       <div className="flex justify-between items-center border-b pb-4">
-        <h2 className="text-2xl font-bold text-[#008080]">Chi Tiết Đặt Chỗ</h2>
+        <h2 className="text-2xl font-bold text-[#008080]">Chi tiết đặt chỗ</h2>
       </div>
 
       <div className="space-y-4">
@@ -89,7 +89,7 @@ const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, f
 
   const formatTime = (time) => {
     const date = new Date(time);
-    return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   };
 
   return (
@@ -220,11 +220,13 @@ const FlightListPage = ({ onSelectFlight, onBack, isReturn, numberOfPassenger, f
                   numberOfPassenger={numberOfPassenger}
                 />
               ) : (
-                <div className="bg-white rounded-2xl shadow-lg p-6 text-center max-w-md w-full mx-auto">
-                  <Plane className="mx-auto text-gray-300 mb-4" size={64} />
-                  <p className="text-gray-500">
-                    Chọn một chuyến bay để xem chi tiết đặt chỗ
-                  </p>
+                <div className="bg-white rounded-2xl shadow-lg p-6 text-center max-w-md w-full mx-auto h-96 flex items-center justify-center">
+                  <div>
+                    <Plane className="mx-auto text-gray-300 mb-4" size={64} />
+                    <p className="text-gray-500">
+                      Chọn một chuyến bay để xem chi tiết đặt chỗ
+                    </p>
+                  </div>
                 </div>
               )}
             </div>

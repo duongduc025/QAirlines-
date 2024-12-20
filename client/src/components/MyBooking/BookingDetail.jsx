@@ -45,7 +45,7 @@ const BookingDetail = () => {
     if (isNaN(date)) {
       return 'Invalid date';
     }
-    return format(date.toISOString(), formatString);
+    return date.toLocaleDateString('en-GB', { timeZone: 'UTC' }) + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   };
 
   const getAirportName = (code) => {
@@ -63,7 +63,7 @@ const BookingDetail = () => {
               className="cursor-pointer" 
               onClick={() => navigate('/mybookings')}
             />
-            <h2 className="text-2xl font-bold">Chi Tiết Vé Đặt</h2>
+            <h2 className="text-2xl font-bold">Chi tiết vé đặt</h2>
           </div>
         </div>
 

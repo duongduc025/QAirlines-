@@ -96,7 +96,8 @@ const MyBooking = () => {
   };
 
   const formatDateTime = (dateTimeStr) => {
-    return format(new Date(dateTimeStr), 'HH:mm dd/MM/yyyy');
+    const date = new Date(dateTimeStr);
+    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }) + ' ' + date.toLocaleDateString('en-GB', { timeZone: 'UTC' });
   };
 
   const handleViewDetails = (bookingId) => {
