@@ -9,6 +9,7 @@ import Booking from '../models/bookings.js';
 
 // ...existing code...
 
+// Hàm hiển thị tất cả các chuyến bay
 export const showAllFlights = async (req, res) => {
     try {
         const flights = await Flight.aggregate([
@@ -47,6 +48,7 @@ export const showAllFlights = async (req, res) => {
     }
 };
 
+// Hàm thêm chuyến bay mới
 export const addNewFlight = [
     authenticateJWT,
     isAdmin,        
@@ -83,7 +85,7 @@ export const addNewFlight = [
     }
 ];
 
-
+// Hàm cập nhật thời gian khởi hành
 export const updateDepartureTime = async (req, res) => {
     const { flightId } = req.params;
         const { newDepartureTime } = req.body;
@@ -132,6 +134,7 @@ export const updateDepartureTime = async (req, res) => {
     }
 };
 
+// Hàm xóa chuyến bay theo ID
 export const deleteFlightById = [
     authenticateJWT,
     isAdmin,
@@ -150,8 +153,7 @@ export const deleteFlightById = [
     }
 ];
 
-
-
+// Hàm tìm kiếm chuyến bay
 export const searchFlights = async (req, res) => {
     const { departure_location, destination, departure_date, ticket_quantity } = req.query;
 
@@ -195,6 +197,7 @@ export const searchFlights = async (req, res) => {
     }
 };
 
+// Hàm tìm kiếm chuyến bay khứ hồi
 export const searchRoundFlights = async (req, res) => {
     const { departure_location, destination, departure_date, return_date, ticket_quantity } = req.query;
 

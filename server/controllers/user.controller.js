@@ -6,6 +6,7 @@ import Flight from '../models/flights.js';
 import mongoose from 'mongoose';
 import DelayNotice from '../models/delayNotices.js';
 
+// Hàm đăng ký người dùng mới
 const register = async (req, res) => {
     const { email, fullname, phoneNumber, password } = req.body; 
     if (!email || !fullname || !phoneNumber || !password) {
@@ -38,12 +39,11 @@ const register = async (req, res) => {
     }
 };
 
+// Hàm đăng nhập người dùng
 const login = async (req, res) => {
     const { email, password } = req.body;   
     console.log("Login attempt for email:", email);
-    // if(!email || !password) {
-    //     return res.status (401).json({message: "All fields are required"});
-    // };
+
     try {
         const user = await User.findOne({ email });
         console.log("User found:", user);
@@ -70,6 +70,7 @@ const login = async (req, res) => {
     }
 };
 
+// Hàm đăng nhập bằng token
 const loginWithToken = async (req, res) => {
     const { token } = req.body;
     if (!token) {
@@ -95,6 +96,7 @@ const loginWithToken = async (req, res) => {
     }
 };
 
+// Hàm cập nhật thông tin người dùng
 const updateUser = async (req, res) => {
     const { _id } = req.params;
     const { newEmail, fullname, phoneNumber } = req.body;
@@ -129,6 +131,7 @@ const updateUser = async (req, res) => {
     }
 };
 
+// Hàm thay đổi mật khẩu người dùng
 const changePassword = async (req, res) => {
     const { _id } = req.params;
     const { currentPassword, newPassword, confirmPassword } = req.body;
@@ -159,7 +162,7 @@ const changePassword = async (req, res) => {
     }
 };
 
-//Test vui, sẽ xóa
+// Hàm thêm người dùng mới (test)
 const addUser = async (req, res) => {
     const { email, fullname, phoneNumber, password, role } = req.body;
     if (!email || !fullname || !phoneNumber || !password || !role) {
@@ -190,11 +193,13 @@ const addUser = async (req, res) => {
     }
 };
 
+// Hàm đăng xuất người dùng
 const logout = (req, res) => {
     // Invalidate the token or clear the session
     res.status(200).json("Logout successful");
 };
 
+// Hàm liệt kê tất cả các booking của người dùng trong một khoảng thời gian
 const listAllUserBookingInPeriod = async (req, res) => {
     const { period = "month" } = req.query;
     let startDate;
@@ -261,6 +266,7 @@ const listAllUserBookingInPeriod = async (req, res) => {
     }
 };
 
+// Hàm lấy thông báo trễ chuyến của người dùng
 const getDelayNotices = async (req, res) => {
     const { userId } = req.params;
 
@@ -291,6 +297,7 @@ const getDelayNotices = async (req, res) => {
     }
 };
 
+// Hàm cập nhật thông báo trễ chuyến của người dùng
 const updateDelayNotices = async (req, res) => {
     const { userId } = req.params;
 
@@ -315,7 +322,6 @@ const updateDelayNotices = async (req, res) => {
     }
 };
 
-//Tạo chart từ những thông số đã có về booking của các user_id
 
 export { register, login, updateUser, changePassword, addUser, logout, loginWithToken, listAllUserBookingInPeriod, getDelayNotices, updateDelayNotices };
 
