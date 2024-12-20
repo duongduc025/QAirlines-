@@ -25,13 +25,13 @@ import { LOCAL_STORAGE_TOKEN_NAME } from '@/utils/constraint';
 import { BOOKING_API_END_POINT } from '@/utils/constraint';
 import { useNavigate } from 'react-router-dom';
 import qairlineLogo from '@/assets/image/qairline_logo.png';
-import Airplane from '../../assets/image/airplane.png'; // Add this import
+import Airplane from '../../assets/image/airplane.png';
 
 const MyBooking = () => {
   const [searchId, setSearchId] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBooking, setSelectedBooking] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(''); // Modify this state
+  const [selectedDate, setSelectedDate] = useState('');
   const bookingsPerPage = 4;
 
   const { allBooking } = useSelector((store) => store.booking);
@@ -46,8 +46,6 @@ const MyBooking = () => {
       currency: 'VND'
     }).format(price);
   };
-
-  
 
   const handleCancelBooking = async () => {
     if (selectedBooking) {
@@ -101,7 +99,6 @@ const MyBooking = () => {
   };
 
   const handleViewDetails = (bookingId) => {
-    //Viết cho tôi hàm get
     window.scrollTo(0, 0);
     navigate(`/bookingdetail/${bookingId}`);
   };
@@ -124,7 +121,7 @@ const MyBooking = () => {
                 <img src={qairlineLogo} alt="QAirline Logo" className="h-10 w-auto rounded" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-5xl font-bold mb-2 flex items-baseline"> {/* Increased text size and margin */}
+                <CardTitle className="text-5xl font-bold mb-2 flex items-baseline">
                   <span className="text-[#DAA520]">Q</span>
                   <span className="text-[#008080]">Airline </span> 
                   <span className="text-white/90"> : Vé đã đặt</span>
@@ -141,7 +138,6 @@ const MyBooking = () => {
           </CardHeader>
         </Card>        
 
-        {/* Enhanced Banner Section */}
         <div className="mb-6 relative">
           <div className="flex items-center justify-between py-4 px-8 bg-gradient-to-r from-[#008080]/5 to-[#DAA520]/5 rounded-lg border border-[#008080]/10">
             <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b from-[#008080] to-[#DAA520]"></div>
@@ -151,7 +147,6 @@ const MyBooking = () => {
               Danh sách vé
             </h2>
 
-            {/* Date Filter */}
             <div className="flex items-center gap-4">
               <label className="text-[#008080] font-medium">Tìm theo ngày khởi hành:</label>
               <div className="relative w-48">
@@ -167,7 +162,6 @@ const MyBooking = () => {
           </div>
         </div>
 
-        {/* Bookings Grid */}
         <div className="grid gap-6">
           {currentBookings.map((booking, index) => (
             <Card key={booking._id} className="overflow-hidden border border-gray-100 shadow-md hover:shadow-lg transition-shadow">
@@ -202,7 +196,6 @@ const MyBooking = () => {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Flight Route Section */}
                   <div className="lg:col-span-2 bg-gray-50 rounded-xl p-4 pt-7">
                     <div className="flex items-center justify-center m-auto">
                       <div className="text-center flex-1">
@@ -240,7 +233,6 @@ const MyBooking = () => {
                     </div>
                   </div>
 
-                  {/* Booking Details Section */}
                   <div className="space-y-4 lg:border-l lg:pl-6">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
@@ -281,7 +273,6 @@ const MyBooking = () => {
           ))}
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-6 flex justify-center">
             <nav>
@@ -325,7 +316,6 @@ const MyBooking = () => {
           </div>
         )}
 
-        {/* Cancel Confirmation Dialog */}
         <Dialog open={!!selectedBooking} onOpenChange={(open) => {
           if (!open) setSelectedBooking(null);
         }}>
