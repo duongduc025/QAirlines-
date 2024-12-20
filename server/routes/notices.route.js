@@ -7,8 +7,13 @@ import { validateCreateNotice, validate } from '../validations/notices.validatio
 
 const router = express.Router();
 
+// Tạo thông báo mới
 router.post('/createNotice', authenticateJWT, isAdmin, upload.single('image'), validateCreateNotice, validate, createNotice);
+
+// Lấy hình ảnh thông báo theo ID
 router.get('/image/:id', getImageByNoticeId);
+
+// Xóa thông báo theo ID
 router.delete('/deleteNotice/:id', authenticateJWT, isAdmin, deleteNoticeById);
 
 export default router;

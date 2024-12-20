@@ -1,130 +1,83 @@
-import React, { useState } from 'react';
-import { Calendar, Plane } from 'lucide-react';
+import React from 'react';
+import { Plane, Users, Globe, Shield, Award, Check } from 'lucide-react';
 
-const FlightSearchForm = () => {
-  const [isRoundTrip, setIsRoundTrip] = useState(true);
-  const [formData, setFormData] = useState({
-    from: '',
-    to: '',
-    departureDate: '',
-    returnDate: ''
-  });
-
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-  };
+const QAirlineIntro = () => {
+  const stats = [
+    { icon: <Plane className="h-10 w-10" />, value: "500+", label: "Chuyến bay mỗi ngày" },
+    { icon: <Users className="h-10 w-10" />, value: "2M+", label: "Hành khách phục vụ" },
+    { icon: <Globe className="h-10 w-10" />, value: "50+", label: "Điểm đến" },
+    { icon: <Award className="h-10 w-10" />, value: "15+", label: "Năm kinh nghiệm" }
+  ];
 
   return (
     <div className="container mx-auto px-6 -mt-24 relative z-10 pt-20">
-      <div className="bg-white rounded-xl shadow-xl p-8 border border-[#008080]/20">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-[#008080]">Tìm Chuyến Bay</h2>
-          <div className="space-x-4">
-            <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="radio"
-                checked={isRoundTrip}
-                onChange={() => setIsRoundTrip(true)}
-                className="hidden"
-              />
-              <span className={`px-4 py-2 rounded-full ${isRoundTrip ? 'bg-[#008080] text-white' : 'bg-gray-100 text-gray-600'}`}>
-                Khứ hồi
-              </span>
-            </label>
-            <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="radio"
-                checked={!isRoundTrip}
-                onChange={() => setIsRoundTrip(false)}
-                className="hidden"
-              />
-              <span className={`px-4 py-2 rounded-full ${!isRoundTrip ? 'bg-[#008080] text-white' : 'bg-gray-100 text-gray-600'}`}>
-                Một chiều
-              </span>
-            </label>
-          </div>
+      <div className="bg-white rounded-xl shadow-2xl p-12 border">
+        <div className="text-center mb-16 max-w-3xl mx-auto">
+          <h2 className="text-4xl font-bold text-[#008080] bg-clip-text mb-6">
+            Chào mừng đến với <span className="text-[#DAA520]">Q</span>Airline
+          </h2>
+          <p className="text-gray-600 text-xl leading-relaxed">
+            Hãng hàng không hàng đầu Việt Nam với nhiều năm kinh nghiệm
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="relative">
-              <label className="block text-[#008080] font-medium mb-2">Điểm khởi hàng</label>
-              <div className="relative">
-                <Plane className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#DAA520]" />
-                <input
-                  type="text"
-                  name="from"
-                  value={formData.from}
-                  onChange={handleInputChange}
-                  className="w-full p-3 pl-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] focus:border-transparent"
-                  placeholder="Chọn điểm đi"
-                />
-              </div>
-            </div>
-
-            <div className="relative">
-              <label className="block text-[#008080] font-medium mb-2">Điểm đến</label>
-              <div className="relative">
-                <Plane className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#DAA520] rotate-90" />
-                <input
-                  type="text"
-                  name="to"
-                  value={formData.to}
-                  onChange={handleInputChange}
-                  className="w-full p-3 pl-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] focus:border-transparent"
-                  placeholder="Chọn điểm đến"
-                />
-              </div>
-            </div>
-
-            <div className="relative">
-              <label className="block text-[#008080] font-medium mb-2">Ngày đi</label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#DAA520]" />
-                <input
-                  type="date"
-                  name="departureDate"
-                  value={formData.departureDate}
-                  onChange={handleInputChange}
-                  className="w-full p-3 pl-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            {isRoundTrip && (
-              <div className="relative">
-                <label className="block text-[#008080] font-medium mb-2">Ngày về</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[#DAA520]" />
-                  <input
-                    type="date"
-                    name="returnDate"
-                    value={formData.returnDate}
-                    onChange={handleInputChange}
-                    className="w-full p-3 pl-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#008080] focus:border-transparent"
-                  />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          {stats.map((stat, index) => (
+            <div key={index} 
+                 className="relative overflow-hidden group rounded-2xl p-8 bg-white hover:bg-gradient-to-br hover:from-[#008080] hover:to-[#006666] transition-all duration-300 shadow-lg hover:shadow-xl">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="text-[#DAA520] group-hover:text-white transition-colors duration-300">
+                  {stat.icon}
+                </div>
+                <div className="text-3xl font-bold text-[#008080] group-hover:text-white transition-colors duration-300">
+                  {stat.value}
+                </div>
+                <div className="text-gray-600 group-hover:text-white/90 transition-colors duration-300">
+                  {stat.label}
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          ))}
+        </div>
 
-          <div className="flex justify-center mt-6">
-            <button
-              type="submit"
-              className="px-8 py-3 bg-[#008080] text-white rounded-lg hover:bg-[#006666] transform transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#008080]"
-            >
-              Tìm Chuyến Bay
-            </button>
+        <div className="grid md:grid-cols-2 gap-12">
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+            <h3 className="text-2xl font-bold text-[#008080] mb-6 flex items-center gap-3">
+              <Shield className="h-6 w-6 text-[#DAA520]" />
+              Cam kết của chúng tôi
+            </h3>
+            <ul className="space-y-4">
+              {['An toàn là ưu tiên hàng đầu', 'Dịch vụ khách hàng 24/7', 'Đội ngũ phi hành đoàn chuyên nghiệp'].map((item, index) => (
+                <li key={index} className="flex items-center gap-3 group">
+                  <div className="p-2 rounded-full bg-[#008080]/10 group-hover:bg-[#008080] transition-colors duration-300">
+                    <Check className="h-4 w-4 text-[#008080] group-hover:text-white" />
+                  </div>
+                  <span className="text-gray-700">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-        </form>
+          
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+            <h3 className="text-2xl font-bold text-[#008080] mb-6 flex items-center gap-3">
+              <Award className="h-6 w-6 text-[#DAA520]" />
+              Dịch vụ nổi bật
+            </h3>
+            <ul className="space-y-4">
+              {['Đội bay hiện đại', 'Mạng lưới đường bay rộng khắp châu Á', 'Chương trình thành viên hấp dẫn'].map((item, index) => (
+                <li key={index} className="flex items-center gap-3 group">
+                  <div className="p-2 rounded-full bg-[#008080]/10 group-hover:bg-[#008080] transition-colors duration-300">
+                    <Check className="h-4 w-4 text-[#008080] group-hover:text-white" />
+                  </div>
+                  <span className="text-gray-700">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default FlightSearchForm;
+export default QAirlineIntro;

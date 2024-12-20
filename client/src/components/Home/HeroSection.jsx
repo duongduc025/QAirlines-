@@ -43,7 +43,7 @@ const HeroSection = () => {
               ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'}
             `}
           >
-            Khám Phá Thế Giới
+            Vui từng chuyến bay
             
             <span className="block">Cùng <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>Airline</span></span>
           </h1>

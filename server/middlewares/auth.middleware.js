@@ -1,3 +1,4 @@
+// Hàm kiểm tra quyền admin
 export const isAdmin = (req, res, next) => {
     const user = req.user; 
     if (user && user.role === 'admin') {
@@ -7,6 +8,7 @@ export const isAdmin = (req, res, next) => {
     }
 };
 
+// Hàm kiểm tra quyền khách hàng
 export const isCustomer = (req, res, next) => {
     const user = req.user; 
     if (user && user.role === 'user') {

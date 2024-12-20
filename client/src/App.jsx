@@ -159,7 +159,7 @@ function App() {
   const dispatch = useDispatch();
   const { user } = useSelector(store => store.auth);
   useGetAllPromotion();
-  
+  useGetAllBooking();
 
 
   const handleLogout = async () => {

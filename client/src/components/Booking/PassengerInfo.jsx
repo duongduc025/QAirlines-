@@ -163,7 +163,9 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
                 </p>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Tổng giá vé:</span>
-                  <span className="font-medium text-[#DAA520]">{calculateTotalPrice().toLocaleString()}đ</span>
+                  <span className="font-medium text-[#DAA520]">
+                    {selectedFlight ? selectedFlight.economy_price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '0 VND'}
+                  </span>
                 </p>
               </div>
             </div>
@@ -199,7 +201,9 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
                 </p>
                 <p className="flex justify-between py-2">
                   <span className="text-gray-600">Tổng giá vé:</span>
-                  <span className="font-medium text-[#DAA520]">{calculateTotalPrice().toLocaleString()}đ</span>
+                  <span className="font-medium text-[#DAA520]">
+                    {returnFlight ? returnFlight.economy_price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '0 VND'}
+                  </span>
                 </p>
               </div>
             </div>
@@ -318,12 +322,16 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
                   </p>
                   <p className="flex justify-between text-sm">
                     <span className="text-gray-600">Giá vé mỗi người:</span>
-                    <span className="font-medium">{selectedFlight?.economy_price.toLocaleString()}đ</span>
+                    <span className="font-medium">
+                      {(selectedFlight?.economy_price + (returnFlight?.economy_price || 0)).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                    </span>
                   </p>
                   <div className="border-t border-[#008080]/20 my-2"></div>
                   <p className="flex justify-between text-lg font-semibold">
                     <span className="text-gray-800">Tổng tiền:</span>
-                    <span className="text-[#DAA520]">{calculateTotalPrice().toLocaleString()}đ</span>
+                    <span className="text-[#DAA520]">
+                      {calculateTotalPrice().toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                    </span>
                   </p>
                 </div>
               </CardContent>

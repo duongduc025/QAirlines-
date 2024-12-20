@@ -1,5 +1,6 @@
 import { body } from 'express-validator';
 
+// Hàm promotionValidationRules kiểm tra thông tin khuyến mãi
 export const promotionValidationRules = [
     body('title').notEmpty().withMessage('Title is required'),
     body('category').notEmpty().withMessage('Category is required')

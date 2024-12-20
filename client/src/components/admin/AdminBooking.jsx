@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
+import useGetAllBookingsAdmin from '@/hook/useGetAllBookingsAdmin';
 // Component quản lý đặt vé
 const AdminBooking = () => {
   const { allBooking } = useSelector(store => store.booking);
@@ -26,16 +26,26 @@ const AdminBooking = () => {
     const months = Array(12).fill(0).map((_, index) => ({
       name: `Tháng ${index + 1}`,
       bookings: 0,
-      amount: 0
+      amount: 0,
+      cancellations: 0
     }));
 
     allBookings.forEach(booking => {
       const bookingDate = new Date(booking.booking_date);
-      if (bookingDate.getFullYear() === selectedYear) {
-        const monthIndex = bookingDate.getMonth();
+      if (bookingDate.getUTCFullYear() === selectedYear) {
+        const monthIndex = bookingDate.getUTCMonth();
         months[monthIndex].bookings += 1;
         months[monthIndex].amount += booking.total_price;
+        if (booking.booking_status === 'Đã hủy') {
+          months[monthIndex].cancellations += 1;
+        }
       }
+    });
+
+    // Calculate cancellation rate for each month
+    months.forEach(month => {
+      month.cancellationRate = month.bookings ? 
+        ((month.cancellations / month.bookings) * 100).toFixed(1) : 0;
     });
 
     return months;
@@ -48,9 +58,9 @@ const AdminBooking = () => {
   
   // Hàm kiểm tra xem hai ngày có cùng ngày/tháng/năm không
   const isSameDay = (date1, date2) => {
-    return date1.getDate() === date2.getDate() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
+    return date1.getUTCDate() === date2.getUTCDate() &&
+           date1.getUTCMonth() === date2.getUTCMonth() &&
+           date1.getUTCFullYear() === date2.getUTCFullYear();
   };
 
   // Update filteredTickets to use the new data structure
@@ -77,12 +87,12 @@ const AdminBooking = () => {
 
   // Hàm định dạng ngày
   const formatDate = (date) => {
-    return date.toLocaleDateString('vi-VN');
+    return date.toLocaleDateString('en-GB', { timeZone: 'UTC' });
   };
 
   // Hàm định dạng ngày giờ
   const formatDateTime = (dateStr) => {
-    return new Date(dateStr).toLocaleString('vi-VN');
+    return new Date(dateStr).toLocaleString('en-GB', { timeZone: 'UTC' });
   };
 
   // Component hiển thị chi tiết đặt vé
@@ -137,6 +147,21 @@ const AdminBooking = () => {
     </Dialog>
   );
 
+  // Add this new calculation inside the component
+  const getMonthlyComparison = (currentMonth) => {
+    const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const currentStats = monthlyStats[currentMonth];
+    const prevStats = monthlyStats[prevMonth];
+    
+    const bookingChange = prevStats.bookings ? 
+      ((currentStats.bookings - prevStats.bookings) / prevStats.bookings) * 100 : 0;
+    const revenueChange = prevStats.amount ? 
+      ((currentStats.amount - prevStats.amount) / prevStats.amount) * 100 : 0;
+      
+    return { bookingChange, revenueChange };
+  };
+  useGetAllBookingsAdmin();
+
   return (
     <div className=" flex min-h-screen bg-gray-50">
       {/* SideBar */}
@@ -155,44 +180,6 @@ const AdminBooking = () => {
         </div>
 
         {/* Update Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium">Tổng vé</p>
-                  <p className="text-2xl font-bold">{totalTickets}</p>
-                </div>
-                <Plane className="h-8 w-8" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium">Tổng hành khách</p>
-                  <p className="text-2xl font-bold">{totalPassengers}</p>
-                </div>
-                <Users className="h-8 w-8" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium">Tổng số tiền</p>
-                  <p className="text-2xl font-bold">{totalRevenue.toLocaleString()} VND</p>
-                </div>
-                <CreditCard className="h-8 w-8" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <Card>
             <CardContent className="p-6">
@@ -243,7 +230,14 @@ const AdminBooking = () => {
     <Calendar
       mode="single"
       selected={selectedDate}
-      onSelect={(date) => setSelectedDate(date || new Date())}
+      onSelect={(date) => {
+        if (date) {
+          const adjustedDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+          setSelectedDate(adjustedDate);
+        } else {
+          setSelectedDate(new Date());
+        }
+      }}
       className="rounded-md border w-full max-w-[300px]"
     />
   </CardContent>
@@ -275,7 +269,6 @@ const AdminBooking = () => {
                   <SelectContent>
                     <SelectItem value="all">Tất cả</SelectItem>
                     <SelectItem value="Đã đặt">Đã đặt</SelectItem>
-                    <SelectItem value="Đã sử dụng">Đã sử dụng</SelectItem>
                     <SelectItem value="Đã hủy">Đã hủy</SelectItem>
                   </SelectContent>
                 </Select>
@@ -342,7 +335,7 @@ const AdminBooking = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-[400px]">
+            <div className="w-full h-[400px] mb-8">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyStats}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -354,6 +347,42 @@ const AdminBooking = () => {
                   <Bar yAxisId="right" dataKey="amount" fill="#06b6d4" name="Doanh thu (VND)" />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+
+            {/* Thêm phần thống kê chi tiết */}
+            <div className="mt-8 border-t pt-6">
+              <h3 className="text-lg font-semibold mb-4">Chi tiết thống kê theo tháng</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {monthlyStats.map((month) => (
+                  <Card key={month.name} className="border shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">{month.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <dl className="space-y-2">
+                        <div className="flex justify-between">
+                          <dt className="text-sm text-gray-500">Số vé:</dt>
+                          <dd className="text-sm font-medium">{month.bookings}</dd>
+                        </div>
+                        <div className="flex justify-between">
+                          <dt className="text-sm text-gray-500">Doanh thu:</dt>
+                          <dd className="text-sm font-medium">
+                            {month.amount.toLocaleString()} VND
+                          </dd>
+                        </div>
+                        <div className="flex justify-between">
+                          <dt className="text-sm text-gray-500">Tỉ lệ huỷ:</dt>
+                          <dd className={`text-sm font-medium ${
+                            Number(month.cancellationRate) > 10 ? 'text-red-600' : 'text-green-600'
+                          }`}>
+                            {month.cancellationRate}%
+                          </dd>
+                        </div>
+                      </dl>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>

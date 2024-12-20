@@ -47,6 +47,9 @@ const BookingDetail = () => {
     if (isNaN(date)) {
       return 'Invalid date';
     }
+    if (formatString === 'dd/MM/yyyy') {
+      return date.toLocaleDateString('en-GB', { timeZone: 'UTC' });
+    }
     return date.toLocaleDateString('en-GB', { timeZone: 'UTC' }) + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
   };
 

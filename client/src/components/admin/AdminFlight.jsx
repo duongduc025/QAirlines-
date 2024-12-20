@@ -41,6 +41,8 @@ const AdminFlight = () => {
 
   const [departureFilter, setDepartureFilter] = useState("");
   const [destinationFilter, setDestinationFilter] = useState("");
+  const [departureDateFilter, setDepartureDateFilter] = useState("");
+  const [returnDateFilter, setReturnDateFilter] = useState("");
 
   const filteredFlights = flights.filter(flight => {
     const matchesCode = flight.flight_code.toLowerCase().includes(searchQuery.toLowerCase());
@@ -54,8 +56,12 @@ const AdminFlight = () => {
         .toLowerCase()
         .includes(destinationFilter.toLowerCase()) ||
       flight.destination.toLowerCase().includes(destinationFilter.toLowerCase()));
+    const matchesDepartureDate = departureDateFilter === "" || 
+      new Date(flight.departure_time).toISOString().split('T')[0] === departureDateFilter;
+    const matchesReturnDate = returnDateFilter === "" || 
+      new Date(flight.return_time).toISOString().split('T')[0] === returnDateFilter;
     
-    return matchesCode && matchesDeparture && matchesDestination;
+    return matchesCode && matchesDeparture && matchesDestination && matchesDepartureDate && matchesReturnDate;
   });
 
   const totalPages = Math.ceil(filteredFlights.length / itemsPerPage);
@@ -347,7 +353,7 @@ const AdminFlight = () => {
               </Dialog>
             </div>
             {/* Search Bar */}
-            <div className="mt-4 relative grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="mt-4 relative grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -366,6 +372,18 @@ const AdminFlight = () => {
                 placeholder="Tìm kiếm điểm đến (tên/mã)..."
                 value={destinationFilter}
                 onChange={(e) => setDestinationFilter(e.target.value)}
+              />
+              <Input
+                type="date"
+                placeholder="Ngày đi"
+                value={departureDateFilter}
+                onChange={(e) => setDepartureDateFilter(e.target.value)}
+              />
+              <Input
+                type="date"
+                placeholder="Ngày về"
+                value={returnDateFilter}
+                onChange={(e) => setReturnDateFilter(e.target.value)}
               />
             </div>
           </CardHeader>

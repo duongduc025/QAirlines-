@@ -298,7 +298,67 @@ const Navbar = () => {
                 </div>
 
                 {/* Mobile Menu Toggle */}
-                <div className='xl:hidden'>
+                <div className='xl:hidden flex items-center'>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <div className='relative cursor-pointer mr-4' onClick={handleViewNotifications}>
+                                <Bell className='text-black hover:text-[#DAA520] w-6 h-6' />
+                                {unreadCount > 0 && (
+                                    <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                                        {unreadCount}
+                                    </div>
+                                )}
+                            </div>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                            align="center" 
+                            className="w-[350px] p-0 shadow-xl rounded-xl mt-2"
+                        >
+                            <div className='bg-[#DAA520] text-white px-4 py-3 rounded-t-xl flex justify-center'>
+                                <h2 className='text-lg font-semibold'>Thông Báo</h2>
+                            </div>
+                            <div className='max-h-[350px] overflow-y-auto'>
+                                {delayNotices.map((notice) => (
+                                    <div 
+                                        key={notice._id} 
+                                        className='px-4 py-2 border-b last:border-b-0 hover:bg-gray-50 transition-colors duration-200 cursor-pointer group'
+                                        onClick={() => handleNoticeClick(notice.bookingDetails._id)}
+                                    >
+                                        <div className='flex items-center max-w-full'>
+                                            <div className='flex-1 min-w-0'>
+                                                <h4 className='font-semibold text-sm text-gray-800 group-hover:text-[#DAA520] transition-colors truncate max-w-full'>
+                                                    Delay chuyến bay số #{notice.flightDetails.flight_code}  
+                                                </h4>
+                                                <p className='text-xs text-gray-600 truncate max-w-full'>
+                                                    {`Từ: ${notice.flightDetails.departure_location} đến: ${notice.flightDetails.destination}`}
+                                                </p>
+                                                <p className='text-xs text-gray-600 truncate max-w-full'>
+                                                    {`Thời gian khởi hành mới: ${formatUTCDate(notice.newDepartureTime)}`}
+                                                </p>
+                                                <p className='text-xs text-gray-600 truncate max-w-full'>
+                                                    {`Thời gian khởi hành cũ: ${formatUTCDate(notice.previousDepartureTime)}`}
+                                                </p>
+                                                <span className='text-xs text-gray-400 block truncate max-w-full'>
+                                                    {notice.date}
+                                                </span>
+                                            </div>
+                                            <div className='pl-2 flex-shrink-0'>
+                                                <ChevronRight className='text-gray-400 w-4 h-4 group-hover:text-[#DAA520] transition-colors' />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div 
+                                className='px-4 py-2 bg-gray-50 rounded-b-xl text-center cursor-pointer hover:bg-gray-100 transition-colors'
+                                onClick={handleViewMoreNotifications}
+                            >
+                                <span className='text-sm text-[#008080] font-medium flex items-center justify-center'>
+                                    Xem thêm <ChevronRight className='ml-1 w-4 h-4' />
+                                </span>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
                     <Button 
                         variant="ghost" 
                         size="icon" 

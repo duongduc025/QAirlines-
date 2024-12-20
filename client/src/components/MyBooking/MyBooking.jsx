@@ -322,7 +322,7 @@ const MyBooking = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Xác nhận hủy vé</DialogTitle>
-              <DialogDescription></DialogDescription>
+              <DialogDescription>Chỉ được hủy vé trong khoảng thời gian trước 24 tiếng so với giờ khởi hành</DialogDescription>
             </DialogHeader>
             <p>Bạn có chắc chắn muốn hủy vé #{selectedBooking?._id.slice(-4)}?</p>
             <div className="flex justify-end gap-2 mt-4">
