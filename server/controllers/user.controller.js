@@ -208,9 +208,15 @@ const getDelayNotices = async (req, res) => {
         for (const noticeId of user.delayNotices) {
             const notice = await DelayNotice.findById(noticeId).populate('flightId');
             if (notice) {
+                notice.status = 'Đã xem';
+                await notice.save();
+
+                const booking = await Booking.findOne({ flight_id: notice.flightId._id, user_id: userId });
+
                 delayNotices.push({
                     ...notice.toObject(),
-                    flightDetails: notice.flightId
+                    flightDetails: notice.flightId,
+                    bookingDetails: booking
                 });
             }
         }
