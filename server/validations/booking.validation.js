@@ -7,7 +7,9 @@ export const createBookingValidation = [
     body('passengers.*.fullname').notEmpty().withMessage('Fullname is required'),
     body('passengers.*.gender').notEmpty().withMessage('Gender is required'),
     body('passengers.*.dob').isDate().withMessage('Valid date of birth is required'),
-    body('passengers.*.identity_number').notEmpty().withMessage('Identity number is required')
+    body('passengers.*.identity_number').notEmpty().withMessage('Identity number is required'),
+    body('user_email').isEmail().withMessage('Valid email is required'),
+    body('ticket_price').isFloat({ min: 0 }).withMessage('Ticket price must be a positive number')
 ];
 
 export const createRoundBookingValidation = [
@@ -18,5 +20,7 @@ export const createRoundBookingValidation = [
     body('passengers.*.fullname').notEmpty().withMessage('Fullname is required'),
     body('passengers.*.gender').notEmpty().withMessage('Gender is required'),
     body('passengers.*.dob').isDate().withMessage('Valid date of birth is required'),
-    body('passengers.*.identity_number').notEmpty().withMessage('Identity number is required')
+    body('passengers.*.identity_number').notEmpty().withMessage('Identity number is required'),
+    body('user_email').isEmail().withMessage('Valid email is required'),
+    body('ticket_price').isFloat({ min: 0 }).withMessage('Ticket price must be a positive number')
 ];
