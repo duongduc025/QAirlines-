@@ -5,12 +5,14 @@ const validateUser = [
     check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
     check('fullname').notEmpty().withMessage('Full name is required'),
     check('phoneNumber').notEmpty().withMessage('Phone number is required'),
+    check('role').notEmpty().withMessage('Role is required').isIn(['user', 'admin']).withMessage('Invalid role')
 ];
 
 const validateUpdateUser = [
     check('newEmail').optional().isEmail().withMessage('Invalid email address'),
     check('fullname').notEmpty().withMessage('Full name is required'),
     check('phoneNumber').notEmpty().withMessage('Phone number is required'),
+    check('role').optional().isIn(['user', 'admin']).withMessage('Invalid role')
 ];
 
 const validateChangePassword = [
@@ -20,11 +22,11 @@ const validateChangePassword = [
 ];
 
 const validate = (req, res, next) => {
-    const errors = validationResult(req);
+    const errors = validationResult(req); // Gather validation errors from the request
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array() }); // Respond with errors if any
     }
-    next();
+    next(); // Proceed to the next middleware if no errors
 };
 
 export { validateUser, validateUpdateUser, validateChangePassword, validate };
