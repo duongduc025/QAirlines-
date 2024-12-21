@@ -11,6 +11,8 @@ import airplaneRoutes from './routes/airplanes.route.js';
 dotenv.config();
 
 const app = express();
+const port = process.env.PORT || 3001;
+
 app.use(express.json());
 app.use(cors());
 console.log('MONGO_URI:', process.env.MONGO_URI);
