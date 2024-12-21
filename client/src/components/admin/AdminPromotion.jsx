@@ -26,7 +26,10 @@ const categories = [
 ];
 
 const marks = [
+  { id: "10%", name: "10%" },
+  { id: "20%", name: "20%" },
   { id: "30%", name: "30%" },
+  { id: "40%", name: "40%" },
   { id: "50%", name: "50%" },
   { id: "Giới hạn", name: "Giới hạn" },
   { id: "Mới", name: "Mới" },

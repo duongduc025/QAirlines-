@@ -248,7 +248,7 @@ export const cancelBooking = async (req, res) => {
         const currentTime = new Date();
         const departureTime = booking.flight_id.departure_time; 
 
-        if (departureTime - currentTime < 31 * 60 * 60 * 1000) { 
+        if (departureTime - currentTime < 24 * 60 * 60 * 1000) { 
             return res.status(400).json({ message: 'Không thể hủy đặt vé trong vòng 24 giờ trước khi khởi hành' });
         }
 

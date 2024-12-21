@@ -46,7 +46,6 @@ const Profile = () => {
           "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
           "Content-Type": "application/json",
         },
-        withCredentials: true
       });
       if(res.data){
         dispatch(setUser(res.data));

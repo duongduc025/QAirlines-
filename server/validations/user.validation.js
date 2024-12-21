@@ -2,26 +2,24 @@ import { check, validationResult } from 'express-validator';
 
 // Hàm validateUser kiểm tra thông tin người dùng khi đăng ký
 const validateUser = [
-    check('email').isEmail().withMessage('Địa chỉ email không hợp lệ'),
-    check('password').isLength({ min: 6 }).withMessage('Mật khẩu phải có ít nhất 6 ký tự'),
-    check('fullname').notEmpty().withMessage('Họ và tên là bắt buộc'),
-    check('phoneNumber').notEmpty().withMessage('Số điện thoại là bắt buộc'),
-    check('role').notEmpty().withMessage('Vai trò là bắt buộc').isIn(['user', 'admin']).withMessage('Vai trò không hợp lệ')
+    check('email').isEmail().withMessage('Invalid email address'),
+    check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    check('fullname').notEmpty().withMessage('Full name is required'),
+    check('phoneNumber').notEmpty().withMessage('Phone number is required'),
 ];
 
 // Hàm validateUpdateUser kiểm tra thông tin người dùng khi cập nhật
 const validateUpdateUser = [
-    check('newEmail').optional().isEmail().withMessage('Địa chỉ email không hợp lệ'),
-    check('fullname').notEmpty().withMessage('Họ và tên là bắt buộc'),
-    check('phoneNumber').notEmpty().withMessage('Số điện thoại là bắt buộc'),
-    check('role').optional().isIn(['user', 'admin']).withMessage('Vai trò không hợp lệ')
+    check('newEmail').optional().isEmail().withMessage('Invalid email address'),
+    check('fullname').notEmpty().withMessage('Full name is required'),
+    check('phoneNumber').notEmpty().withMessage('Phone number is required'),
 ];
 
 // Hàm validateChangePassword kiểm tra thông tin khi người dùng đổi mật khẩu
 const validateChangePassword = [
-    check('currentPassword').notEmpty().withMessage('Mật khẩu hiện tại là bắt buộc'),
-    check('newPassword').isLength({ min: 6 }).withMessage('Mật khẩu mới phải có ít nhất 6 ký tự'),
-    check('confirmPassword').notEmpty().withMessage('Xác nhận mật khẩu là bắt buộc'),
+    check('currentPassword').notEmpty().withMessage('Current password is required'),
+    check('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters long'),
+    check('confirmPassword').notEmpty().withMessage('Confirm password is required'),
 ];
 
 // Hàm validate kiểm tra kết quả của các hàm kiểm tra trên

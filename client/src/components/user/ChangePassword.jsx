@@ -39,7 +39,6 @@ const ChangePassword = () => {
           "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
           "Content-Type": "application/json",
         },
-        withCredentials: true
       });
       console.log(res.data);
       if (res.data) {

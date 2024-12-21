@@ -87,7 +87,7 @@ const BookingDetail = () => {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm text-gray-500">Mã chuyến bay</label>
-                  <p className="mt-1 font-medium text-[#008080]">
+                  <p className="mt-1 font-medium text-[#008080] break-words">
                     {bookingDetail?.flight_details?.flight_code}
                   </p>
                 </div>

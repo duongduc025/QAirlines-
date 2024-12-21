@@ -53,6 +53,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
 
   // Hàm kiểm tra tính hợp lệ của form
   const validateForm = () => {
+    
     const newErrors = passengers.map(passenger => {
       const passengerErrors = {};
       
@@ -83,6 +84,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
   // Hàm xử lý khi submit form
   const handleSubmit = (e) => {
     e.preventDefault();
+    
     if (validateForm()) {
       const formData = {
         flight_id: returnFlight ? undefined : selectedFlight._id,
@@ -162,7 +164,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
                   <span className="font-medium">{passengers.length}</span>
                 </p>
                 <p className="flex justify-between py-2">
-                  <span className="text-gray-600">Tổng giá vé:</span>
+                  <span className="text-gray-600">Giá vé:</span>
                   <span className="font-medium text-[#DAA520]">
                     {selectedFlight ? selectedFlight.economy_price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '0 VND'}
                   </span>
@@ -200,7 +202,7 @@ const PassengerInfo = ({ onSubmit, selectedFlight, returnFlight, numberOfPasseng
                   <span className="font-medium">{passengers.length}</span>
                 </p>
                 <p className="flex justify-between py-2">
-                  <span className="text-gray-600">Tổng giá vé:</span>
+                  <span className="text-gray-600">Giá vé:</span>
                   <span className="font-medium text-[#DAA520]">
                     {returnFlight ? returnFlight.economy_price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '0 VND'}
                   </span>

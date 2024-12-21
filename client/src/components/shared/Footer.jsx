@@ -28,17 +28,15 @@ const socialLinks = [
   },
 ];
 
-
-
 const Footer = () => {
     const year = new Date().getFullYear();
   
     return (
-      <footer className="pt-10 pb-10">
+      <footer className="pt-10 pb-10 pl-5">
         <div className='bg-white'>
-        <div className='flex items-center justify-between mx-auto max-w-7xl flex-col'>
+        <div className='flex items-center justify-center mx-auto max-w-7xl flex-col'>
         <div className="container">
-          <div className="flex justify-between flex-col md:flex-row flex-wrap gap-[30px]">
+          <div className="flex justify-center flex-col md:flex-row flex-wrap gap-[30px]">
             <div>
               
             <div className="flex items-center gap-2"> 
@@ -48,7 +46,7 @@ const Footer = () => {
               </div>
               
               <p className="text-[16px] leading-7 font-[400] text-textColor mt-4">
-                Copyright © {year} developed by Group 5 all right reserved.
+                Copyright © {year} developed by Group 66 all right reserved.
               </p>
               <div className="flex items-center gap-3 mt-4">
                 {socialLinks.map((link, index) => (
@@ -70,4 +68,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;    
+export default Footer;

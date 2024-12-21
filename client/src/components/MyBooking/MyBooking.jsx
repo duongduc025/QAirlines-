@@ -106,7 +106,7 @@ const MyBooking = () => {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         <Card className="w-full max-w-6xl mx-auto flex-1 mb-4 overflow-hidden">
-          <CardHeader className="relative p-16"> 
+          <CardHeader className="relative p-4 sm:p-8 md:p-16"> 
             <div className="absolute inset-0">
               <img 
                 src={Airplane}
@@ -115,21 +115,21 @@ const MyBooking = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40" />
             </div>
-            <div className="relative flex items-center gap-6">
+            <div className="relative flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
               <div className="flex items-center justify-center p-2 bg-white/90 rounded-lg shadow-sm transform hover:scale-105 transition-transform backdrop-blur-sm border border-white/20">
-                <img src={qairlineLogo} alt="QAirline Logo" className="h-10 w-auto rounded" />
+                <img src={qairlineLogo} alt="QAirline Logo" className="h-8 sm:h-10 w-auto rounded" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-5xl font-bold mb-2 flex items-baseline">
+                <CardTitle className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 flex items-baseline">
                   <span className="text-[#DAA520]">Q</span>
                   <span className="text-[#008080]">Airline </span> 
                   <span className="text-white/90"> : Vé đã đặt</span>
                 </CardTitle>
                 <div className="flex items-center gap-2">
-                  <p className="text-white/80 text-lg">
+                  <p className="text-white/80 text-base sm:text-lg">
                     Quản lý và theo dõi các chuyến bay 
                     <span className="text-[#DAA520] drop-shadow-[0_0_2px_rgba(218,165,32,0.3)]"> Q</span>
-                    <span className="text-[#008080] drop-shadow-[0_0_2px_rgba(0,128,128,0.3)]">Airline</span> của bạn
+                    <span className="text-[#008080] drop-shadow-[0_0_2px_rgba(0,128,128,0.3)]">Airline</span> 
                   </p>
                 </div>
               </div>
@@ -138,17 +138,17 @@ const MyBooking = () => {
         </Card>        
 
         <div className="mb-6 relative">
-          <div className="flex items-center justify-between py-4 px-8 bg-gradient-to-r from-[#008080]/5 to-[#DAA520]/5 rounded-lg border border-[#008080]/10">
+          <div className="flex flex-col sm:flex-row items-center justify-between py-4 px-4 sm:px-8 bg-gradient-to-r from-[#008080]/5 to-[#DAA520]/5 rounded-lg border border-[#008080]/10">
             <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b from-[#008080] to-[#DAA520]"></div>
             <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-b from-[#DAA520] to-[#008080]"></div>
             
-            <h2 className="text-2xl font-semibold bg-gradient-to-r from-[#DAA520] to-[#DAA520] bg-clip-text text-transparent">
+            <h2 className="text-xl sm:text-2xl font-semibold bg-gradient-to-r from-[#DAA520] to-[#DAA520] bg-clip-text text-transparent mb-4 sm:mb-0">
               Danh sách vé
             </h2>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
               <label className="text-[#008080] font-medium">Tìm theo ngày khởi hành:</label>
-              <div className="relative w-48">
+              <div className="relative w-full sm:w-48">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500 w-4 h-4" />
                 <input
                   type="date"

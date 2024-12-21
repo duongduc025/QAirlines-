@@ -27,7 +27,6 @@ const FlightPage = () => {
   const dispatch = useDispatch();
   const { loading } = useSelector(store => store.booking);
 
-  // Hàm xử lý khi submit tìm kiếm chuyến bay
   const handleSearchSubmit = (passengers, roundTrip, departureFlights, returnFlights) => {
     setNumberOfPassenger(passengers);
     setIsRoundTrip(roundTrip);
@@ -36,7 +35,6 @@ const FlightPage = () => {
     setCurrentStep('list');
   };
 
-  // Hàm xử lý khi chọn chuyến bay
   const handleSelectFlight = (flight) => {
    
     if (!isRoundTrip) {
@@ -54,12 +52,12 @@ const FlightPage = () => {
     
   };
 
-  // Hàm xử lý khi submit thông tin hành khách
   const handlePassengerSubmit = async (formData) => {
     dispatch(setLoading(true));
     console.log('formData', formData);
     try {
-      const response = await axios.post(`${BOOKING_API_END_POINT}/book`, formData, {
+      const endpoint = isRoundTrip ? `${BOOKING_API_END_POINT}/round-bookings` : `${BOOKING_API_END_POINT}/bookings`;
+      const response = await axios.post(endpoint, formData, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`
         },
@@ -79,7 +77,6 @@ const FlightPage = () => {
     }
   };
 
-  // Hàm xử lý khi quay lại bước trước
   const handleBack = () => {
     console.log('selected flight', selectedFlight);
     console.log('return flight', returnFlight);
