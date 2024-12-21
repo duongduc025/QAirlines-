@@ -16,7 +16,6 @@ const BookingDetail = () => {
   const params = useParams();
   const bookingID = params.id;
   const navigate = useNavigate();
-  console.log("bookingID:", bookingID);
   useEffect(() => {
       // Hàm lấy thông tin chi tiết của một vé đặt
       const fetchSingleBooking = async () => {
@@ -39,7 +38,6 @@ const BookingDetail = () => {
 
   const { singleBooking } = useSelector((store) => store.booking);
   const bookingDetail = singleBooking;
-  console.log("singleBooking:", bookingDetail);
 
   // Hàm định dạng ngày tháng
   const formatDate = (dateString, formatString) => {

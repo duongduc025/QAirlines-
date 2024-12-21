@@ -41,7 +41,6 @@ const Login = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                withCredentials: true,
             });
             if (res.data.success) {
                 dispatch(setUser(res.data.user));

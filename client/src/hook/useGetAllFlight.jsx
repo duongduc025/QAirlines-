@@ -18,7 +18,6 @@ const useGetAllFlight = () => {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
                     },
-                    withCredentials: true,
                 });
                 
                 if(res.data){

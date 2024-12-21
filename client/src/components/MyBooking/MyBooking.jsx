@@ -35,7 +35,6 @@ const MyBooking = () => {
   const bookingsPerPage = 4;
 
   const { allBooking } = useSelector((store) => store.booking);
-  console.log(allBooking);
   const [ userBooking, setUserbooking ] = useState(allBooking);
   const dispatch = useDispatch();
   const navigate = useNavigate();

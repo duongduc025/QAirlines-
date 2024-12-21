@@ -81,10 +81,9 @@ const Navbar = () => {
                 const sortedNotices = response.data.sort((a, b) => new Date(b.noticeDate) - new Date(a.noticeDate));
                 setDelayNotices(sortedNotices.slice(0, 20));
                 setHasNewNotifications(true);
-                console.log(response.data);
             }
             } catch (error) {
-                console.error('Có lỗi xảy ra', error);
+               
             }
         };
 
@@ -117,7 +116,6 @@ const Navbar = () => {
         if (!user) return;
         
         try {
-            console.log('Cập nhật thông báo');
             const response = await axios.put(
                 `${USER_API_END_POINT}/updateDelayNotices/${user._id}`,
                 {},
@@ -140,7 +138,7 @@ const Navbar = () => {
                 setHasNewNotifications(false);
             }
         } catch (error) {
-            console.error('Lỗi khi cập nhật thông báo:', error);
+            console.log('Có lỗi xảy ra');
         }
     }
 

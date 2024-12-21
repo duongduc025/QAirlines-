@@ -43,7 +43,7 @@ const Signup = () => {
         try {
             dispatch(setLoading(true));
             const res = await axios.post(`${USER_API_END_POINT}/register`, input, {
-                withCredentials: true,
+                
             });
             if (res.data) {
                 navigate("/login");

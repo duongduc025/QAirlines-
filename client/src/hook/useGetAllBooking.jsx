@@ -12,13 +12,13 @@ const useGetAllBooking = () => {
     const dispatch = useDispatch();
     const {user} = useSelector(state => state.auth);
     useEffect(()=>{
+        if (user?.role !== 'user') return; // Check if user role is 'user'
         const fetchAllBookings = async () => {
             try {
                 const res = await axios.get(`${BOOKING_API_END_POINT}/users/${user?._id}/bookings`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem(LOCAL_STORAGE_TOKEN_NAME)}`,
                     },
-                    withCredentials: true,
                 });
                
                 if(res.data.success){
@@ -27,7 +27,7 @@ const useGetAllBooking = () => {
                 }
                 
             } catch (error) {
-                console.log(error);
+               // console.log(error);
             
             }
         }
