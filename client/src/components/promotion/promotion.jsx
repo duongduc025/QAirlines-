@@ -39,9 +39,9 @@ const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
   return (
     // Hiển thị modal chi tiết khuyến mãi
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl md:max-w-2xl max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-xl md:max-w-2xl">
         <div className="relative mt-4">
-          <div className="w-full max-w-xl md:max-w-2xl mx-auto relative max-h-[40vh]"> 
+          <div className="w-full max-w-xl md:max-w-2xl mx-auto relative"> {/* Set max width */}
             <img
               src={promotion.image || Airplane}
               alt={promotion.title}
@@ -192,7 +192,7 @@ const QairlinePromotions = () => {
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#008080] mb-4">
-            Ưu đãi đặc biệt từ <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>QAirline</span>
+            Ưu đãi đặc biệt từ <span className = 'text-[#DAA520]'>Q</span><span className='text-[#008080]'>Airline</span>
 
           </h1>
           <p className="text-gray-600 max-w-4xl mx-auto text-xl">

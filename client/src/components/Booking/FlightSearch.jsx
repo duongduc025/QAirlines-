@@ -70,6 +70,11 @@ const FlightSearchPage = ({ onSubmit }) => {
       return;
     }
 
+    if (formData.departure_location === formData.destination) {
+      toast.error('Điểm khởi hành phải khác điểm đến');
+      return;
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const departureDate = new Date(formData.departure_date);
