@@ -39,13 +39,13 @@ const PromotionDetailModal = ({ promotion, isOpen, onClose }) => {
   return (
     // Hiển thị modal chi tiết khuyến mãi
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xl md:max-w-2xl">
-        <div className="relative mt-4">
-          <div className="w-full max-w-xl md:max-w-2xl mx-auto relative"> {/* Set max width */}
+      <DialogContent className="max-w-xl md:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="relative mt-4 h-[40vh]"> {/* Changed height here */}
+          <div className="w-full h-full max-w-xl md:max-w-2xl mx-auto relative">
             <img
               src={promotion.image || Airplane}
               alt={promotion.title}
-              className="w-full h-auto object-cover rounded-t-xl" 
+              className="w-full h-full object-cover rounded-t-xl" 
             />
             {promotion.mark !== "Khác" && (
               <div className="absolute top-6 right-6 bg-[#DAA520] text-white px-4 py-1 rounded-full font-bold">
