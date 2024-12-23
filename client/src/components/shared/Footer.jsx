@@ -34,9 +34,9 @@ const Footer = () => {
     return (
       <footer className="pt-10 pb-10 pl-5">
         <div className='bg-white'>
-        <div className='flex items-center justify-center mx-auto max-w-7xl flex-col'>
+        <div className='flex items-center justify-between mx-auto max-w-7xl flex-col'>
         <div className="container">
-          <div className="flex justify-center flex-col md:flex-row flex-wrap gap-[30px]">
+          <div className="flex justify-between flex-col md:flex-row flex-wrap gap-[30px]">
             <div>
               
             <div className="flex items-center gap-2"> 
