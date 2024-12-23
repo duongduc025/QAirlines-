@@ -11,8 +11,8 @@ const QAirlineIntro = () => {
 
   return (
     <div className="container mx-auto px-6 -mt-24 relative z-10 pt-20">
-      <div className="bg-white rounded-xl shadow-2xl p-12 border">
-        <div className="text-center mb-16 max-w-3xl mx-auto">
+      <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-12 border">
+        <div className="text-center mb-8 sm:mb-16 max-w-3xl mx-auto">
           <h2 className="text-4xl font-bold text-[#008080] bg-clip-text mb-6">
             Chào mừng đến với <span className="text-[#DAA520]">Q</span>Airline
           </h2>
@@ -21,11 +21,11 @@ const QAirlineIntro = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 mb-8 sm:mb-16">
           {stats.map((stat, index) => (
             <div key={index} 
-                 className="relative overflow-hidden group rounded-2xl p-8 bg-white hover:bg-gradient-to-br hover:from-[#008080] hover:to-[#006666] transition-all duration-300 shadow-lg hover:shadow-xl">
-              <div className="flex flex-col items-center space-y-4">
+                 className="relative overflow-hidden group rounded-2xl p-4 sm:p-8 bg-white hover:bg-gradient-to-br hover:from-[#008080] hover:to-[#006666] transition-all duration-300 shadow-lg hover:shadow-xl">
+              <div className="flex flex-col items-center space-y-2 sm:space-y-4">
                 <div className="text-[#DAA520] group-hover:text-white transition-colors duration-300">
                   {stat.icon}
                 </div>
@@ -40,8 +40,8 @@ const QAirlineIntro = () => {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12">
-          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-12">
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-8 hover:shadow-xl transition-all duration-300">
             <h3 className="text-2xl font-bold text-[#008080] mb-6 flex items-center gap-3">
               <Shield className="h-6 w-6 text-[#DAA520]" />
               Cam kết của chúng tôi
@@ -58,7 +58,7 @@ const QAirlineIntro = () => {
             </ul>
           </div>
           
-          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-4 sm:p-8 hover:shadow-xl transition-all duration-300">
             <h3 className="text-2xl font-bold text-[#008080] mb-6 flex items-center gap-3">
               <Award className="h-6 w-6 text-[#DAA520]" />
               Dịch vụ nổi bật

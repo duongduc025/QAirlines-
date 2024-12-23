@@ -370,6 +370,15 @@ const Navbar = () => {
             {/* Mobile Menu Overlay */}
             {isMobileMenuOpen && (
                 <div className='fixed inset-0 bg-white z-50 xl:hidden'>
+                    {/* Add close button */}
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="absolute top-4 right-4"
+                        onClick={toggleMobileMenu}
+                    >
+                        <X className="h-6 w-6" />
+                    </Button>
                     <div className='container mx-auto px-4 pt-16'>
                         {/* Mobile Navigation Links */}
                         <ul className='space-y-4'>

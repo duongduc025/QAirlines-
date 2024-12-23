@@ -38,7 +38,7 @@ const HeroSection = () => {
           {/* Main Heading */}
           <h1 
             className={`
-              text-5xl md:text-6xl font-bold mb-6 text-white
+              text-4xl md:text-6xl font-bold mb-6 text-white
               transform transition-all duration-1000
               ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'}
             `}
